@@ -11,7 +11,7 @@ set $up k
 set $right l
 
 # background
-set $background /usr/share/backgrounds/sway/atlas-ark-1970.png
+set $background /usr/share/backgrounds/22.jpg
 
 # styles - matcha-green or matcha-blue
 set $theme /usr/share/sway/themes/matcha-green
