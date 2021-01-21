@@ -1,0 +1,60 @@
+# alias soundbot="cd ~/Soundbot"
+#FIXME something isn't working right with zita-a2j/j2a ---
+#test
+alias wmic="zita-a2j -j 'wmic' -d 'hw:Headset,0' -c 1"
+alias powermic="zita-a2j -j 'powermic' -d 'hw:PowerMicIINS' -c 1"
+alias cammic="zita-a2j -j 'cammic' -d 'hw:CinemaTM' -c 1"
+alias speechmike="zita-a2j -j speechmike -d hw:4 -r 22050 -c 1"
+alias headphones="zita-j2a -j 'headphones' -d 'hw:Headset'"
+
+alias start="jack_control start && a2j_control start"
+alias pulse="pulseaudio --start"
+alias killpulse="pulseaudio --kill"
+alias listinputs="sudo libinput list-devices"
+alias stoppulse="systemctl --user stop pulseaudio.service && systemctl --user stop pulseaudio.socket"
+alias startpulse="systemctl --user start pulseaudio.service"
+
+alias h="history 1"
+
+alias cp="cp -i"                          # confirm before overwriting something
+alias mv="mv -i"                          # confirm before overwriting something
+alias df='df -h'                          # human-readable sizes
+alias free='free -m'                      # show sizes in MB
+alias np='nano -w PKGBUILD'
+alias more=less
+
+command -v exa       &> /dev/null    && alias ls='exa --group --git --group-directories-first'
+command -v exa       &> /dev/null    && alias ll="ls -lasnew"
+
+alias nocomment='grep -v "^\($\|#\)"'
+
+alias service='sudo systemctl'
+alias checklog='sudo journalctl -S today | lnav'
+alias taillog='sudo journalctl -f | lnav'
+
+alias netlog='journalctl -b -o short-monotonic --no-hostname -u systemd-udevd -u systemd-networkd -f'
+
+alias fileperms="find . -type f -exec chmod 0664 {} +"
+alias dirperms="find . -type d -exec chmod 2775 {} +"
+
+alias man="PAGER='most' man "
+alias awman="PAGER='most' awman"
+
+alias info="pamac info"
+alias search="pacman -Ss"
+
+alias p="sudo ping -c 4 google.com"
+
+alias commit="git commit -am"
+alias gfp="git fetch && git pull"
+alias st="git status"
+
+alias cat="bat"
+
+alias kittyssh="kitty +kitten ssh"
+
+#turn off pcspkr
+alias beepoff="rmmod pcspkr"
+
+alias e="$EDITOR"
+alias d='dig +nocmd +multiline +noall +answer'
