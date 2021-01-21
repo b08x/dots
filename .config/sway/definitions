@@ -89,3 +89,5 @@ set $ws9 "9"
 set $ws10 "10"
 set $ws_notes "notes"
 set $ws_atom "atom"
+
+set $azote "~/.azotebg"

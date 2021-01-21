@@ -31,8 +31,8 @@
   "exception-reporting":
     userId: "1c9f7922-6af5-4f3f-ae94-feff13cf198f"
   "file-types":
-    "**/.config/sway/*": "source.shell"
-    "**/config.d/*": "source.shell"
+    "**/.config/sway/**": "source.shell"
+    "**/.config.d/*": "source.shell"
     "*.cfg": "source.shell"
     "*.conf": "source.shell"
     "*.j2": "source.ansible-advanced"

@@ -1,0 +1,44 @@
+function runtest() {
+  #run an ansible related thing
+  PLAYBOOK="$ANSIBLE_HOME/dev.yml"
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK
+}
+
+function listtags()
+{
+  PLAYBOOK="$ANSIBLE_HOME/soundbot.yml"
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK --list-tags
+}
+
+function listtasks()
+{
+  PLAYBOOK="$ANSIBLE_HOME/soundbot.yml"
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK --list-tasks
+}
+
+function runtag() {
+  #run an ansible related thing
+  PLAYBOOK="$ANSIBLE_HOME/soundbot.yml"
+  TAGS=$1
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK --tags $TAGS
+}
+
+function starttask() {
+  #run an ansible related thing
+  PLAYBOOK="$ANSIBLE_HOME/soundbot.yml"
+  TASK=$1
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK --start-at-task $TASK
+}
+
+function setloglevel() {
+  #run an ansible related thing
+  PLAYBOOK="$ANSIBLE_HOME/soundbot.yml"
+  LEVEL=$1
+
+  ansible-playbook -v --connection=local -i $HOSTNAME, $PLAYBOOK --tags logging -e "journal_level=$LEVEL"
+}

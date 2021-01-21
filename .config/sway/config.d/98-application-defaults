@@ -20,3 +20,10 @@ for_window [app_id="wdisplays"] floating enable
 for_window [app_id="firefox"] inhibit_idle fullscreen
 for_window [app_id="Chromium"] inhibit_idle fullscreen
 for_window [app_id="firefoxdeveloperedition"] inhibit_idle fullscreen
+
+# reaper stuff
+for_window [title="^Add FX"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
+for_window [title="^VST"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
+for_window [title="(?i)IEM"] floating enable, resize set 23 ppt 30 ppt, border pixel 1
+for_window [title="(?i)JS" instance="REAPER"] floating enable, resize set 23 ppt 30 ppt, border pixel 1
+for_window [title="(?i)RS5K"] floating enable, resize set 23 ppt 30 ppt, border pixel 1
