@@ -10,4 +10,4 @@
 include $theme/definitions
 
 # Default wallpaper
-output * bg #00000 fill
+output * bg $background fill
