@@ -7,7 +7,6 @@ Manjaro Sway Edition
 
 .SH SHORTCUTS
 
-
 .SH UTILS
 
 .B yay
