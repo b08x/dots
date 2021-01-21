@@ -1,0 +1,72 @@
+"*":
+  "atom-beautify":
+    executables:
+      beautysh: {}
+  "autocomplete-plus":
+    confirmCompletion: "tab always, enter when suggestion explicitly selected"
+    minimumWordLength: 1
+  "autocomplete-ruby":
+    rsensePath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/rsense"
+    suggestionPriority: true
+  core:
+    disabledPackages: [
+      "language-gfm"
+      "spell-check"
+      "language-shellscript"
+    ]
+    projectHome: "/home/b08x/Worksapces"
+    telemetryConsent: "no"
+    themes: [
+      "one-dark-ui"
+      "dark-bint-syntax"
+    ]
+  editor:
+    autoIndentOnPaste: false
+    defaultFontSize: 12
+    fontFamily: "Hack Nerd Font"
+    fontSize: 15
+    preferredLineLength: 120
+    softWrap: true
+    softWrapAtPreferredLineLength: true
+  "exception-reporting":
+    userId: "1c9f7922-6af5-4f3f-ae94-feff13cf198f"
+  "file-types":
+    "**/.config/sway/*": "source.shell"
+    "**/config.d/*": "source.shell"
+    "*.cfg": "source.shell"
+    "*.conf": "source.shell"
+    "*.j2": "source.ansible-advanced"
+    "*.rules": "source.shell"
+    "*.yml": "source.ansible-advanced"
+    "*config": "source.shell"
+    ".zsh*": "source.shell"
+  "markdown-preview": {}
+  "markdown-writer":
+    fileExtension: ".md"
+    siteEngine: "jekyll"
+  "one-dark-ui":
+    stickyHeaders: true
+  "open-terminal-here":
+    command: "terminator"
+  "platformio-ide-terminal":
+    ansiColors:
+      normal:
+        blue: "#2121e4"
+      zBright:
+        brightBlack: "#000000"
+        brightBlue: "#3131fb"
+    core:
+      workingDirectory: "Active File"
+    iconColors:
+      blue: "#2c2cea"
+    style:
+      fontFamily: "Hack Nerd Font"
+      theme: "homebrew"
+    toggles:
+      autoClose: true
+  "ruby-solargraph":
+    commandPath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/solargraph"
+  "tool-bar":
+    visible: false
+  welcome:
+    showOnStartup: false

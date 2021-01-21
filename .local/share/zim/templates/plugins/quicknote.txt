@@ -1,0 +1,11 @@
+======= [% strftime("%d%m:%H%M") %][% text %]
+[% IF url -%]
+Source: [% url %]
+[% END -%]
+
+put tags here
+begin text here
+
+{{{code: lang="sh" linenumbers="False"
+
+}}}

@@ -1,0 +1,20 @@
+# This is Git's per-user configuration file.
+[user]
+# Please adapt and uncomment the following lines:
+	name = b08x
+	email = rwpannick@gmail.com
+[color]
+	ui = auto
+[pull]
+	rebase = false
+[merge]
+	tool = meld
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	editor = nvim
+[init]
+	defaultBranch = main

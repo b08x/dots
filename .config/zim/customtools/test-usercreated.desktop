@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=X-Zim-CustomTool
+Version=1.0
+GenericName=
+Name=test
+Comment=opens a terminal in the doc dir
+Exec=
+TryExec=
+Icon=/home/b08x/Pictures/ia9dfi2iu1u51.png
+MimeType=
+Terminal=false
+NoDisplay=false
+X-Zim-ExecTool=terminator --working-directory=%n
+X-Zim-ReadOnly=false
+X-Zim-ShowInToolBar=true
+X-Zim-ShowInContextMenu=None
+X-Zim-ReplaceSelection=false
+
