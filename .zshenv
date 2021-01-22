@@ -48,3 +48,4 @@ export TERMINAL_COMMAND='/usr/share/sway/scripts/terminal.sh'
 export ANSIBLE_CONFIG="$HOME/Workspace/ansible/ansible.cfg"
 export ANSIBLE_HOME="$HOME/Workspace/ansible"
 export ANSIBLE_HOSTS="$ANSIBLE_HOME/hosts"
+export HOSTNAME=$(hostnamectl --static)
