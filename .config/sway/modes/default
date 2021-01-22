@@ -19,6 +19,10 @@ bindsym $mod+g exec $term -e googler
 bindsym $mod+Shift+g exec $term -e googler --from 2020
 
 bindcode $mod+$KP_Enter exec $term -e ranger
+
+# https://www.reddit.com/r/i3wm/comments/bg1qd9/keybinding_execute_and_mark_at_the_same_time/eli56mj?utm_source=share&utm_medium=web2x&context=3
+bindsym $mod+Insert exec zim --plugin quicknote, exec "sleep 1 && swaymsg mark quicknote"
+
 # Drag floating windows by holding down $mod and left mouse button.
 # Resize them with right mouse button + $mod.
 # Despite the name, also works for non-floating windows.
@@ -144,6 +148,9 @@ bindsym $mod+space focus mode_toggle
 
 ## Navigation // Swap focus to the parent window ##
 bindsym $mod+a focus parent
+
+# Make the current focus fullscreen
+bindsym $mod+f fullscreen
 
 ## Launch // Help ##
 bindsym $mod+question exec $help

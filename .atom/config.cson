@@ -31,8 +31,8 @@
   "exception-reporting":
     userId: "1c9f7922-6af5-4f3f-ae94-feff13cf198f"
   "file-types":
-    "**/.config/sway/**": "source.shell"
     "**/.config.d/*": "source.shell"
+    "**/.config/sway/**": "source.shell"
     "*.cfg": "source.shell"
     "*.conf": "source.shell"
     "*.j2": "source.ansible-advanced"
@@ -65,7 +65,7 @@
     toggles:
       autoClose: true
   "ruby-solargraph":
-    commandPath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/solargraph"
+    commandPath: "/usr/bin/solargraph"
   "tool-bar":
     visible: false
   welcome:
