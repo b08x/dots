@@ -28,12 +28,15 @@ fi
 
 unset _old_path
 
+
 export LIBVA_DRIVER_NAME=v4l2_request
 export LIBVA_V4L2_REQUEST_VIDEO_PATH=/dev/video1
 export MOZ_ENABLE_WAYLAND=1
 export MOZ_DBUS_REMOTE=1
 export GTK_CSD=0
 export _JAVA_AWT_WM_NONREPARENTING=1
+export SDL_VIDEODRIVER=wayland
+export NO_AT_BRIDGE=1
 
 # qt wayland
 export QT_QPA_PLATFORM="wayland"
@@ -57,24 +60,24 @@ export VAMP_PATH="$HOME/vamp"
 
 #!/usr/bin/env zsh
 
-[[ "$TTY" == /dev/tty* ]] || return 0
+#[[ "$TTY" == /dev/tty* ]] || return 0
 
-export $(systemctl --user show-environment)
+#export $(systemctl --user show-environment)
 
-export GPG_TTY="$TTY"
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
+#export GPG_TTY="$TTY"
+#export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 
-systemctl --user import-environment GPG_TTY SSH_AUTH_SOCK
+#systemctl --user import-environment GPG_TTY SSH_AUTH_SOCK
 
-if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
-    export DESKTOP_SESSION=sway
-    systemd-cat -t sway sway
-    systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-fi
+#if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
+#    export DESKTOP_SESSION=sway
+#    systemd-cat -t sway sway
+    #systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+#fi
 
-if [ -n "$DESKTOP_SESSION" ];then
-    eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-    export SSH_AUTH_SOCK
-fi
+#if [ -n "$DESKTOP_SESSION" ];then
+#    eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+#    export SSH_AUTH_SOCK
+#fi
 #eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 #export SSH_AUTH_SOCK
