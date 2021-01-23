@@ -52,7 +52,7 @@
 
 /* The whole bar */
 #waybar {
-    background: @background_color;
+    background: transparent;
     color: @text_color;
     font-size: 14px;
 }
@@ -60,7 +60,6 @@
 /* Each module */
 #custom-pacman,
 #custom-menu,
-#bluetooth,
 #battery,
 #clock,
 #cpu,
@@ -203,9 +202,5 @@
 }
 
 #custom-pacman {
-    color: @warning_color;
-}
-
-#bluetooth.disabled {
     color: @warning_color;
 }

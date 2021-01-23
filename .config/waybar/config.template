@@ -26,7 +26,6 @@
     ],
     "modules-right": [
         "network",
-        "bluetooth",
         "cpu",
         "memory",
         "battery",
@@ -98,7 +97,7 @@
         "format-ethernet": "󰈀 {ifname}", // Icon: ethernet
         "format-disconnected": "󱘖",
         "tooltip-format": "{ifname}: {ipaddr}",
-        "on-click": "swaymsg exec \\$term_float nmtui"
+        "on-click": "swaymsg exec \\$shownetwork ifconfig"
     },
 
     "sway/mode": {
@@ -179,16 +178,5 @@
         "format": "󱘊",
         "on-click": "swaymsg exec \\$menu",
         "tooltip": false
-    },
-
-    "bluetooth": {
-        "format": "{icon}",
-        "interval": 30,
-        "format-icons": {
-            "enabled": "󰂯",
-            "disabled": "󰂲"
-        },
-        "on-click": "blueman",
-        "tooltip-format": "{status}"
     }
 }

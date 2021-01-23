@@ -21,6 +21,8 @@ set $term termite --config=$theme/termite
 set $term_float_portrait $term --name=floating_shell_portrait --exec
 set $term_float $term --name=floating_shell --exec
 
+set $shownetwork $term --name=floating_shell --hold --exec
+
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.

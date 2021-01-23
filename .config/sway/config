@@ -5,18 +5,18 @@
 # Read `man 5 sway` for a complete reference.
 
 # global variables
-include $HOME/.config/sway/definitions
+include definitions
 
-include $HOME/.config/sway/inputs/*
-include $HOME/.config/sway/outputs/*
+include inputs/*
+include outputs/*
 
 # enable modes
-include $HOME/.config/sway/modes/*
+include modes/*
 
 # Load host-specific configs
-include "~/.config/sway/$(cut -d'-' -f1 /etc/hostname).conf"
+include "$(cut -d'-' -f1 /etc/hostname).conf"
 # only enable this if every app you use is compatible with wayland
 # xwayland disable
 
 # include additional configs e.g. to autostart applications
-include $HOME/.config/sway/config.d/*
+include config.d/*

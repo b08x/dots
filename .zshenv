@@ -51,5 +51,28 @@ export ANSIBLE_HOME="$HOME/Workspace/ansible"
 export ANSIBLE_HOSTS="$ANSIBLE_HOME/hosts"
 export HOSTNAME=$(hostnamectl --static)
 
+export PAGER=less
+
+#!/usr/bin/env zsh
+
+[[ "$TTY" == /dev/tty* ]] || return 0
+
+export $(systemctl --user show-environment)
+
+export GPG_TTY="$TTY"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
+
+systemctl --user import-environment GPG_TTY SSH_AUTH_SOCK
+
+if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
+    export DESKTOP_SESSION=sway
+    systemd-cat -t sway sway
+    systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+fi
+
+if [ -n "$DESKTOP_SESSION" ];then
+    eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+    export SSH_AUTH_SOCK
+fi
 #eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
 #export SSH_AUTH_SOCK
