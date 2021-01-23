@@ -18,5 +18,5 @@ exec_always {
 }
 
 exec_always --no-startup-id swaymsg 'exec $azote'
-exec --no-startup-id swaymsg 'exec radiotray-ng'
-exec --no-startup-id swaymsg 'exec guake'
+#exec --no-startup-id swaymsg 'exec radiotray-ng'
+#exec --no-startup-id swaymsg 'exec guake'

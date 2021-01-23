@@ -28,7 +28,7 @@ set $shownetwork $term --name=floating_shell --hold --exec
 # on the original workspace that the command was run on.
 # set $menu exec $term_float_portrait wofi --show drun --allow-images -i -O alphabetical --term $term
 
-set $menu wofi --show drun --allow-images -i -O alphabetical --term $term
+set $menu wofi --show drun --allow-images -i -O alphabetical --term terminator
 
 ### Lockscreen configuration
 #

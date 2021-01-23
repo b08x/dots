@@ -95,6 +95,7 @@
 ; (gtk_accel_path "<Actions>/MainWindow/open_page_next" "<Alt>Page_Down")
 ; (gtk_accel_path "<Actions>/PageView/insert_bullet_list" "")
 ; (gtk_accel_path "<Actions>/MainWindow/search_menu" "")
+; (gtk_accel_path "<Actions>/SpellPageViewExtension/toggle_spellcheck" "F7")
 ; (gtk_accel_path "<Actions>/UIActions/show_about" "")
 ; (gtk_accel_path "<Actions>/PageView/apply_format_strike" "<Primary>k")
 ; (gtk_accel_path "<Actions>/MainWindow/set_toolbar_icon_size_large" "")
