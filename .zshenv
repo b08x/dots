@@ -49,3 +49,6 @@ export ANSIBLE_CONFIG="$HOME/Workspace/ansible/ansible.cfg"
 export ANSIBLE_HOME="$HOME/Workspace/ansible"
 export ANSIBLE_HOSTS="$ANSIBLE_HOME/hosts"
 export HOSTNAME=$(hostnamectl --static)
+
+#eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+#export SSH_AUTH_SOCK
