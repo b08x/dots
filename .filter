@@ -1,0 +1,14 @@
++ .gnupg/
++ .kp/
++ .ssh/
+#+ /include_this_dir/**
+#+ /include_that_dir/
+- .*
+#- .*/**
+#- Archive/
+- Notes/
+- Desktop/
+- go/
+- Workspace/
+- Downloads/
+- tmp/

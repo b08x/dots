@@ -58,3 +58,5 @@ alias beepoff="rmmod pcspkr"
 
 alias e="$EDITOR"
 alias d='dig +nocmd +multiline +noall +answer'
+
+alias cpup="sudo cpupower -c all frequency-set -g performance"

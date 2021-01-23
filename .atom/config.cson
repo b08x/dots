@@ -1,7 +1,8 @@
 "*":
   "atom-beautify":
     executables:
-      beautysh: {}
+      beautysh:
+        path: "/usr/bin/beautysh"
   "autocomplete-plus":
     confirmCompletion: "tab always, enter when suggestion explicitly selected"
     minimumWordLength: 1
