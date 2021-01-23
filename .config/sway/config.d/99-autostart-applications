@@ -2,7 +2,7 @@
 exec $idle
 
 # autostart background applications
-exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec swaymsg 'exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
 exec mako
 
 # optional autostarts
