@@ -1,5 +1,5 @@
 # ensure dotfiles bin directory is loaded first
-PATH="$HOME/.bin:/usr/local/sbin:$PATH"
+PATH="$HOME/.bin:$HOME/.local/bin:/usr/local/sbin:$PATH"
 
 # Try loading ASDF from the regular home dir location
 if [ -f "$HOME/.asdf/asdf.sh" ]; then
@@ -11,6 +11,6 @@ elif which brew >/dev/null &&
 fi
 
 # mkdir .git/safe in the root of repositories you trust
-PATH=".git/safe/../../bin:$PATH"
+#PATH=".git/safe/../../bin:$PATH"
 
 export -U PATH

@@ -53,6 +53,8 @@ export HOSTNAME=$(hostnamectl --static)
 
 export PAGER=less
 
+export VAMP_PATH="$HOME/vamp"
+
 #!/usr/bin/env zsh
 
 [[ "$TTY" == /dev/tty* ]] || return 0
