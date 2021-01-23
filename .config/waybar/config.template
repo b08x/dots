@@ -188,7 +188,7 @@
             "enabled": "󰂯",
             "disabled": "󰂲"
         },
-        "on-click": "blueberry",
+        "on-click": "blueman",
         "tooltip-format": "{status}"
     }
 }

@@ -42,7 +42,8 @@ export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 
 # set default shell and terminal
 export SHELL=/usr/bin/zsh
-export TERM=kitty
+export TERM=xterm-termite
+export TERMINAL="terminator -e"
 export TERMINAL_COMMAND='/usr/share/sway/scripts/terminal.sh'
 
 export ANSIBLE_CONFIG="$HOME/Workspace/ansible/ansible.cfg"
