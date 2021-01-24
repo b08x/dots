@@ -15,9 +15,23 @@ input * {
   xkb_options compose:ralt,caps:escape
 }
 
+input "1:1:AT_Translated_Set_2_keyboard" {
+  xkb_model latitude
+  xkb_variant symbolic
+}
 input "1133:49944:Logitech_Logitech_Illuminated_Keyboard" {
    xkb_layout us
    xkb_options compose:ralt,caps:escape
+   xkb_model logitech_base
+   repeat_rate 10
+   repeat_delay 300
+}
+
+input "16700:8467:Dell_KB216_Wired_Keyboard" {
+   xkb_layout us
+   xkb_variant "colemak,,typewriter"
+   xkb_options compose:ralt,caps:escape
+   xkb_model dellusbmm
    repeat_rate 10
    repeat_delay 300
 }
