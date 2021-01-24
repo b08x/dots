@@ -12,5 +12,6 @@ fi
 
 # mkdir .git/safe in the root of repositories you trust
 #PATH=".git/safe/../../bin:$PATH"
+PATH="$PATH:$HOME/.cargo/bin"
 
 export -U PATH

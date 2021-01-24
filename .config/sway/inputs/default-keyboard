@@ -29,7 +29,6 @@ input "1133:49944:Logitech_Logitech_Illuminated_Keyboard" {
 
 input "16700:8467:Dell_KB216_Wired_Keyboard" {
    xkb_layout us
-   xkb_variant "colemak,,typewriter"
    xkb_options compose:ralt,caps:escape
    xkb_model dellusbmm
    repeat_rate 10

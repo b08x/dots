@@ -11,10 +11,10 @@ Manjaro Sway Edition
 
 
 .B Kill focused window:
-.I Super + Shift + q
+.I $mod + Shift + q
 
 .B Reload Sway Configuration:
-.I Super + Shift + c
+.I $mod + Shift + c
 
 .B Increase volume of Master:
 .I Volume+
@@ -32,79 +32,64 @@ Manjaro Sway Edition
 .I Brightness-
 
 .B Move focussed window to workspace:
-.I Super + Shift + [number]
+.I $mod + Shift + [number]
 
 .B Switch to window stacking:
-.I Super + s
+.I $mod + s
 
 .B Switch to window tabbing:
-.I Super + w
+.I $mod + w
 
 .B Toggle window splitting:
-.I Super + e
+.I $mod + e
 
 .B Toggle fullscreen:
-.I Super + f
+.I $mod + f
 
 .B Toggle floating:
-.I Super + Shift + space
-
-.B Move the currently focused window to the scratchpad:
-.I Super + Shift + minus
-
-.B Show the next scratchpad window or hide the focused scratchpad window.:
-.I Super + minus
+.I $mod + Shift + space
 
 .SS Launch
 
 
 .B Terminal:
-.I Super + Return
+.I $mod + Return
 
 .B Launcher:
-.I Super + d
+.I $mod + d
 
 .B Exit Menu:
-.I Super + Shift + e
+.I $mod + Shift + e
 
 .B Help:
-.I Super + question
-
-.B Recording Mode:
-.I Super + Shift + r
-
-.B Resize Mode:
-.I Super + r
-
-.B Screenshot Mode:
-.I Super + Shift + s
+.I $mod + question
 
 .SS Navigation
 
 
 .B Move focus:
-.I Super + ↑ ↓ ← →
+.I $mod + ↑ ↓ ← →
 
 .B Move focussed window:
-.I Super + Shift + ↑ ↓ ← →
+.I $mod + Shift + ↑ ↓ ← →
 
 .B Switch workspace:
-.I Super + [number]
+.I $mod + [number]
 
 .B Swap focus between the tiling area and the floating area:
-.I Super + space
+.I $mod + space
 
 .B Swap focus to the parent window:
-.I Super + a
+.I $mod + a
 
 .SS Setting
 
 
 .B Split windows horizontally:
-.I Super + b
+.I $mod + b
 
 .B Split windows vertically:
-.I Super + v
+.I $mod + v
 
 .SH UTILS
 

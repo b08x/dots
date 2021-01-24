@@ -67,6 +67,8 @@
       autoClose: true
   "ruby-solargraph":
     commandPath: "/usr/bin/solargraph"
+  "sb-atom-sonic-pi":
+    sendOSCMessagesToGUI: true
   "tool-bar":
     visible: false
   welcome:

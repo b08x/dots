@@ -14,6 +14,7 @@ bindsym Multi_key exec $menu
 
 bindsym $mod+Home exec opera
 #bindsym grave exec swaymsg 'exec guake-toggle'
+bindsym $mod+grave exec swaymsg 'exec guake-toggle'
 bindsym F12 exec swaymsg 'exec guake-toggle'
 
 bindsym $mod+g exec $term -e googler

@@ -21,7 +21,7 @@ for_window [app_id="firefox"] inhibit_idle fullscreen
 for_window [app_id="Chromium"] inhibit_idle fullscreen
 for_window [app_id="firefoxdeveloperedition"] inhibit_idle fullscreen
 
-for_window [app_id="guake"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
+for_window [app_id="guake"] floating enable
 
 for_window [class="(?i)zim"] border pixel 1
 for_window [con_mark="^quicknote$"] floating enable, resize set 480 720, move position left, focus

@@ -28,7 +28,9 @@ set $shownetwork $term --name=floating_shell --hold --exec
 # on the original workspace that the command was run on.
 # set $menu exec $term_float_portrait wofi --show drun --allow-images -i -O alphabetical --term $term
 
-set $menu wofi --show drun --allow-images -i -O alphabetical --term terminator
+# set $menu wofi --show drun --allow-images -i -O alphabetical --term terminator
+
+set $menu swaymsg 'exec sgtk-menu -c -af appendix -fn 5 -s 22 -o 0.5 -t 20'
 
 ### Lockscreen configuration
 #
@@ -42,7 +44,7 @@ set $locking swaylock --daemonize --config $theme/swaylock
 set $idle swayidle -w \
     timeout 240 'light -G > /tmp/brightness && light -S 10' resume 'light -S $([ -f /tmp/brightness ] && cat /tmp/brightness || echo 100%)' \
     timeout 300 'exec $locking' \
-    timeout 600 'swaymsg "output * dpms off"' \
+    timeout 3600 'swaymsg "output * dpms off"' \
     resume 'swaymsg "output * dpms on"' \
     before-sleep 'exec $locking'
 
