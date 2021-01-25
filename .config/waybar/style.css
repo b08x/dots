@@ -52,7 +52,7 @@
 
 /* The whole bar */
 #waybar {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.84);
     color: @text_color;
     font-size: 14px;
 }

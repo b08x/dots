@@ -28,26 +28,28 @@ fi
 
 unset _old_path
 
+if [[ p$XDG_SESSION_TYPE == wayland ]]; then
 
-export LIBVA_DRIVER_NAME=v4l2_request
-export LIBVA_V4L2_REQUEST_VIDEO_PATH=/dev/video1
-export MOZ_ENABLE_WAYLAND=1
-export MOZ_DBUS_REMOTE=1
-export GTK_CSD=0
-export _JAVA_AWT_WM_NONREPARENTING=1
-export SDL_VIDEODRIVER=wayland
-export NO_AT_BRIDGE=1
+  export LIBVA_DRIVER_NAME=v4l2_request
+  export LIBVA_V4L2_REQUEST_VIDEO_PATH=/dev/video1
+  export MOZ_ENABLE_WAYLAND=1
+  export MOZ_DBUS_REMOTE=1
+  export GTK_CSD=0
+  export _JAVA_AWT_WM_NONREPARENTING=1
+  export SDL_VIDEODRIVER=wayland
+  export NO_AT_BRIDGE=1
 
-# qt wayland
-export QT_QPA_PLATFORM="wayland"
-export QT_QPA_PLATFORMTHEME=qt5ct
-export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+  # qt wayland
+  export QT_QPA_PLATFORM="wayland"
+  export QT_QPA_PLATFORMTHEME=qt5ct
+  export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 
-# set default shell and terminal
-export SHELL=/usr/bin/zsh
-export TERM=xterm-termite
-export TERMINAL="terminator -e"
-export TERMINAL_COMMAND='/usr/share/sway/scripts/terminal.sh'
+  # set default shell and terminal
+  export SHELL=/usr/bin/zsh
+  export TERM=xterm-termite
+  export TERMINAL="terminator -e"
+  export TERMINAL_COMMAND='/usr/share/sway/scripts/terminal.sh'
+fi
 
 export ANSIBLE_CONFIG="$HOME/Workspace/ansible/ansible.cfg"
 export ANSIBLE_HOME="$HOME/Workspace/ansible"
@@ -57,27 +59,3 @@ export HOSTNAME=$(hostnamectl --static)
 export PAGER=less
 
 export VAMP_PATH="$HOME/vamp"
-
-#!/usr/bin/env zsh
-
-#[[ "$TTY" == /dev/tty* ]] || return 0
-
-#export $(systemctl --user show-environment)
-
-#export GPG_TTY="$TTY"
-#export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
-
-#systemctl --user import-environment GPG_TTY SSH_AUTH_SOCK
-
-#if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
-#    export DESKTOP_SESSION=sway
-#    systemd-cat -t sway sway
-    #systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-#fi
-
-#if [ -n "$DESKTOP_SESSION" ];then
-#    eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-#    export SSH_AUTH_SOCK
-#fi
-#eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
-#export SSH_AUTH_SOCK
