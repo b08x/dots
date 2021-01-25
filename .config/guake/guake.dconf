@@ -3,11 +3,11 @@ compat-delete='delete-sequence'
 display-n=0
 display-tab-names=0
 gtk-prefer-dark-theme=true
-gtk-theme-name='Matcha-aliz'
+gtk-theme-name='vimix-dark'
 history-size=1000
 infinite-history=true
 max-tab-name-length=100
-mouse-display=false
+mouse-display=true
 new-tab-after=true
 open-tab-cwd=true
 prompt-on-quit=true
@@ -20,33 +20,41 @@ save-tabs-when-changed=false
 scroll-keystroke=true
 tab-ontop=false
 use-default-font=false
+use-login-shell=false
 use-popup=true
-use-scrollbar=true
+use-scrollbar=false
 use-trayicon=false
-window-halignment=0
-window-height=44
-window-losefocus=false
+use-vte-titles=false
+window-halignment=1
+window-height=95
+window-horizontal-displacement=0
+window-losefocus=true
+window-ontop=false
 window-refocus=false
 window-tabbar=true
-window-width=100
+window-vertical-displacement=0
+window-width=93
 
 [keybindings/global]
 show-focus='disabled'
 show-hide='disabled'
 
 [keybindings/local]
-focus-terminal-down='<Alt>Down'
-focus-terminal-left='<Alt>Left'
-focus-terminal-right='<Alt>Right'
-focus-terminal-up='<Alt>Up'
+close-tab='<Primary><Shift>w'
+decrease-height='KP_Multiply'
+focus-terminal-down='<Primary>Down'
+focus-terminal-left='<Primary>Left'
+focus-terminal-right='<Primary>Right'
+focus-terminal-up='<Primary>Up'
+increase-height='KP_Divide'
 split-tab-horizontal='<Primary><Shift>o'
 split-tab-vertical='<Primary><Shift>e'
 
 [style/background]
-transparency=90
+transparency=92
 
 [style/font]
 allow-bold=true
-palette='#000000000000:#cdcb00000000:#0000cdcb0000:#cdcbcdcb0000:#1e1a908fffff:#cdcb0000cdcb:#0000cdcbcdcb:#e5e2e5e2e5e2:#4ccc4ccc4ccc:#ffff00000000:#0000ffff0000:#ffffffff0000:#46458281b4ae:#ffff0000ffff:#0000ffffffff:#ffffffffffff:#ffffffffffff:#000000000000'
-palette-name='Xterm'
+palette='#1d0319b919b9:#dddd6f6f0000:#0000dddd6f6f:#6f6fdddd0000:#93d45c11cb17:#bae036d17925:#00006f6fdddd:#f2f2f2f2f2f2:#000000000000:#ffffb9b97474:#7474ffffb9b9:#b9b9ffff7474:#b9b97474ffff:#ffff7474b9b9:#7474b9b9ffff:#ffffffffffff:#3f5b669f8ccc:#1d0319b919b9'
+palette-name='Custom'
 style='Input Mono Narrow Semi-Condensed 10'

@@ -11,6 +11,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'https://github.com/dermusikman/sonicpi.vim.git'
 Plug 'preservim/nerdtree'
 
+let mapleader = "\<space>"
 
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
@@ -51,21 +52,20 @@ let g:sonicpi_stop = 'stop'
 let g:vim_redraw = 1
 
 " Window navigation
-noremap <A-Right> <C-w>l
-noremap <A-Left> <C-w>h
-noremap <A-Up> <C-w>k
-noremap <A-Down> <C-w>j
+nnoremap <A-Right> <C-w>l
+nnoremap <A-Left> <C-w>h
+nnoremap <A-Up> <C-w>k
+nnoremap <A-Down> <C-w>j
 
 map <F2> :NERDTreeToggle<cr>
-
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-"inoremap <silent><expr> <TAB>
-"      \ pumvisible() ? "\<C-n>" :
-"      \ <SID>check_back_space() ? "\<TAB>" :
-"      \ coc#refresh()
-"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 "set runtimepath^=~/.vim runtimepath+=~/.vim/after
 "let &packpath = &runtimepath

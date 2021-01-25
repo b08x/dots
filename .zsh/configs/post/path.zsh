@@ -14,4 +14,7 @@ fi
 #PATH=".git/safe/../../bin:$PATH"
 PATH="$PATH:$HOME/.cargo/bin"
 
+#WARNING:  You don't have /home/b08x/.gem/ruby/2.7.0/bin in your PATH,
+#	  gem executables will not run.
+PATH="$PATH:$HOME/.gem/ruby/2.7.0/bin"
 export -U PATH

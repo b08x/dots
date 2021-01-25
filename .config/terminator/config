@@ -3,11 +3,13 @@
 [keybindings]
 [profiles]
   [[default]]
+    background_darkness = 0.0
     background_type = transparent
     cursor_color = "#aaaaaa"
     font = FreeMono 10
     scrollback_infinite = True
     use_system_font = False
+    background_alpha = 0.1
 [layouts]
   [[default]]
     [[[window0]]]

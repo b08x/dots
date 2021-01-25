@@ -13,10 +13,5 @@ include outputs/*
 # enable modes
 include modes/*
 
-# Load host-specific configs
-#include "$(cut -d'-' -f1 /etc/hostname).conf"
-# only enable this if every app you use is compatible with wayland
-# xwayland disable
-
 # include additional configs e.g. to autostart applications
 include config.d/*

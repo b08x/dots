@@ -9,16 +9,16 @@
 #}
 
 input * {
-  xkb_model us
+  xkb_model pc101
   xkb_numlock enable
-  #xkb_options caps:menu
-  xkb_options compose:ralt,caps:escape
+  xkb_options compose:ralt,caps:hyper
 }
 
-input "1:1:AT_Translated_Set_2_keyboard" {
-  xkb_model latitude
-  xkb_variant symbolic
-}
+#input "1:1:AT_Translated_Set_2_keyboard" {
+#  xkb_model 
+#  xkb_variant symbolic
+#}
+
 input "1133:49944:Logitech_Logitech_Illuminated_Keyboard" {
    xkb_layout us
    xkb_options compose:ralt,caps:escape
