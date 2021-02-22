@@ -9,7 +9,4 @@
 # import theme
 include $theme/definitions
 
-# Default wallpaper
-output * bg $background fill
-
 output HDMI-A-2 resolution 1680x1050

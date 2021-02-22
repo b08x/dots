@@ -12,7 +12,6 @@
   core:
     disabledPackages: [
       "language-gfm"
-      "spell-check"
       "language-shellscript"
     ]
     projectHome: "/home/b08x/Worksapces"
@@ -41,6 +40,8 @@
     "*.yml": "source.ansible-advanced"
     "*config": "source.shell"
     ".zsh*": "source.shell"
+  "light-bint-ui":
+    layoutMode: "Compact"
   "markdown-preview": {}
   "markdown-writer":
     fileExtension: ".md"

@@ -70,7 +70,7 @@ ENABLE_CORRECTION="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git thefuck systemd ruby rsync ripgrep history git github fzf docker docker-compose archlinux ansible)
+plugins=(git systemd ruby rsync ripgrep history github fzf docker docker-compose archlinux ansible)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -140,3 +140,6 @@ _load_settings "$HOME/.zsh/configs"
 
 # aliases
 [[ -f ~/.aliases ]] && source ~/.aliases
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

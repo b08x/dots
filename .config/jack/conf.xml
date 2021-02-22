@@ -4,38 +4,38 @@ JACK settings, as persisted by D-Bus object.
 You probably don't want to edit this because
 it will be overwritten next time jackdbus saves.
 -->
-<!-- Sat Jan 23 20:17:51 2021 -->
+<!-- Sat Feb  6 10:47:54 2021 -->
 <jack>
  <engine>
   <option name="driver">alsa</option>
-  <option name="verbose">true</option>
+  <option name="verbose">false</option>
  </engine>
  <drivers>
-  <driver name="netone">
-  </driver>
   <driver name="alsa">
    <option name="period">512</option>
    <option name="nperiods">3</option>
    <option name="monitor">true</option>
    <option name="midi-driver">seq</option>
   </driver>
-  <driver name="loopback">
+  <driver name="netone">
   </driver>
   <driver name="proxy">
   </driver>
   <driver name="dummy">
   </driver>
-  <driver name="alsarawmidi">
-  </driver>
   <driver name="net">
+  </driver>
+  <driver name="loopback">
+  </driver>
+  <driver name="alsarawmidi">
   </driver>
  </drivers>
  <internals>
-  <internal name="netmanager">
-  </internal>
   <internal name="audioadapter">
   </internal>
   <internal name="profiler">
+  </internal>
+  <internal name="netmanager">
   </internal>
   <internal name="netadapter">
   </internal>
