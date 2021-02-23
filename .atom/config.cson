@@ -15,5 +15,15 @@
     userId: "0c98a832-aa5f-4791-8b02-fac69b2c0716"
   "ruby-solargraph":
     commandPath: "/home/b08x/.rvm/rubies/ruby-3.0.0/bin/solargraph"
+  "file-types":
+    "**/.config.d/*": "source.shell"
+    "**/.config/sway/**": "source.shell"
+    "*.cfg": "source.shell"
+    "*.conf": "source.shell"
+    "*.j2": "source.ansible-advanced"
+    "*.rules": "source.shell"
+    "*.yml": "source.ansible-advanced"
+    "*config": "source.shell"
+    ".zsh*": "source.shell"
   welcome:
     showOnStartup: false

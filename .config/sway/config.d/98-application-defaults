@@ -20,15 +20,18 @@ for_window [app_id="wdisplays"] floating enable
 for_window [app_id="firefox"] inhibit_idle fullscreen
 for_window [app_id="Chromium"] inhibit_idle fullscreen
 for_window [app_id="firefoxdeveloperedition"] inhibit_idle fullscreen
+for_window [app_id="opera"] inhibit_idle fullscreen
 
 for_window [app_id="guake"] floating enable
 
 for_window [class="(?i)zim"] border pixel 1
 for_window [con_mark="^quicknote$"] floating enable, resize set 480 720, move position left, focus
 
+for_window [app_id="net.sourceforge.vmpk.vmpk"] floating enable, move scratchpad
+
 # reaper stuff
-for_window [title="^Add FX"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
-for_window [title="^VST"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
-for_window [title="(?i)IEM"] floating enable, resize set 23 ppt 30 ppt, border pixel 1
-for_window [title="(?i)JS" instance="REAPER"] floating enable, resize set 23 ppt 30 ppt, border pixel 1
+for_window [title="^FX: Track"] floating enable, resize set 80 ppt 80 ppt, border pixel 1
+for_window [title="^Add FX"] floating enable, resize set 40 ppt 80 ppt, border pixel 1
+for_window [title="(?i)IEM"] floating enable, border pixel 1
+for_window [title="(?i)JS" instance="REAPER"] floating enable, resize set 38 ppt 44 ppt, border pixel 1
 for_window [title="(?i)RS5K"] floating enable, resize set 23 ppt 30 ppt, border pixel 1

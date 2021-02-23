@@ -31,7 +31,7 @@ set $shownetwork $term --name=floating_shell --hold --exec
 
 # set $menu wofi --show drun --allow-images -i -O alphabetical --term terminator
 
-set $menu swaymsg 'exec sgtk-menu -c -af appendix -fn 5 -s 22 -o 0.5 -t 20'
+set $menu swaymsg 'exec sgtk-menu -af appendix -fn 5 -s 22 -o 0.5 -t 20'
 
 ### Lockscreen configuration
 #
