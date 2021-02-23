@@ -25,6 +25,10 @@ bindcode $mod+$KP_Enter exec $term -e ranger
 # https://www.reddit.com/r/i3wm/comments/bg1qd9/keybinding_execute_and_mark_at_the_same_time/eli56mj?utm_source=share&utm_medium=web2x&context=3
 bindsym $mod+Insert exec zim --plugin quicknote, exec "sleep 1 && swaymsg mark quicknote"
 
+# color pickers
+# https://www.reddit.com/r/swaywm/comments/kcfgcg/clipboard_what_is_your_workflow_regarding/gfre9vb?utm_source=share&utm_medium=web2x&context=3
+bindsym $mod+Shift+d exec grim -g "$(slurp -p)" -t ppm - | convert - -format '%[pixel:p{0,0}]' txt:- | tail -n 1 | cut -d ' ' -f 4 | wl-copy
+
 # Drag floating windows by holding down $mod and left mouse button.
 # Resize them with right mouse button + $mod.
 # Despite the name, also works for non-floating windows.

@@ -28,10 +28,10 @@ fi
 
 unset _old_path
 
-if [[ p$XDG_SESSION_TYPE == wayland ]]; then
+if [[ $XDG_SESSION_TYPE == wayland ]]; then
 
-  export LIBVA_DRIVER_NAME=v4l2_request
-  export LIBVA_V4L2_REQUEST_VIDEO_PATH=/dev/video1
+#  export LIBVA_DRIVER_NAME=v4l2_request
+#  export LIBVA_V4L2_REQUEST_VIDEO_PATH=/dev/video1
   export MOZ_ENABLE_WAYLAND=1
   export MOZ_DBUS_REMOTE=1
   export GTK_CSD=0
@@ -41,7 +41,7 @@ if [[ p$XDG_SESSION_TYPE == wayland ]]; then
 
   # qt wayland
   export QT_QPA_PLATFORM="wayland"
-  export QT_QPA_PLATFORMTHEME=qt5ct
+  export QT_QPA_PLATFORMTHEME="qt5ct"
   export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 
   # set default shell and terminal

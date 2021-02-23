@@ -1,76 +1,19 @@
 "*":
-  "atom-beautify":
-    executables:
-      beautysh:
-        path: "/usr/bin/beautysh"
   "autocomplete-plus":
-    confirmCompletion: "tab always, enter when suggestion explicitly selected"
+    confirmCompletion: "tab"
     minimumWordLength: 1
-  "autocomplete-ruby":
-    rsensePath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/rsense"
-    suggestionPriority: true
   core:
-    disabledPackages: [
-      "language-gfm"
-      "language-shellscript"
-    ]
-    projectHome: "/home/b08x/Worksapces"
-    telemetryConsent: "no"
+    telemetryConsent: "limited"
     themes: [
       "one-dark-ui"
-      "dark-bint-syntax"
+      "monokai"
     ]
   editor:
-    autoIndentOnPaste: false
-    defaultFontSize: 12
     fontFamily: "Hack Nerd Font"
-    fontSize: 15
-    preferredLineLength: 120
-    softWrap: true
-    softWrapAtPreferredLineLength: true
+    fontSize: 18
   "exception-reporting":
-    userId: "1c9f7922-6af5-4f3f-ae94-feff13cf198f"
-  "file-types":
-    "**/.config.d/*": "source.shell"
-    "**/.config/sway/**": "source.shell"
-    "*.cfg": "source.shell"
-    "*.conf": "source.shell"
-    "*.j2": "source.ansible-advanced"
-    "*.rules": "source.shell"
-    "*.yml": "source.ansible-advanced"
-    "*config": "source.shell"
-    ".zsh*": "source.shell"
-  "light-bint-ui":
-    layoutMode: "Compact"
-  "markdown-preview": {}
-  "markdown-writer":
-    fileExtension: ".md"
-    siteEngine: "jekyll"
-  "one-dark-ui":
-    stickyHeaders: true
-  "open-terminal-here":
-    command: "terminator"
-  "platformio-ide-terminal":
-    ansiColors:
-      normal:
-        blue: "#2121e4"
-      zBright:
-        brightBlack: "#000000"
-        brightBlue: "#3131fb"
-    core:
-      workingDirectory: "Active File"
-    iconColors:
-      blue: "#2c2cea"
-    style:
-      fontFamily: "Hack Nerd Font"
-      theme: "homebrew"
-    toggles:
-      autoClose: true
+    userId: "0c98a832-aa5f-4791-8b02-fac69b2c0716"
   "ruby-solargraph":
-    commandPath: "/usr/bin/solargraph"
-  "sb-atom-sonic-pi":
-    sendOSCMessagesToGUI: true
-  "tool-bar":
-    visible: false
+    commandPath: "/home/b08x/.rvm/rubies/ruby-3.0.0/bin/solargraph"
   welcome:
     showOnStartup: false

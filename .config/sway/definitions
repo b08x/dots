@@ -95,4 +95,19 @@ set $ws10 "10"
 set $ws_notes "notes"
 set $ws_atom "atom"
 
+set $landscape HDMI-A-1
+set $portrait HDMI-A-2
+
+workspace $ws1 output $landscape
+workspace $ws2 output $landscape
+workspace $ws3 output $landscape
+workspace $ws4 output $landscape
+workspace $ws5 output $landscape
+
+workspace $ws6 output $portrait
+workspace $ws7 output $portrait
+workspace $ws8 output $portrait
+workspace $ws9 output $portrait
+workspace $ws10 output $portrait
+
 set $azote "~/.azotebg"

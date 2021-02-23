@@ -1,103 +1,29 @@
-// =============================================================================
-//
-// Waybar configuration
-//
-// Configuration reference: https://github.com/Alexays/Waybar/wiki/Configuration
-//
-// =============================================================================
-
-{
-    // -------------------------------------------------------------------------
-    // Global configuration
-    // -------------------------------------------------------------------------
-
+[{
     "layer": "top",
-
-    // If height property would be not present, it'd be calculated dynamically
-    "height": 30,
-
-    "modules-left": [
-        "custom/menu",
-        "sway/workspaces",
-        "sway/mode"
-    ],
+    "height": 24,
+	  "output": "HDMI-A-1",
+    "modules-left": ["custom/menu", "sway/workspaces", "sway/mode"],
     "modules-center": [
         "sway/window"
     ],
     "modules-right": [
         "network",
-        "cpu",
-        "memory",
-        "battery",
-        "temperature",
-        "backlight",
         "idle_inhibitor",
         "pulseaudio",
-        "custom/pacman",
         "tray",
         "clock"
     ],
 
-
-    // -------------------------------------------------------------------------
-    // Modules
-    // -------------------------------------------------------------------------
-
-    "battery": {
-        "interval": 30,
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format-charging": "󰂄{capacity}%", // Icon: bolt
-        "format": "{icon}{capacity}%",
-        "format-icons": [
-            "󰂃",
-	        "󰁺", // Icon: battery-empty
-            "󰁻", // Icon: battery-quarter
-            "󰁽", // Icon: battery-half
-            "󰂀", // Icon: battery-three-quarters
-            "󰁹"  // Icon: battery-full
-        ],
-        "tooltip": false,
-        "bat": "BAT0"
+    "custom/menu": {
+        "format": "󱘊",
+        "on-click": "swaymsg exec \\$menu",
+        "tooltip": false
     },
 
-    "clock": {
-        "interval": 60,
-        "format": "{:%e %b %Y %H:%M}", // Icon: calendar-alt
-        "tooltip": true,
-        "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
-        "on-click": "swaymsg exec \\$term_float khal"
-    },
-
-    "cpu": {
-        "interval": 5,
-        "format": "󰘚{usage}%", // Icon: microchip
-        "states": {
-            "warning": 70,
-            "critical": 90
-        },
-        "on-click": "swaymsg exec \\$term_float htop"
-    },
-
-    "memory": {
-        "interval": 5,
-        "format": "󰍛{}%", // Icon: memory
-        "states": {
-            "warning": 70,
-            "critical": 90
-        },
-        "on-click": "swaymsg exec \\$term_float htop"
-    },
-
-    "network": {
-        "interval": 5,
-        "format-wifi": "󰖩 {essid} ({signalStrength}%)", // Icon: wifi
-        "format-ethernet": "󰈀 {ifname}", // Icon: ethernet
-        "format-disconnected": "󱘖",
-        "tooltip-format": "{ifname}: {ipaddr}",
-        "on-click": "swaymsg exec \\$shownetwork ifconfig"
+    "sway/workspaces": {
+        "all-outputs": false,
+        "disable-scroll": true,
+        "format": "{name}"
     },
 
     "sway/mode": {
@@ -110,17 +36,13 @@
         "max-length": 120
     },
 
-    "sway/workspaces": {
-        "all-outputs": false,
-        "disable-scroll": true,
-        "format": "{name}"
-    },
-
-    "backlight": {
-        "format": "{icon} {percent}%",
-        "format-icons": ["󰃞", "󰃟", "󰃠"],
-        "on-scroll-down": "light -A 1",
-        "on-scroll-up": "light -U 1"
+    "network": {
+        "interval": 5,
+        "format-wifi": "󰖩 {essid} ({signalStrength}%)", // Icon: wifi
+        "format-ethernet": "󰈀 {ifname}", // Icon: ethernet
+        "format-disconnected": "󱘖",
+        "tooltip-format": "{ifname}: {ipaddr}",
+        "on-click": "swaymsg exec \\$shownetwork ifconfig"
     },
 
     "idle_inhibitor": {
@@ -148,35 +70,37 @@
         "on-click": "swaymsg exec \\$pulseaudio"
     },
 
-    "temperature": {
-      "critical-threshold": 90,
-      "interval": 5,
-      "format": "{icon}{temperatureC}°C",
-      "format-icons": [
-          "󱃃",
-          "󰔏", // Icon: temperature ok
-	      "󰔐"  // Icon: temperature not ok
-      ],
-      "tooltip": true,
-      "on-click": "swaymsg exec \"\\$term_float 'watch sensors'\""
-    },
-
     "tray": {
         "icon-size": 21,
         "spacing": 5
     },
 
-    "custom/pacman": {
-        "format": "󰀼 {}",
-        "interval": 3600,
-        "exec-if": "[ $(checkupdates | wc -l) -gt 0 ]",
-        "exec": "pamac checkupdates | wc -l",
-        "on-click": "pamac-manager --updates",
+    "clock": {
+        "interval": 60,
+        "format": "{:%e %b %Y %H:%M}", // Icon: calendar-alt
+        "tooltip": true,
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
+        "on-click": "swaymsg exec \\$term_float khal"
+    },
+}, {
+	  "layer": "top",
+    "height": 24,
+	  "output": "HDMI-A-2",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "sway/workspaces": {
+        "all-outputs": false,
+        "disable-scroll": true,
+        "format": "{name}"
     },
 
-    "custom/menu": {
-        "format": "󱘊",
-        "on-click": "swaymsg exec \\$menu",
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>",
         "tooltip": false
-    }
-}
+    },
+
+    "sway/window": {
+        "format": "{}",
+        "max-length": 120
+    },
+}]

@@ -23,7 +23,7 @@ alias free='free -m'                      # show sizes in MB
 alias np='nano -w PKGBUILD'
 alias more=less
 
-command -v exa       &> /dev/null    && alias ls='exa --group --git --group-directories-first'
+command -v exa       &> /dev/null    && alias ls='exa --group --group-directories-first'
 command -v exa       &> /dev/null    && alias ll="ls -lasnew"
 
 alias nocomment='grep -v "^\($\|#\)"'

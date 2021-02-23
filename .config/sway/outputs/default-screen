@@ -9,4 +9,5 @@
 # import theme
 include $theme/definitions
 
-output HDMI-A-2 resolution 1680x1050
+output HDMI-A-1 pos 0 0 res 1920x1080
+output HDMI-A-2 pos 1920 0 res 1680x1050 transform 270

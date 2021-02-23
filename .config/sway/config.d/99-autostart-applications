@@ -9,7 +9,6 @@ exec mako
 #
 exec {
     '[ -x "$(command -v flashfocus)" ] && flashfocus || /usr/share/sway/scripts/inactive-windows-transparency.py'
-    '[ -x "$(command -v wlsunset)" ] && /usr/share/sway/scripts/sunset.sh'
     '[ -x "$(command -v autotiling)" ] && autotiling'
 }
 exec_always {

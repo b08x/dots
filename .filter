@@ -6,9 +6,9 @@
 - .*
 #- .*/**
 #- Archive/
-- Notes/
+- Library/
 - Desktop/
 - go/
 - Workspace/
-- Downloads/
+#- Downloads/
 - tmp/

@@ -13,6 +13,7 @@ fi
 # mkdir .git/safe in the root of repositories you trust
 #PATH=".git/safe/../../bin:$PATH"
 PATH="$PATH:$HOME/.cargo/bin"
+PATH="$PATH:/opt/sonic-pi/bin"
 
 #WARNING:  You don't have /home/b08x/.gem/ruby/2.7.0/bin in your PATH,
 #	  gem executables will not run.

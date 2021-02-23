@@ -1,8 +1,15 @@
 [NotebookList]
-Default=~/Notes
-1=~/Notes
+Default=~/Notebooks/Current
+1=~/Notebooks/Current
+2=~/Notes
 
 [Notebook 1]
+uri=~/Notebooks/Current
+name=Current
+interwiki=None
+icon=None
+
+[Notebook 2]
 uri=~/Notes
 name=Notes
 interwiki=None
