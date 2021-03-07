@@ -1,4 +1,4 @@
-======= [% strftime("%d%m:%H%M") %][% text %]
+======= [% strftime("%m%d") %]:[% strftime("%H%M") %][% text %]
 [% IF url -%]
 Source: [% url %]
 [% END -%]
