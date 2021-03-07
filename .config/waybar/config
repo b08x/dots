@@ -1,5 +1,6 @@
 [{
-    "layer": "top",
+    "layer": "bottom",
+    "position": "bottom",
     "height": 24,
 	  "output": "HDMI-A-1",
     "modules-left": ["custom/menu", "sway/workspaces", "sway/mode"],
@@ -10,8 +11,7 @@
         "network",
         "idle_inhibitor",
         "pulseaudio",
-        "tray",
-        "clock"
+        "tray"
     ],
 
     "custom/menu": {
@@ -83,7 +83,8 @@
         "on-click": "swaymsg exec \\$term_float khal"
     },
 }, {
-	  "layer": "top",
+	  "layer": "bottom",
+	  "position": "bottom",
     "height": 24,
 	  "output": "HDMI-A-2",
     "modules-left": ["sway/workspaces", "sway/mode"],

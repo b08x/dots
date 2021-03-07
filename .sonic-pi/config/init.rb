@@ -1,7 +1,7 @@
 # Sonic Pi init file
 # Code in here will be evaluated on launch.
 
-sonichome = File.expand_path "~/sonic-pi"
+sonichome = File.expand_path "~/.sonic-pi"
 
 load_snippets sonichome + "/snippets", true
 

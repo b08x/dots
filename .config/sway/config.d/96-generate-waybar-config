@@ -3,4 +3,3 @@ bar {
     swaybar_command waybar
     position $waybar_position
 }
-

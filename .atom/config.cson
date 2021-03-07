@@ -1,20 +1,12 @@
 "*":
-  "autocomplete-plus":
-    confirmCompletion: "tab"
-    minimumWordLength: 1
   core:
+    projectHome: "/home/b08x/Workspace"
     telemetryConsent: "limited"
-    themes: [
-      "one-dark-ui"
-      "monokai"
-    ]
   editor:
     fontFamily: "Hack Nerd Font"
-    fontSize: 18
+    fontSize: 19
   "exception-reporting":
-    userId: "0c98a832-aa5f-4791-8b02-fac69b2c0716"
-  "ruby-solargraph":
-    commandPath: "/home/b08x/.rvm/rubies/ruby-3.0.0/bin/solargraph"
+    userId: "3a7cc88a-53a6-48a4-b582-087b5822afbd"
   "file-types":
     "**/.config.d/*": "source.shell"
     "**/.config/sway/**": "source.shell"
@@ -25,5 +17,7 @@
     "*.yml": "source.ansible-advanced"
     "*config": "source.shell"
     ".zsh*": "source.shell"
+  "ruby-solargraph":
+    commandPath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/solargraph"
   welcome:
     showOnStartup: false

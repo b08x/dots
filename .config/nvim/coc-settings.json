@@ -9,5 +9,6 @@
     }
 
   },
-  "solargraph.commandPath": "/home/b08x/.rvm/rubies/ruby-3.0.0/bin/solargraph"
+  "solargraph.commandPath": "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/solargraph",
+  "codeLens.enable" :true
 }

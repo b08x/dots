@@ -1,3 +1,4 @@
+include theme
 ### Variables
 #
 # Logo key. Use Mod1 for Alt and Mod4 for Super.
@@ -11,14 +12,14 @@ set $up k
 set $right l
 
 # background
-set $background /usr/share/backgrounds/22.jpg
+#set $background /usr/share/backgrounds/22.jpg
 
 # styles - matcha-green or matcha-blue
-set $theme /usr/share/sway/themes/matcha-azil
-set $font Input Mono Narrow Regular 11
+#set $theme /usr/share/sway/themes/matcha-azil
+set $font Input Mono 11
 font $font
 # Your preferred terminal emulator
-set $term termite --config=$theme/termite
+set $term termite --config=$HOME/.config/termite/config
 set $term_float_portrait $term --name=floating_shell_portrait --exec
 set $term_float $term --name=floating_shell --exec
 
@@ -35,7 +36,7 @@ set $menu swaymsg 'exec sgtk-menu -af appendix -fn 5 -s 22 -o 0.5 -t 20'
 
 ### Lockscreen configuration
 #
-set $locking swaylock --daemonize --config $theme/swaylock
+#set $locking swaylock --daemonize --config $theme/swaylock
 
 ### Idle configuration
 # This will lock your screen after 300 seconds of inactivity, then turn off
@@ -51,7 +52,7 @@ set $idle swayidle -w \
 
 # statusbar command
 set $statusbar waybar
-set $waybar_position top
+set $waybar_position bottom
 
 # shutdown command
 set $shutdown wlogout --buttons-per-row 3

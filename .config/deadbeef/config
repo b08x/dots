@@ -39,14 +39,15 @@ gtkui.color.listview_column_text 63222 24929 20817
 gtkui.color.listview_group_text 63222 54227 11565
 gtkui.color.listview_text 30583 30326 31611
 gtkui.color.tabstrip_text 57568 6939 9252
-gtkui.columns.playlist [{"title":"♫","id":"1","format":"%playstatus%","sort_format":"","size":"50","align":"0","color_override":"0","color":"#ff000000"},{"title":"FIlename","id":"9","format":"%filename_ext%","sort_format":"","size":"346","align":"0","color_override":"0","color":"#ff000000"},{"title":"Directory","id":"9","format":"%directoryname%","sort_format":"","size":"248","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Length","id":"9","format":"%length%","sort_format":"","size":"69","align":"0","color_override":"0","color":"#ff000000"},{"title":"Channels","id":"9","format":"%channels%","sort_format":"","size":"100","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Codec","id":"-1","format":"%codec%","sort_format":"","size":"120","align":"0","color_override":"0","color":"#ff000000"}]
+gtkui.columns.playlist [{"title":"♫","id":"1","format":"%playstatus%","sort_format":"","size":"86","align":"0","color_override":"0","color":"#ff000000"},{"title":"FIlename","id":"9","format":"%filename_ext%","sort_format":"","size":"608","align":"0","color_override":"0","color":"#ff000000"},{"title":"Directory","id":"9","format":"%directoryname%","sort_format":"","size":"435","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Length","id":"9","format":"%length%","sort_format":"","size":"122","align":"0","color_override":"0","color":"#ff000000"},{"title":"Channels","id":"9","format":"%channels%","sort_format":"","size":"176","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Codec","id":"-1","format":"%codec%","sort_format":"","size":"211","align":"0","color_override":"0","color":"#ff000000"}]
 gtkui.embolden_current_track 1
 gtkui.embolden_selected_tracks 1
+gtkui.eq.visible 1
 gtkui.font.listview_column_text Hack Nerd Font 10
 gtkui.font.listview_group_text Hack Nerd Font 10
 gtkui.font.listview_text Hack Nerd Font 10
 gtkui.font.tabstrip_text Input Mono 10
-gtkui.layout.0.6.2 hsplitter locked=0 ratio=0.250526 pos=0 size2=0 {vsplitter locked=0 ratio=0.316578 pos=0 size2=0 {filebrowser {} vsplitter locked=0 ratio=0.500000 pos=0 size2=0 {pltbrowser {} selproperties {} } } vsplitter locked=0 ratio=0.201469 pos=0 size2=0 {waveform_seekbar {} playlist hideheaders=0 width=1418 {} } } 
+gtkui.layout.0.6.2 hsplitter locked=0 ratio=0.250526 pos=0 size2=0 {vsplitter locked=0 ratio=0.316578 pos=0 size2=0 {filebrowser {} vsplitter locked=0 ratio=0.500000 pos=0 size2=0 {pltbrowser {} selproperties {} } } vsplitter locked=0 ratio=0.349462 pos=0 size2=0 {waveform_seekbar {} playlist hideheaders=0 width=1418 {} } } 
 gtkui.override_bar_colors 0
 gtkui.override_listview_colors 1
 gtkui.override_tabstrip_colors 1
@@ -97,29 +98,30 @@ logwindow.geometry.h 200
 logwindow.geometry.w 400
 logwindow.geometry.x 0
 logwindow.geometry.y 0
-mainwin.geometry.h 530
+mainwin.geometry.h 714
 mainwin.geometry.maximized 1
-mainwin.geometry.w 991
+mainwin.geometry.w 1175
 mainwin.geometry.x 0
 mainwin.geometry.y 0
 network.proxy.port 8080
-output_plugin jack
+output_plugin pulseaudio
 playback.loop 1
 playback.volume 0.0000000
 playlist.current 0
-playlist.cursor.0 -1
-playlist.scroll.0 0
+playlist.cursor.0 6891
+playlist.scroll.0 154973
 playlist.scroll.cursorfollowplayback 1
+playlist.stop_after_current 1
 playlist.tab.00000 samples
 prefwin.geometry.h 545
-prefwin.geometry.w 646
+prefwin.geometry.w 821
 prefwin.geometry.x 0
 prefwin.geometry.y 0
 pulse.buffersize 100
 pulse.pauseoncork 0
 pulse.serveraddr 
 pulse.volumecontrol 0
-pulseaudio2_soundcard jack_out
+pulseaudio2_soundcard default
 resume.paused 0
 resume.playlist -1
 resume.position -1.000000

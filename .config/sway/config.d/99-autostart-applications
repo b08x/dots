@@ -1,5 +1,5 @@
 # enable idle mode
-exec $idle
+#exec $idle
 
 # autostart background applications
 exec swaymsg 'exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
@@ -16,5 +16,5 @@ exec_always {
     '[ -x "$(command -v kanshi)" ] && pkill kanshi; exec kanshi'
 }
 
-exec_always --no-startup-id swaymsg 'exec $azote'
+#exec_always --no-startup-id swaymsg 'exec $azote'
 #exec --no-startup-id swaymsg 'exec radiotray-ng'
