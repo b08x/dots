@@ -4,7 +4,7 @@
     telemetryConsent: "limited"
   editor:
     fontFamily: "Hack Nerd Font"
-    fontSize: 19
+    fontSize: 16
   "exception-reporting":
     userId: "3a7cc88a-53a6-48a4-b582-087b5822afbd"
   "file-types":
@@ -17,6 +17,8 @@
     "*.yml": "source.ansible-advanced"
     "*config": "source.shell"
     ".zsh*": "source.shell"
+  "open-terminal-here":
+    command: "terminator -T \"atom\""
   "ruby-solargraph":
     commandPath: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/solargraph"
   welcome:

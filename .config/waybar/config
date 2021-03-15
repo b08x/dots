@@ -1,5 +1,5 @@
 [{
-    "layer": "bottom",
+    "layer": "top",
     "position": "bottom",
     "height": 24,
 	  "output": "HDMI-A-1",
@@ -8,10 +8,9 @@
         "sway/window"
     ],
     "modules-right": [
-        "network",
-        "idle_inhibitor",
+        "tray",
         "pulseaudio",
-        "tray"
+        "clock"
     ],
 
     "custom/menu": {
@@ -55,7 +54,7 @@
 
     "pulseaudio": {
         //"scroll-step": 1,
-        "format": "{icon}{volume}%  󰍬{format_source}",
+        "format": "{icon}{volume}% {format_source}",
         "format-bluetooth": "{icon}󰂰 {volume}%  󰍬{format_source}",
         "format-muted": "󰖁",
         "format-icons": {
@@ -77,13 +76,13 @@
 
     "clock": {
         "interval": 60,
-        "format": "{:%e %b %Y %H:%M}", // Icon: calendar-alt
+        "format": "{:%A %b %e %H:%M}", // Icon: calendar-alt
         "tooltip": true,
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
-        "on-click": "swaymsg exec \\$term_float khal"
+        "on-click": "swaymsg exec \\$calendar"
     },
 }, {
-	  "layer": "bottom",
+	  "layer": "top",
 	  "position": "bottom",
     "height": 24,
 	  "output": "HDMI-A-2",

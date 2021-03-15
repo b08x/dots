@@ -16,27 +16,25 @@ set $right l
 
 # styles - matcha-green or matcha-blue
 #set $theme /usr/share/sway/themes/matcha-azil
-set $font Input Mono 11
+set $font C059 11
 font $font
 # Your preferred terminal emulator
 set $term termite --config=$HOME/.config/termite/config
 set $term_float_portrait $term --name=floating_shell_portrait --exec
 set $term_float $term --name=floating_shell --exec
 
+
+# set preferred browser
+set $browser google-chrome-stable --proxy-server="localhost:8118"
+
 set $shownetwork $term --name=floating_shell --hold --exec
 
 # Your preferred application launcher
-# Note: pass the final command to swaymsg so that the resulting window can be opened
-# on the original workspace that the command was run on.
-# set $menu exec $term_float_portrait wofi --show drun --allow-images -i -O alphabetical --term $term
-
-# set $menu wofi --show drun --allow-images -i -O alphabetical --term terminator
-
-set $menu swaymsg 'exec sgtk-menu -af appendix -fn 5 -s 22 -o 0.5 -t 20'
+set $menu swaymsg 'exec sgtk-menu -af appendix -fn 5 -s 22 -o 0.5 -t 20 -b'
 
 ### Lockscreen configuration
 #
-#set $locking swaylock --daemonize --config $theme/swaylock
+set $locking swaylock-blur
 
 ### Idle configuration
 # This will lock your screen after 300 seconds of inactivity, then turn off
@@ -45,10 +43,10 @@ set $menu swaymsg 'exec sgtk-menu -af appendix -fn 5 -s 22 -o 0.5 -t 20'
 #
 set $idle swayidle -w \
     timeout 240 'light -G > /tmp/brightness && light -S 10' resume 'light -S $([ -f /tmp/brightness ] && cat /tmp/brightness || echo 100%)' \
-    timeout 300 'exec $locking' \
+    timeout 300 'swaymsg "exec $locking"' \
     timeout 3600 'swaymsg "output * dpms off"' \
     resume 'swaymsg "output * dpms on"' \
-    before-sleep 'exec $locking'
+    before-sleep 'swaymsg "exec $locking"'
 
 # statusbar command
 set $statusbar waybar

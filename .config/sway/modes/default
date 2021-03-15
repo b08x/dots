@@ -10,9 +10,11 @@ bindsym $mod+Shift+q kill
 
 ## Launch // Launcher ##
 bindsym $mod+d exec $menu
+
 #bindsym Multi_key exec $menu
 
-bindsym $mod+Home exec opera
+bindsym $mod+Home exec swaymsg 'exec $browser'
+
 #bindsym grave exec swaymsg 'exec guake-toggle'
 bindsym $mod+grave exec swaymsg 'exec guake-toggle'
 bindsym F12 exec swaymsg 'exec guake-toggle'

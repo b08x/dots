@@ -105,7 +105,8 @@
 }
 
 #clock {
-    font-weight: bold;
+    color: @clock_color;
+    font-weight: normal;
 }
 
 #cpu {
