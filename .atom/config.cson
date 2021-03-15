@@ -1,5 +1,14 @@
 "*":
+  "atom-beautify":
+    executables:
+      rubocop:
+        path: "/home/b08x/.rvm/rubies/ruby-2.7.2/bin/rubocop"
   core:
+    disabledPackages: [
+      "icon-fonts"
+      "atom-autocomplete-caomei"
+      "svg-preview"
+    ]
     projectHome: "/home/b08x/Workspace"
     telemetryConsent: "limited"
   editor:

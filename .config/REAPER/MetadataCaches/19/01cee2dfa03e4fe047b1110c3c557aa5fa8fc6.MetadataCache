@@ -1,0 +1,32 @@
+C10017 /home/b08x/Library/Sounds/collections/intro
+F bell02.flac 459283 0 1594892571 0
+D t bell02 s 48000 n 1 l 0:04.670
+D i 24
+F dial_up_modem.flac 1590675 0 1594892554 0
+D t dial_up_modem s 48000 n 2 l 0:19.946
+D i 16
+F donteattheeggs.flac 1906263 0 1594892740 0
+D t donteattheeggs s 48000 n 1 l 0:54.648
+D i 16
+F questionaboutidentity_2.flac 157408 0 1594892732 0
+D t questionaboutidentity_2 s 48000 n 1 l 0:01.927
+D i 24
+F radio_tuning.flac 4808129 0 1594892555 0
+D t radio_tuning s 48000 n 2 l 0:44.200
+D i 16
+F sorting_bricks_with_birds_in_the_background.flac 12122856 0 1594892553 0
+D t sorting_bricks_with_birds_in_the_background s 44100 n 2 l 2:05.476
+D i 16
+F thefollowingsegmentisacomposite.flac 217915 0 1598325390 0
+D t STS1Dick s 48000 n 1 l 0:02.852
+D i 24
+F train_passing_over_tracks.flac 1773427 0 1594892553 0
+D t train_passing_over_tracks s 44100 n 2 l 0:31.040
+D i 16
+F typewriter_help01.wav 1314086 0 1594892740 0
+D s 48000 n 1 l 0:09.125 i 24
+F wespeak_wewrite_stuff_this_is_how_civilizations_heal.flac 427400 0 1594892741 0
+D t this_is_how_civilizations_heal s 48000 n 1 l 0:05.541
+D i 24
+F youvepickedglassesman.flac 372414 0 1615715889 0
+D s 48000 n 2 l 0:01.885 i 24

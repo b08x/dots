@@ -1,0 +1,11 @@
+C10017 /home/b08x/Library/Midi/moonlight_sonata_mix
+F ml_flute.mid 507 0 1554870117 0
+F moonlight_sonata.mid 9339 0 1554870117 0
+D t "Moonlight Sonata (1st Movement)" c Beethoven p 50 k E
+D l 2:19.001
+F moonlight_sonata_EASYPNO.mid 8517 0 1554870117 0
+D t "Moonlight Sonata (1st Movement) Piano" c Beethoven p 50 k C
+D l 2:19.000
+F moonlight_sonata_VC_vc.mid 1451 0 1554870117 0
+D t "Moonlight Sonata (1st Movement) Violoncello" c Beethoven p 100 k Eb
+D l 2:19.001

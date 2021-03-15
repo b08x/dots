@@ -33,13 +33,13 @@ filebrowser.showicons 1
 filebrowser.sidebar_width 220
 filebrowser.sort_treeview 1
 filebrowser.treelines 0
-filechooser.lastdir file:///mnt/bender/b08x/Studio/samples
+filechooser.lastdir file:///home/b08x/Library/Sounds/to_process
 gtkui.autoresize_columns 1
 gtkui.color.listview_column_text 63222 24929 20817
 gtkui.color.listview_group_text 63222 54227 11565
 gtkui.color.listview_text 30583 30326 31611
 gtkui.color.tabstrip_text 57568 6939 9252
-gtkui.columns.playlist [{"title":"♫","id":"1","format":"%playstatus%","sort_format":"","size":"86","align":"0","color_override":"0","color":"#ff000000"},{"title":"FIlename","id":"9","format":"%filename_ext%","sort_format":"","size":"608","align":"0","color_override":"0","color":"#ff000000"},{"title":"Directory","id":"9","format":"%directoryname%","sort_format":"","size":"435","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Length","id":"9","format":"%length%","sort_format":"","size":"122","align":"0","color_override":"0","color":"#ff000000"},{"title":"Channels","id":"9","format":"%channels%","sort_format":"","size":"176","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Codec","id":"-1","format":"%codec%","sort_format":"","size":"211","align":"0","color_override":"0","color":"#ff000000"}]
+gtkui.columns.playlist [{"title":"♫","id":"1","format":"%playstatus%","sort_format":"","size":"68","align":"0","color_override":"0","color":"#ff000000"},{"title":"FIlename","id":"9","format":"%filename_ext%","sort_format":"","size":"482","align":"0","color_override":"0","color":"#ff000000"},{"title":"Directory","id":"9","format":"%directoryname%","sort_format":"","size":"345","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Length","id":"9","format":"%length%","sort_format":"","size":"97","align":"0","color_override":"0","color":"#ff000000"},{"title":"Channels","id":"9","format":"%channels%","sort_format":"","size":"140","align":"0","color_override":"0","color":"#ffcbbfbf"},{"title":"Codec","id":"-1","format":"%codec%","sort_format":"","size":"167","align":"0","color_override":"0","color":"#ff000000"}]
 gtkui.embolden_current_track 1
 gtkui.embolden_selected_tracks 1
 gtkui.eq.visible 0
@@ -47,7 +47,7 @@ gtkui.font.listview_column_text Hack Nerd Font 10
 gtkui.font.listview_group_text Hack Nerd Font 10
 gtkui.font.listview_text Hack Nerd Font 10
 gtkui.font.tabstrip_text Input Mono 10
-gtkui.layout.0.6.2 hsplitter locked=0 ratio=0.250526 pos=0 size2=0 {vsplitter locked=0 ratio=0.316578 pos=0 size2=0 {filebrowser {} vsplitter locked=0 ratio=0.500000 pos=0 size2=0 {pltbrowser {} selproperties {} } } vsplitter locked=0 ratio=0.349462 pos=0 size2=0 {waveform_seekbar {} playlist hideheaders=0 width=1418 {} } } 
+gtkui.layout.0.6.2 hsplitter locked=0 ratio=0.250526 pos=0 size2=0 {vsplitter locked=0 ratio=0.316578 pos=0 size2=0 {filebrowser {} vsplitter locked=0 ratio=0.500000 pos=0 size2=0 {pltbrowser {} selproperties {} } } vsplitter locked=0 ratio=0.349462 pos=0 size2=0 {waveform_seekbar {} playlist hideheaders=0 width=683 {} } } 
 gtkui.override_bar_colors 0
 gtkui.override_listview_colors 1
 gtkui.override_tabstrip_colors 1
@@ -98,9 +98,9 @@ logwindow.geometry.h 200
 logwindow.geometry.w 400
 logwindow.geometry.x 0
 logwindow.geometry.y 0
-mainwin.geometry.h 714
+mainwin.geometry.h 760
 mainwin.geometry.maximized 1
-mainwin.geometry.w 1175
+mainwin.geometry.w 1221
 mainwin.geometry.x 0
 mainwin.geometry.y 0
 network.proxy.port 8080
@@ -108,11 +108,23 @@ output_plugin pulseaudio
 playback.loop 1
 playback.volume 0.0000000
 playlist.current 0
-playlist.cursor.0 6891
-playlist.scroll.0 158103
+playlist.cursor.0 8413
+playlist.cursor.1 121
+playlist.cursor.2 5
+playlist.cursor.3 50
+playlist.cursor.4 4
+playlist.scroll.0 193561
+playlist.scroll.1 18472
+playlist.scroll.2 -5
+playlist.scroll.3 -50
+playlist.scroll.4 0
 playlist.scroll.cursorfollowplayback 1
 playlist.stop_after_current 1
 playlist.tab.00000 samples
+playlist.tab.00001 digital
+playlist.tab.00002 loops
+playlist.tab.00003 mountain
+playlist.tab.00004 oddly_modern
 prefwin.geometry.h 545
 prefwin.geometry.w 821
 prefwin.geometry.x 0

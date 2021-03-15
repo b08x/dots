@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<index version="1" name="ReaTeam LangPacks" commit="372792f403055872cf14ac47db3f24d766f1a832">
+  <category name="Translations">
+    <reapack name="MIDI Editor actions (active take only) vs (all editable).ReaperLangPack" type="langpack">
+      <version name="1.0" author="juliansader" time="2017-03-15T17:42:48Z">
+        <source>https://github.com/ReaTeam/LangPacks/raw/661c72b234368cbcaea2d82f27114a421e34a871/Translations/MIDI%20Editor%20actions%20(active%20take%20only)%20vs%20(all%20editable).ReaperLangPack</source>
+      </version>
+    </reapack>
+    <reapack name="REAPER_SWS_fr_reapack.ReaperLangPack" type="langpack" desc="REAPER LangPack Français">
+      <metadata>
+        <link rel="website">http://forum.cockos.com/showthread.php?t=92847</link>
+      </metadata>
+      <version name="5.33" author="REAPER French Forum" time="2017-02-09T02:08:27Z">
+        <source>https://github.com/ReaTeam/LangPacks/raw/43282f0388a3fa9bb05d2eabd72ff6e95a164f71/Translations/REAPER_SWS_fr_reapack.ReaperLangPack</source>
+      </version>
+    </reapack>
+    <reapack name="REAPER_SWS_ru_reapack-utf8.ReaperLangPack" type="langpack" desc="REAPER_SWS_ru_reapack-utf8/русский">
+      <metadata>
+        <link rel="website">http://stash.reaper.fm/v/17191/Russian.ReaperLangPack</link>
+      </metadata>
+      <version name="1.0" author="Russian REAPER community" time="2017-02-18T10:41:45Z">
+        <source>https://github.com/ReaTeam/LangPacks/raw/30718f3b053e69621b1e528f41d25861bac42b8e/Translations/REAPER_SWS_ru_reapack-utf8.ReaperLangPack</source>
+      </version>
+      <version name="1.1" author="shredthesky, Nikitich, Roland_Hyper" time="2017-03-15T17:42:48Z">
+        <source>https://github.com/ReaTeam/LangPacks/raw/661c72b234368cbcaea2d82f27114a421e34a871/Translations/REAPER_SWS_ru_reapack-utf8.ReaperLangPack</source>
+      </version>
+      <version name="1.1.2" author="shredthesky, Nikitich, Roland_Hyper, MPL" time="2017-03-15T18:54:18Z">
+        <changelog><![CDATA[+ 1.1.2	15.03.2017 by MPL: VST presets section, some errors and actions]]></changelog>
+        <source>https://github.com/ReaTeam/LangPacks/raw/372792f403055872cf14ac47db3f24d766f1a832/Translations/REAPER_SWS_ru_reapack-utf8.ReaperLangPack</source>
+      </version>
+    </reapack>
+  </category>
+  <metadata>
+    <description><![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0 \fswiss Helvetica;}{\f1 Courier;}}
+{\colortbl;\red255\green0\blue0;\red0\green0\blue255;}
+\widowctrl\hyphauto
+
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs36 ReaTeam LangPack Repository\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\cf1 [image: https://github.com/ReaTeam/LangPacks/workflows/check/badge.svg]\cf0}\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Community-maintained collection of language packs for REAPER.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs32 Installation\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Copy and paste this URL in Extensions > ReaPack > Import a repository:\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \f1 https://github.com/ReaTeam/LangPacks/raw/master/index.xml\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 \b \fs32 Contributing\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Use {\field{\*\fldinst{HYPERLINK "https://reapack.com/upload/langpack"}}{\fldrslt{\ul
+https://reapack.com/upload/langpack
+}}}
+ to upload your language pack on this repository.\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 Have a question? Come discuss in the {\field{\*\fldinst{HYPERLINK "https://forum.cockos.com/showthread.php?t=169127"}}{\fldrslt{\ul
+development thread
+}}}
+.\par}
+}
+]]></description>
+  </metadata>
+</index>

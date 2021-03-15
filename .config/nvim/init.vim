@@ -11,7 +11,7 @@ Plug 'https://github.com/dermusikman/sonicpi.vim.git'
 Plug 'preservim/nerdtree'
 Plug 'https://github.com/jalvesaq/vimcmdline.git'
 Plug 'ryanoasis/vim-devicons'
-
+Plug 'https://github.com/chrisbra/unicode.vim.git'
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
 
