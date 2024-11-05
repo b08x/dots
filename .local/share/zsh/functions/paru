@@ -1,0 +1,3 @@
+inpackage() {
+    paru -Slq | fzf --tac -m --exact --reverse -q "$1" -m --preview 'paru -Si {1}'| xargs -ro paru --batchinstall -S
+}
