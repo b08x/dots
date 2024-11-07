@@ -158,3 +158,4 @@ alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x'  | fzf --previe
 alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
 
 alias unmountchroot="sudo umount /mnt/chroots/arch"
+alias m="micro"
