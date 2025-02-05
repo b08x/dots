@@ -21,10 +21,10 @@ alias df='df -h'
 # use exa for directory listing
 alias br="broot"
 
-alias ll="exa --sort=ext --long --level=2 --icons"
-alias ls="exa -h --group-directories-first -g --icons"
-alias llh="exa --sort=ext --long -a --level=2 --icons"
-alias llt="exa --sort=ext --long -a --level=2 --icons -s modified"
+alias ll="eza --sort=ext --long --level=2 --icons auto"
+alias ls="eza -h --group-directories-first -g --icons auto"
+alias llh="eza --sort=ext --long -a --level=2 --icons auto"
+alias llt="eza --sort=ext --long -a --level=2 --icons auto -s modified"
 
 # if available use bat instead of cat
 if [ -x "$(command -v bat)" ]; then
@@ -63,8 +63,7 @@ alias listi="paru -Qe | awk '{ print $1 }'"
 alias pup="paru -Syyuu --batchinstall"
 alias paruscc="paru -Scc --noconfirm"
 
-alias dnf="sudo dnf"
-alias dnfins="sudo dnf -y install"
+alias apt="sudo apt"
 
 # git
 # alias gd="git diff --name-status | grep -v D | awk '{print $2}' | fzf --preview 'git diff -- {}'"
@@ -158,4 +157,3 @@ alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x'  | fzf --previe
 alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
 
 alias unmountchroot="sudo umount /mnt/chroots/arch"
-alias m="micro"
