@@ -109,7 +109,6 @@ if [ -f ~/.env ]; then
     . ~/.env
 fi
 
-
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -132,3 +131,6 @@ eval "$(pyenv init -)"
 export PATH="$PATH:$HOME/.rvm/bin"
 shopt -s histappend
 export PROMPT_COMMAND="history -a"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

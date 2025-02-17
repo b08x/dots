@@ -1,0 +1,54 @@
+#TODO: does not read extra vars option. e.g -e "thing='.zsh'"
+
+function ansible {
+  gum style --border normal --margin "1" --padding "1 2" --border-foreground 212 "Hello, there! Welcome to $(gum style --foreground 212 'Gum')."
+
+}
+
+function runplaybook() {
+  ansible-playbook -c local -i localhost, $1
+}
+
+function listtags() {
+  cd $PLAYBOOKS
+  ansible-playbook -c local -i localhost, $1 --list-tags
+}
+
+function listtasks() {
+  cd $PLAYBOOKS
+  ansible-playbook -c local -i localhost, $1 --list-tasks
+}
+
+function runtag() {
+  cd $PLAYBOOKS
+  PLAYBOOK="${1}"
+  TAGS="${2}"
+  ansible-playbook -c local -i localhost, $PLAYBOOK --tag $2
+}
+
+function checktag() {
+  TAGS="${1}"
+  ansible-playbook -C -c local -i localhost, $1 --tags $TAGS
+}
+
+function starttask(){
+  PLAYBOOK=$1
+  TASK=$2
+  ansible-playbook -c local -i localhost, $PLAYBOOK --start-at-task $TASK
+}
+
+function setloglevel() {
+  INVENTORY=$1
+  PLAYBOOK=$2
+
+  ansible-playbook -i $INVENTORY $PLAYBOOK --tags logging -e "journal_level=$LEVEL"
+}
+
+function settheme() {
+  PLAYBOOK=$1
+  GTK_THEME=$2
+  ICON_THEME=$3
+
+  ansible-playbook -c local -i localhost, $PLAYBOOK --tags theme -e "gtk_theme=$GTK_THEME" -e "gtk_icon_theme=$ICON_THEME" \
+  -e "qt5_icon_theme=$ICON_THEME"
+}
