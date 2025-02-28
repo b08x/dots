@@ -189,12 +189,17 @@ then
 fi
 
 # install cargo
-curl https://sh.rustup.rs -sSf | sh
+if [ -x "$(command -v cargo)" ];
+then
+  echo "cargo is found!"
+else
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o - | sh
+fi
 
 # install ansible if it isn't already available
 if [ -x "$(command -v ansible)" ];
 then
   echo "ansible is found!"
 else
-  pipx install ansible || exit
+  pipx install --include-deps ansible || exit
 fi
