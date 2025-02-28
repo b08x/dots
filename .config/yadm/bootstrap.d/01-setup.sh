@@ -188,6 +188,9 @@ then
     esac
 fi
 
+# install cargo
+curl https://sh.rustup.rs -sSf | sh
+
 # install ansible if it isn't already available
 if [ -x "$(command -v ansible)" ];
 then
