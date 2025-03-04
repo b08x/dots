@@ -201,5 +201,5 @@ if [ -x "$(command -v ansible)" ];
 then
   echo "ansible is found!"
 else
-  pipx install --include-deps ansible || exit
+  pipx install ansible-core || exit
 fi
