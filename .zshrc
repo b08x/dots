@@ -1,11 +1,7 @@
 export UU_ORDER="$UU_ORDER:~/.zshrc"
 
-#if [ -d $HOME/Utils/bin ]; then
-#  PATH="$HOME/Utils/bin:$PATH"
-#fi
-
 # Path to your oh-my-zsh installation.
-export ZSH="/usr/local/share/oh-my-zsh"
+export ZSH="/usr/share/oh-my-zsh"
 
 ZSH_THEME="kphoen"
 
@@ -37,6 +33,8 @@ colors
 
 export CLICOLOR=1
 
+
+
 setopt SHARE_HISTORY         # Share history between all sessions.
 setopt HIST_IGNORE_DUPS      # Do not record an event that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS  # Delete an old recorded event if a new event is a duplicate.
@@ -48,6 +46,7 @@ setopt HIST_NO_STORE         # Don't store history commands
 setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks from each command line being added to the history.
 
 HISTORY_IGNORE="(ls|cd|pwd|exit|cd)*"
+
 
 HISTFILE=~/.zhistory
 HISTSIZE=10000
@@ -140,11 +139,10 @@ useditor() {
   export SVN_EDITOR="$@"
 }
 
-if [[ ! -n $EDITOR ]]; then useditor micro; fi
+if [[ ! -n $EDITOR || $EDITOR != "micro" ]]; then useditor micro; fi
 
-#[ -n "$DISPLAY" ] && export TERM="kitty" || export TERM=xterm
-#[ -n "$DISPLAY" ] && export TERMINAL="kitty" || export TERMINAL=xterm
-export TERM=xterm-256color
+[ -n "$DISPLAY" ] && export TERM="kitty" || export TERM=xterm
+[ -n "$DISPLAY" ] && export TERMINAL="kitty" || export TERMINAL=xterm
 
 TERMCMD="$TERMINAL"
 
@@ -152,25 +150,12 @@ TERMCMD="$TERMINAL"
 
 eval "$(zoxide init zsh)"
 
-#export PYENV_ROOT="$HOME/.pyenv"
-#if [[ -d $PYENV_ROOT/bin ]]; then
-#  export PATH="$PYENV_ROOT/bin:$PATH"
-#  eval "$(pyenv init -)"
-#fi
+# export PYENV_ROOT="$HOME/.pyenv"
+# if [[ -d $PYENV_ROOT/bin ]]; then
+#   export PATH="$PYENV_ROOT/bin:$PATH"
+#   eval "$(pyenv init -)"
+# fi
 
 export PATH="$PATH:$HOME/.rvm/bin"
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# bun completions
-[ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-export PATH="$HOME/.local/bin:$PATH"
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*

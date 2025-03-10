@@ -1,0 +1,55 @@
+{
+	"imp_task": {
+		"prefix": "- imp_tasks",
+		"body": [
+			"- import_tasks:",
+			"    file: $1.yml",
+			"  tags: ['$2']"
+		],
+		"description": "import other tasks"
+	},
+	"template": {
+		"prefix": "-temp",
+		"body": [
+			"- name: $1",
+			"  template:",
+			"    src: $2",
+			"    dest: $3",
+			"    mode: '0644'",
+			"    backup: True",
+			"  tags: ['$4']"
+		],
+		"description": "push a template"
+	},
+	"aur_block": {
+		"prefix": "-aur",
+		"body": [
+			"- block:",
+			"    - name: $1",
+			"      aur:",
+			"        use: paru",
+			"        name: \"{{ item }}\"",
+			"        state: present",
+			"      with_items:",
+			"        - \"{{ '$2' }}\"",
+			"  rescue:",
+			"    - name: installing packages failed",
+			"      debug:",
+			"        msg: \"Failed to install shell packages\""
+		],
+		"description": ""
+	},
+	"create_folder": {
+		"prefix": "-create-folder",
+		"body": [
+			"- name: $1",
+			"  file:",
+			"    path: \"$2\"",
+			"    state: directory",
+			"    mode: '0755'",
+			"    owner: \"{{ user.name }}\"",
+			"    group: \"{{ user.group }}\""
+		],
+		"description": ""
+	}
+}

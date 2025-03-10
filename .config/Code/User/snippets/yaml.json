@@ -1,0 +1,22 @@
+{
+	"syncronize": {
+		"prefix": "-rsync",
+		"body": [
+			"- name: Sync $1",
+			"  ansible.posix.synchronize:",
+			"    src: $2",
+			"    dest: \"{{ user.home }}/$3\"",
+			"    recursive: true",
+			"    mode: push",
+			"    delete: false",
+			"    checksum: true",
+			"    perms: false",
+			"    rsync_opts:",
+			"      - \"--update\"",
+			"      - \"--omit-dir-times\"",
+			"      - --chown={{ user.name }}:{{ user.group }}",
+			""
+		],
+		"description": ""
+	}
+}

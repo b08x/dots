@@ -1,0 +1,13 @@
+{
+	"jinja_ifelse": {
+		"prefix": "-ifthis",
+		"body": [
+			"{% if ansible_architecture == \"$2\" %}",
+			"",
+			"{% else %}",
+			"",
+			"{% endif %}"
+		],
+		"description": ""
+	}
+}

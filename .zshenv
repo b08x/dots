@@ -36,6 +36,4 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:
 
 [[ -f ~/.zshenv.local ]] && source ~/.zshenv.local
 
-export STORAGE=/mnt/ninjabot/storage
-export WORKSPACE=/home/b08x/Workspace
-export ASSET_FOLDER=/home/b08x/Library
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
