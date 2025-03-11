@@ -1,0 +1,44 @@
+{
+    "mapping": {
+        "1,256,1": [
+            "KEY_LEFTCTRL + v",
+            "keyboard"
+        ],
+        "1,264,1": [
+            "KEY_ENTER",
+            "keyboard"
+        ],
+        "1,261,1": [
+            "KEY_SPACE",
+            "keyboard"
+        ],
+        "1,257,1": [
+            "XF86AudioMicMute",
+            "keyboard"
+        ],
+        "1,265,1": [
+            "KEY_PAGEUP",
+            "keyboard"
+        ],
+        "1,263,1": [
+            "KEY_PAGEDOWN",
+            "keyboard"
+        ],
+        "1,259,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + q",
+            "keyboard"
+        ],
+        "1,260,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + KEY_MUTE",
+            "keyboard"
+        ],
+        "1,258,1": [
+            "KEY_RECORD",
+            "keyboard"
+        ],
+        "1,262,1": [
+            "KEY_LEFTCTRL + c",
+            "keyboard"
+        ]
+    }
+}

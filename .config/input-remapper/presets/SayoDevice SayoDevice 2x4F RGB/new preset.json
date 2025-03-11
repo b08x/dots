@@ -1,0 +1,36 @@
+{
+    "mapping": {
+        "1,7,1": [
+            "KEY_LEFTCTRL + KEY_END + KP_Up",
+            "keyboard"
+        ],
+        "1,6,1": [
+            "Control_L + Super_L + KEY_MUTE",
+            "keyboard"
+        ],
+        "1,5,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + j",
+            "keyboard"
+        ],
+        "1,4,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + h",
+            "keyboard"
+        ],
+        "1,3,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + f",
+            "keyboard"
+        ],
+        "1,2,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + u",
+            "keyboard"
+        ],
+        "1,9,1": [
+            "4",
+            "keyboard"
+        ],
+        "1,8,1": [
+            "Super_L + 3",
+            "keyboard"
+        ]
+    }
+}
