@@ -183,7 +183,9 @@ then
         sudo dnf -y install python3-pip git lsb-release
         ;;
       Arch)
-        sudo pacman -S git python-pipx pyenv rubygems ruby-bundler lsb-release mdadm --noconfirm
+        sudo pacman -S git python-pipx pyenv \
+        			   rubygems ruby-bundler lsb-release mdadm \
+        			   --noconfirm --overwrite '*'
         ;;
     esac
 fi
@@ -199,7 +201,8 @@ fi
 # install ansible if it isn't already available
 if [ -x "$(command -v ansible)" ];
 then
-  echo "ansible is found!"
+  gum_info "by the way, ansible is installed."
 else
-  pipx install ansible-core || exit
+  #pipx install ansible-core || exit
+  gum_warn "ansible is not installed."
 fi
