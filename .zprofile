@@ -1,6 +1,7 @@
 export UU_ORDER="$UU_ORDER:~/.zprofile"
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
+echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.2.0/bin:" || export PATH="$HOME/.local/share/gem/ruby/3.2.0/bin:$PATH"
 
 if [ -d $HOME/.cargo/bin ]; then
   PATH="$PATH:$HOME/.cargo/bin"
