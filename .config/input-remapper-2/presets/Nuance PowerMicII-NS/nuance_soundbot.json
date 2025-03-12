@@ -1,0 +1,98 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 258,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "XF86AudioRecord",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 257,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "XF86LaunchA",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 256,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Control_L + v",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 262,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Control_L + c",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 264,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_ENTER",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 263,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_F1",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 260,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KP_Down",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 261,
+                "origin_hash": "f12c74d150e382ffb545eaeadbbe29b0"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_UP",
+        "mapping_type": "key_macro"
+    }
+]

@@ -1,0 +1,74 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 258,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_RECORD",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 256,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Control_L + v",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 262,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Control_L + c",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 264,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_ENTER",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 261,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Super_L",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 259,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "XF86AudioMicMute",
+        "mapping_type": "key_macro"
+    }
+]
