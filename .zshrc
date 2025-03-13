@@ -137,6 +137,7 @@ useditor() {
   export EDITOR="$@"
   export GIT_EDITOR="$@"
   export SVN_EDITOR="$@"
+  export VISUAL="$@"
 }
 
 if [[ ! -n $EDITOR || $EDITOR != "micro" ]]; then useditor micro; fi
@@ -150,12 +151,15 @@ TERMCMD="$TERMINAL"
 
 eval "$(zoxide init zsh)"
 
-# export PYENV_ROOT="$HOME/.pyenv"
-# if [[ -d $PYENV_ROOT/bin ]]; then
-#   export PATH="$PYENV_ROOT/bin:$PATH"
-#   eval "$(pyenv init -)"
-# fi
+export PYENV_ROOT="$HOME/.pyenv"
+if [[ -d $PYENV_ROOT/bin ]]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+  export PATH="$(pyenv root)/shims:$PATH"
+fi
 
-export PATH="$PATH:$HOME/.rvm/bin"
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+if [ -d $HOME/.rvm/bin ]; then
+  export PATH="$PATH:$HOME/.rvm/bin"
+fi

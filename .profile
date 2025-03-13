@@ -1,43 +1,28 @@
-# ~/.profile: executed by the command interpreter for login shells.
-# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
-# exists.
-# see /usr/share/doc/bash/examples/startup-files for examples.
-# the files are located in the bash-doc package.
+#!/bin/sh
+export UU_ORDER="$UU_ORDER:~/.profile"
 
-# the default umask is set in /etc/profile; for setting the umask
-# for ssh logins, install and configure the libpam-umask package.
-#umask 022
+# set -a
+# set +a
 
-# if running bash
-if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc if it exists
-    if [ -f "$HOME/.bashrc" ]; then
-	. "$HOME/.bashrc"
-    fi
-fi
+#if [ -n "$(ls "$HOME"/.config/profile.d 2>/dev/null)" ]; then
+#	for f in "$HOME"/.config/profile.d/*; do
+#		# shellcheck source=/dev/null
+#		. "$f"
+#	done
+#fi
+#export NO_AT_BRIDGE=1
+#export QT_SCALE_FACTOR=1.0
+#export QT_FONT_DPI=96
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
+# This value is now set in /etc/pofile
+#export QT_QPA_PLATFORMTHEME=qt5ct
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
+#export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-#export PATH="$PATH:$HOME/Utils/bin"
+export RAY_PARENT_SCRIPT_DIR="$HOME/Sessions/ray-scripts"
 
-. "$HOME/.cargo/env"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
+[[ -f ~/.cargo/env ]] && . ~/.cargo/env
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+export PATH="$PATH:$HOME/.rvm/bin"
