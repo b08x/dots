@@ -163,6 +163,8 @@ alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
 
 alias jq="jq -r"
 
+alias mpv="mpv --hwdec=auto --profile=fast"
+
 alias agility_story='fabric --pattern agility_story'
 alias ai='fabric --pattern ai'
 alias analyze_answers='fabric --pattern analyze_answers'
