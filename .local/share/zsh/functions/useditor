@@ -1,5 +1,0 @@
-useditor() {
-  export EDITOR="$@"
-  export GIT_EDITOR="$@"
-  export SVN_EDITOR="$@"
-}

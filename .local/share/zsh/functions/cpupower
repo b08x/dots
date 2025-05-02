@@ -1,5 +1,0 @@
-
-function setfreq() {
-  PROFILE=$1
-  cpupower frequency-set -g $1 -r
-}

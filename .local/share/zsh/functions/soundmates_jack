@@ -1,9 +1,0 @@
-soundmates_jack () {
-
-  client="Pulse_Loopback"
-  sink="bluez_sink.D8_B7_40_35_61_7E.a2dp_sink"
-
-  pactl load-module module-jack-source source_name=$client connect=false client_name=$client
-
-  pactl load-module module-loopback source=$client sink=$sink
-}
