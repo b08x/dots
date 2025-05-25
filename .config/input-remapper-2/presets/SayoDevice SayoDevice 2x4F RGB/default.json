@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + u",
+        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + t",
         "mapping_type": "key_macro"
     },
     {
@@ -20,7 +20,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + 1",
+        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + Right",
         "mapping_type": "key_macro"
     },
     {
@@ -32,7 +32,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "XF86Back",
+        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + 3",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "XF86Forward",
+        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + 4",
         "mapping_type": "key_macro"
     },
     {

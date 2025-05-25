@@ -1,0 +1,5 @@
+install: --user-install
+update: --user-install
+gemhome: /home/b08x/.gem
+gempath:
+  - /home/b08x/.gem
