@@ -512,7 +512,7 @@ setup_spacy_venv() {
 
     log "Installing spaCy and torch (CPU) into '$venv_path'..."
     # uv pip install has its own progress bar. Run it with PROJECT_DIR_EFFECTIVE as CWD.
-    (cd "$PROJECT_DIR_EFFECTIVE" && "$UV_EXEC" pip install pip spacy torch --find-links https://download.pytorch.org/whl/cpu/torch_stable.html) \
+    (cd "$PROJECT_DIR_EFFECTIVE" && "$UV_EXEC" pip install pip spacy torch --extra-index-url https://download.pytorch.org/whl/cpu) \
         || error_exit "Failed to install spaCy and torch using uv in $PROJECT_DIR_EFFECTIVE."
     log "spaCy and torch installed."
 
