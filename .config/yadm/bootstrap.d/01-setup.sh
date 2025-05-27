@@ -169,7 +169,7 @@ fi
 DISTRO=$( hostnamectl| awk '{ print $1,$2,$3 }'|grep "Operating System"|awk '{print $3}' )
 
 # make sure pip3 git and git-lfs are installed
-hash pipx pipenv git ruby mdadm&>/dev/null &&
+hash git ruby mdadm&>/dev/null &&
 echo "Looks like we have everything we need here." ||
 
 if [ "$?" != 0 ];
@@ -177,13 +177,13 @@ then
   echo "something isn't installed...run case distro"
     case $DISTRO in
       Debian)
-        sudo apt -y install git pipx python3-venv lsb-release mdadm
+        sudo apt -y install git uv python3-venv lsb-release mdadm
         ;;
       Fedora)
         sudo dnf -y install python3-pip git lsb-release
         ;;
       Arch)
-        sudo pacman -S git python-pipx pyenv \
+        sudo pacman -S git uv \
         			   rubygems ruby-bundler lsb-release mdadm \
         			   --noconfirm --overwrite '*'
         ;;
@@ -206,3 +206,6 @@ else
   #pipx install ansible-core || exit
   gum_warn "ansible is not installed."
 fi
+
+TOOLS="$HOME/Workspace/Tools"
+
