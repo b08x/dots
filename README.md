@@ -42,6 +42,8 @@ I guess there would be a submenu for what tags to run with the ansible-pull comm
 
 ---
 
+[SIFT toolbox analysis - gemini session](https://g.co/gemini/share/73a910e97295)
+
 ```javascript
 console.log(new Date().toString());
 ```
