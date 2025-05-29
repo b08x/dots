@@ -6,9 +6,8 @@
 set -o pipefail # Exit on pipe failure.
 
 # --- Configuration ---
-YADM_REPO_NAME="b08x/dots.git" # <<< YOUR REPO (user/repo.git part)
-YADM_URL_SSH="git@github.com:${YADM_REPO_NAME}"
-YADM_URL_HTTPS="https://github.com/${YADM_REPO_NAME}"
+YADM_URL_SSH="git@github.com:b08x/dots.git"
+YADM_URL_HTTPS="https://github.com/b08x/dots.git"
 YADM_URL="" # Will be set by SSH setup
 
 GUM_VERSION="0.16.0"
@@ -134,39 +133,39 @@ copy_to_clipboard() {
 }
 
 setup_ssh_keys() {
-    local ssh_key_path="$HOME/.ssh/id_ed25519"
-    gum_title "SSH Key Setup for GitHub"
-    mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh" || gum_fail "Failed to create ~/.ssh"
+    # local ssh_key_path="$HOME/.ssh/id_ed25519"
+    # gum_title "SSH Key Setup for GitHub"
+    # mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh" || gum_fail "Failed to create ~/.ssh"
 
-    if gum_confirm "Do you want to set up/use SSH keys for Git (Recommended)?"; then
-        if [ -f "$ssh_key_path.pub" ] && gum_confirm "Use existing SSH key ($ssh_key_path.pub)?"; then
-            : # Use existing
-        else # Generate new
-            [ -f "$ssh_key_path.pub" ] && gum_warn "Backing up..." && mv "$ssh_key_path"{,.bak_$(date +%s)} && mv "$ssh_key_path.pub"{,.bak_$(date +%s)}
-            local user_email; user_email=$(gum_input --header "Enter email for SSH key:" --value "$(git config user.email || echo 'you@example.com')")
-            [ -z "$user_email" ] && gum_fail "Email cannot be empty."
-            ssh-keygen -t ed25519 -C "$user_email" -f "$ssh_key_path" -N "" -q || gum_fail "SSH key generation failed."
-        fi
-        start_ssh_agent && ssh-add "$ssh_key_path" &>/dev/null || gum_warn "Failed to add key to agent."
-        local public_key=$(<"$ssh_key_path.pub"); gum_info "Your Public SSH Key"; gum_info "$public_key"; gum_info "lines"
-        copy_to_clipboard "$public_key"
-        gum_warn "ACTION REQUIRED: Add the key to https://github.com/settings/keys"
-        while ! gum_confirm "Have you added the key to GitHub?"; do gum_warn "Please add key."; done
-        if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-            gum_info "✅ SSH connection successful! Using SSH URL."
-            YADM_URL="$YADM_URL_SSH"
-            return 0
-        else
-            gum_warn "❌ SSH connection failed."
-        fi
-    fi
-
-    if gum_confirm "SSH not set up or failed. Clone using HTTPS instead? (Read-only for yadm push)"; then
-        gum_info "Using HTTPS URL."
-        YADM_URL="$YADM_URL_HTTPS"
-    else
-        gum_fail "Cannot proceed without either SSH or HTTPS clone method."
-    fi
+    # if gum_confirm "Do you want to set up/use SSH keys for Git (Recommended)?"; then
+    #     if [ -f "$ssh_key_path.pub" ] && gum_confirm "Use existing SSH key ($ssh_key_path.pub)?"; then
+    #         : # Use existing
+    #     else # Generate new
+    #         [ -f "$ssh_key_path.pub" ] && gum_warn "Backing up..." && mv "$ssh_key_path"{,.bak_$(date +%s)} && mv "$ssh_key_path.pub"{,.bak_$(date +%s)}
+    #         local user_email; user_email=$(gum_input --header "Enter email for SSH key:" --value "$(git config user.email || echo 'you@example.com')")
+    #         [ -z "$user_email" ] && gum_fail "Email cannot be empty."
+    #         ssh-keygen -t ed25519 -C "$user_email" -f "$ssh_key_path" -N "" -q || gum_fail "SSH key generation failed."
+    #     fi
+    #     start_ssh_agent && ssh-add "$ssh_key_path" &>/dev/null || gum_warn "Failed to add key to agent."
+    #     local public_key=$(<"$ssh_key_path.pub"); gum_info "Your Public SSH Key"; gum_info "$public_key"; gum_info "lines"
+    #     copy_to_clipboard "$public_key"
+    #     gum_warn "ACTION REQUIRED: Add the key to https://github.com/settings/keys"
+    #     while ! gum_confirm "Have you added the key to GitHub?"; do gum_warn "Please add key."; done
+    #     # if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    #     #     gum_info "✅ SSH connection successful! Using SSH URL."
+    #     #     YADM_URL="$YADM_URL_SSH"
+    #     #     return 0
+    #     # else
+    #     #     gum_warn "❌ SSH connection failed."
+    #     # fi
+    # fi
+YADM_URL="$YADM_URL_SSH"
+    # if gum_confirm "SSH not set up or failed. Clone using HTTPS instead? (Read-only for yadm push)"; then
+    #     gum_info "Using HTTPS URL."
+    #     YADM_URL="$YADM_URL_HTTPS"
+    # else
+    #     gum_fail "Cannot proceed without either SSH or HTTPS clone method."
+    # fi
 }
 start_ssh_agent() { if ! pgrep -u "$USER" ssh-agent > /dev/null; then eval "$(ssh-agent -s)" > /dev/null; fi; }
 copy_to_clipboard() { local c="$1"; { command -v xclip &>/dev/null && echo -n "$c" | xclip -sel clip; } || { command -v wl-copy &>/dev/null && echo -n "$c" | wl-copy; } || return 1; }
