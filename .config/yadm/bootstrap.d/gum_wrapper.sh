@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 
+# Setup logging
+SCRIPT_LOG_DIR="${PWD}/logs"
+mkdir -p "${SCRIPT_LOG_DIR}"
+SCRIPT_LOG="${SCRIPT_LOG_DIR}/setup_$(date +%Y%m%d_%H%M%S).log"
+touch "${SCRIPT_LOG}"
+
+# Log function
+log() {
+    local level="$1"
+    local message="$2"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${level}] ${message}" | tee -a "${SCRIPT_LOG}"
+}
+
+log "INFO" "Starting setup script"
+
+# Check for overcommit and install if available
+if which overcommit >/dev/null 2>&1; then
+    log "INFO" "Installing overcommit hooks"
+    overcommit --install || log "WARN" "Failed to install overcommit hooks"
+else
+    log "WARN" "overcommit not found, skipping hook installation"
+fi
+
 # GUM
 GUM_VERSION="0.16.0"
 : "${GUM:=$HOME/.local/bin/gum}" # GUM=/usr/bin/gum ./your_script.sh
