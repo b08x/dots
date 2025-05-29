@@ -5,6 +5,14 @@
 
 set -o pipefail # Exit on pipe failure.
 
+# set a trap to exit with CTRL+C
+ctrl_c() {
+        echo "** End."
+        sleep 1
+}
+
+trap ctrl_c INT SIGINT SIGTERM ERR EXIT
+
 # --- Configuration ---
 YADM_URL_SSH="git@github.com:b08x/dots.git"
 YADM_URL_HTTPS="https://github.com/b08x/dots.git"
@@ -46,8 +54,12 @@ setup_temp_dir
 
 # --- Gum Setup (Full version - includes download) ---
 COLOR_WHITE=251; COLOR_GREEN=36; COLOR_PURPLE=212; COLOR_YELLOW=221; COLOR_RED=9
-_gum_cmd_exists() { [ -n "$GUM" ] && [ -x "$GUM" ]; }
-gum() { if ! _gum_cmd_exists; then log_plain_error "GUM NOT FOUND: $*"; return 1; fi; "$GUM" "$@"; }
+# _gum_cmd_exists is unused
+gum() {
+    # GUM must be set by gum_init to a valid executable path.
+    # gum_init ensures this or exits if it cannot make GUM executable.
+    "$GUM" "$@"
+}
 gum_style() { gum style "$@"; }
 gum_white() { gum_style --foreground "$COLOR_WHITE" "$@"; }
 gum_purple() { gum_style --foreground "$COLOR_PURPLE" "$@"; }
@@ -67,22 +79,60 @@ gum_choose() { gum choose --cursor "> " --header.foreground "$COLOR_PURPLE" --cu
 gum_filter() { gum filter --prompt "> " --indicator ">" --placeholder "Type to filter..." --height 8 --header.foreground "$COLOR_PURPLE" "$@"; }
 gum_spin() { gum spin --spinner dot --title.foreground "$COLOR_PURPLE" --spinner.foreground "$COLOR_PURPLE" --show-output "$@"; }
 gum_init() {
-    if ! _gum_cmd_exists; then
-        log_plain_info "Gum not found, attempting to download v${GUM_VERSION}..."
-        local gum_url gum_download_path os_name arch_name
-        os_name=$(uname -s | tr '[:upper:]' '[:lower:]')
-        arch_name=$(uname -m); case "$arch_name" in x86_64) arch_name="amd64" ;; aarch64) arch_name="arm64" ;; *) arch_name="$arch_name" ;; esac
-        gum_url="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum_0.16.0_Linux_x86_64.tar.gz"
-        gum_download_path="${SCRIPT_TMP_DIR}/gum.tar.gz"
-        if ! curl -Lsf "$gum_url" -o "$gum_download_path"; then log_plain_error "Failed to download gum." && exit 1; fi
-        if ! tar -xzf "$gum_download_path" --directory "$SCRIPT_TMP_DIR"; then log_plain_error "Failed to extract gum." && exit 1; fi
-        local extracted_gum_binary=$(find "$SCRIPT_TMP_DIR" -name "gum" -type f -executable -print -quit)
-        [ -z "$extracted_gum_binary" ] && log_plain_error "Gum binary not found." && exit 1
-        mkdir -p "$HOME/.local/bin" && mv "$extracted_gum_binary" "$GUM" && chmod +x "$GUM" || { log_plain_error "Failed to install gum."; exit 1; }
-        log_plain_info "✅ Gum installed to $GUM."
-    else log_plain_info "✅ Gum found at $GUM."; fi
-}
+    # Attempt to find gum in PATH first
+    if command -v gum &>/dev/null; then
+        local system_gum_path
+        system_gum_path=$(command -v gum)
+        if [ -x "$system_gum_path" ]; then
+            GUM="$system_gum_path" # Use system-wide gum
+            log_plain_info "✅ Gum found in PATH at $GUM."
+            return 0
+        else
+            log_plain_warn "Gum found in PATH at '$system_gum_path' but it is not executable. Attempting local installation/check."
+            # GUM remains its default value ($HOME/.local/bin/gum) for the next checks/installation
+        fi
+    fi
 
+    # If not found in PATH or system one not executable, check if $GUM (default $HOME/.local/bin/gum) is already installed and executable
+    # GUM is already defaulted to $HOME/.local/bin/gum by: : "${GUM:=$HOME/.local/bin/gum}"
+    if [ -x "$GUM" ]; then
+        log_plain_info "✅ Gum found at $GUM."
+        return 0
+    fi
+
+    # If neither system-wide nor local $GUM exists and is executable, proceed to download to $GUM
+    log_plain_info "Gum not found or not executable. Attempting to download v${GUM_VERSION} to $GUM..."
+
+    local gum_url gum_download_path os_name arch_name
+    os_name=$(uname -s)
+    arch_name=$(uname -m)
+    case "$arch_name" in
+        x86_64) arch_name="x86_64" ;;
+        aarch64) arch_name="arm64" ;;
+        *) arch_name="$arch_name" ;; # Keep original if not x86_64 or aarch64
+    esac
+    gum_url="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_${os_name}_${arch_name}.tar.gz"
+    gum_download_path="${SCRIPT_TMP_DIR}/gum.tar.gz"
+
+    mkdir -p "$(dirname "$GUM")" || { log_plain_error "Failed to create directory $(dirname "$GUM")."; exit 1; }
+
+    if ! curl -Lsf "$gum_url" -o "$gum_download_path"; then log_plain_error "Failed to download gum from $gum_url." && exit 1; fi
+    if ! tar -xzf "$gum_download_path" --directory "$SCRIPT_TMP_DIR"; then log_plain_error "Failed to extract gum." && exit 1; fi
+
+    local extracted_gum_binary
+    extracted_gum_binary=$(find "$SCRIPT_TMP_DIR" -name "gum" -type f -executable -print -quit)
+    [ -z "$extracted_gum_binary" ] && log_plain_error "Gum binary not found in the downloaded archive. Contents of $SCRIPT_TMP_DIR: $(ls -A "$SCRIPT_TMP_DIR")" && exit 1
+
+    mv "$extracted_gum_binary" "$GUM" || { log_plain_error "Failed to move gum to $GUM."; exit 1; }
+    chmod +x "$GUM" || { log_plain_error "Failed to make $GUM executable."; exit 1; }
+    log_plain_info "✅ Gum installed to $GUM."
+
+    # Final verification that $GUM is now executable
+    if ! [ -x "$GUM" ]; then
+        log_plain_error "Gum installation appears to have failed. $GUM is not executable."
+        exit 1
+    fi
+}
 # --- Yadm Installation ---
 install_yadm() {
     gum_title "Yadm Installation"
@@ -132,41 +182,32 @@ copy_to_clipboard() {
     fi
 }
 
+# --- SSH Key Setup (Idempotent) ---
 setup_ssh_keys() {
-    # local ssh_key_path="$HOME/.ssh/id_ed25519"
-    # gum_title "SSH Key Setup for GitHub"
-    # mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh" || gum_fail "Failed to create ~/.ssh"
+  if [ -f "${HOME}/.ssh/id_ed25519" ] && [ -f "${HOME}/.ssh/id_ed25519.pub" ]; then
+    say "SSH keys already exist." $GREEN
+    return 0
+  fi
 
-    # if gum_confirm "Do you want to set up/use SSH keys for Git (Recommended)?"; then
-    #     if [ -f "$ssh_key_path.pub" ] && gum_confirm "Use existing SSH key ($ssh_key_path.pub)?"; then
-    #         : # Use existing
-    #     else # Generate new
-    #         [ -f "$ssh_key_path.pub" ] && gum_warn "Backing up..." && mv "$ssh_key_path"{,.bak_$(date +%s)} && mv "$ssh_key_path.pub"{,.bak_$(date +%s)}
-    #         local user_email; user_email=$(gum_input --header "Enter email for SSH key:" --value "$(git config user.email || echo 'you@example.com')")
-    #         [ -z "$user_email" ] && gum_fail "Email cannot be empty."
-    #         ssh-keygen -t ed25519 -C "$user_email" -f "$ssh_key_path" -N "" -q || gum_fail "SSH key generation failed."
-    #     fi
-    #     start_ssh_agent && ssh-add "$ssh_key_path" &>/dev/null || gum_warn "Failed to add key to agent."
-    #     local public_key=$(<"$ssh_key_path.pub"); gum_info "Your Public SSH Key"; gum_info "$public_key"; gum_info "lines"
-    #     copy_to_clipboard "$public_key"
-    #     gum_warn "ACTION REQUIRED: Add the key to https://github.com/settings/keys"
-    #     while ! gum_confirm "Have you added the key to GitHub?"; do gum_warn "Please add key."; done
-    #     # if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    #     #     gum_info "✅ SSH connection successful! Using SSH URL."
-    #     #     YADM_URL="$YADM_URL_SSH"
-    #     #     return 0
-    #     # else
-    #     #     gum_warn "❌ SSH connection failed."
-    #     # fi
-    # fi
-YADM_URL="$YADM_URL_SSH"
-    # if gum_confirm "SSH not set up or failed. Clone using HTTPS instead? (Read-only for yadm push)"; then
-    #     gum_info "Using HTTPS URL."
-    #     YADM_URL="$YADM_URL_HTTPS"
-    # else
-    #     gum_fail "Cannot proceed without either SSH or HTTPS clone method."
-    # fi
+  say "SSH keys not found. Attempting to transfer from another host." $YELLOW
+
+  REMOTE_HOST=$(gum input --placeholder "hostname.domain.net" --prompt "Enter the hostname where SSH keys are stored: ")
+  ssh_folder=$(gum input --value "${HOME}/.ssh" --prompt "Enter the folder name for SSH keys: ")
+
+  # Copy SSH keys
+  if rsync -avP --delete "${REMOTE_HOST}:~/.ssh/" "${HOME}/.ssh/"; then
+    # Set proper permissions for SSH keys
+    chmod 700 "${HOME}/.ssh"
+    chmod 600 "${HOME}/.ssh"/*
+    say "SSH keys successfully transferred and set up." $GREEN
+    YADM_URL="$YADM_URL_SSH"
+    return 0
+  else
+    say "Failed to transfer SSH keys." $RED
+    return 1
+  fi
 }
+
 start_ssh_agent() { if ! pgrep -u "$USER" ssh-agent > /dev/null; then eval "$(ssh-agent -s)" > /dev/null; fi; }
 copy_to_clipboard() { local c="$1"; { command -v xclip &>/dev/null && echo -n "$c" | xclip -sel clip; } || { command -v wl-copy &>/dev/null && echo -n "$c" | wl-copy; } || return 1; }
 
