@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source .config/yadm/bootstrap.d/gum_wrapper.sh
+source $HOME/.config/yadm/bootstrap.d/gum_wrapper.sh
 
 # Now you can use the gum functions
 gum_init # Initialize gum (download if not present)
