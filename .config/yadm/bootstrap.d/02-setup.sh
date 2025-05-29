@@ -37,7 +37,7 @@ export GEM_HOME="${HOME}/.gem"
 # install ruby gems
 echo "gem: --user-install --no-document" | sudo tee /root/.gemrc
 
-INSTALLED_GEMS=$(gem list | awk '{ print $1 }')
+INSTALLED_GEMS=$(gem list | choose 0)
 
 GEMS=(
   'activesupport'
@@ -97,7 +97,7 @@ else
   cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
 fi
 
-host="$(uname -n)
+host="$(uname -n)"
 
 echo "$host ansible_user=$USER ansible_connection=local" > $ANSIBLE_INVENTORY
 
