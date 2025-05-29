@@ -11,7 +11,7 @@ YADM_URL_SSH="git@github.com:${YADM_REPO_NAME}"
 YADM_URL_HTTPS="https://github.com/${YADM_REPO_NAME}"
 YADM_URL="" # Will be set by SSH setup
 
-GUM_VERSION="0.13.0"
+GUM_VERSION="0.16.0"
 : "${GUM:=$HOME/.local/bin/gum}"
 SCRIPT_TMP_DIR=""
 ERROR_MSG_FILE=""
@@ -73,7 +73,7 @@ gum_init() {
         local gum_url gum_download_path os_name arch_name
         os_name=$(uname -s | tr '[:upper:]' '[:lower:]')
         arch_name=$(uname -m); case "$arch_name" in x86_64) arch_name="amd64" ;; aarch64) arch_name="arm64" ;; *) arch_name="$arch_name" ;; esac
-        gum_url="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_${os_name}_${arch_name}.tar.gz"
+        gum_url="https://github.com/charmbracelet/gum/releases/download/v0.16.0/gum_0.16.0_Linux_x86_64.tar.gz"
         gum_download_path="${SCRIPT_TMP_DIR}/gum.tar.gz"
         if ! curl -Lsf "$gum_url" -o "$gum_download_path"; then log_plain_error "Failed to download gum." && exit 1; fi
         if ! tar -xzf "$gum_download_path" --directory "$SCRIPT_TMP_DIR"; then log_plain_error "Failed to extract gum." && exit 1; fi
@@ -212,6 +212,27 @@ handle_yadm_conflicts() {
     else gum_warn "No files selected. Proceeding."; fi
      gum_info "✅ Yadm conflict handling finished."
 }
+
+if [ -x "$(command -v cargo)" ];
+then
+  echo "cargo is found!"
+else
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o - | sh
+fi
+
+if [ -x "$(command -v choose)" ];
+then
+  echo "choose is found!"
+else
+  cargo install choose
+fi
+
+if [ -x "$(command -v sd)" ];
+then
+  echo "sd is found!"
+else
+  cargo install sd
+fi
 
 # --- Main Execution Flow for setup.sh ---
 gum_init
