@@ -3,7 +3,7 @@ export UU_ORDER="$UU_ORDER:~/.zshrc"
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
-ZSH_THEME="kphoen"
+ZSH_THEME="strug"
 
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
@@ -160,12 +160,15 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   export PATH="$(pyenv root)/shims:$PATH"
 fi
 
-# bun completions
-[ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"
+echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+echo $PATH | grep -q "$HOME/.gem/ruby/3.4.0/bin:" || export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
 
-export GEM_HOME="$HOME/.gem"
-export PATH="$GEM_HOME/ruby/3.4.0/bin:$PATH"
+export GEM_HOME="$(gem env user_gemhome)"
+export PATH="$PATH:$GEM_HOME/bin"
+
+PATH="$HOME/Workspace/Tools/bin:$PATH"
+
+if [ -d $HOME/.rvm/bin ]; then
+  export PATH="$PATH:$HOME/.rvm/bin"
+fi
