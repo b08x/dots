@@ -32,6 +32,8 @@ BOOTSTRAP_PKGS=(
 # install pre-requisite packages
 sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}"
 
+export GEM_HOME="${HOME}/.gem"
+
 # install ruby gems
 echo "gem: --user-install --no-document" | sudo tee /root/.gemrc
 
@@ -82,7 +84,6 @@ mapfile -t DIFF < \
         <(IFS=$'\n'; echo "${INSTALLED_GEMS[*]}" | sort) \
     )
 
-export GEM_HOME="${HOME}/.gem"
 
 for gem in "${DIFF[@]}"; do
   gem install "$gem" || continue
@@ -96,7 +97,9 @@ else
   cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
 fi
 
-echo "$(uname -n) ansible_user=$USER ansible_connection=local" > $ANSIBLE_INVENTORY
+host="$(uname -n)
 
-ansible-playbook -K -c local -i ${ANSIBLE_INVENTORY}, ${ANSIBLE_HOME}/playbooks/full.yml
+echo "$host ansible_user=$USER ansible_connection=local" > $ANSIBLE_INVENTORY
+
+ansible-playbook -K -i $ANSIBLE_INVENTORY $ANSIBLE_HOME/playbooks/full.yml --limit $host
 
