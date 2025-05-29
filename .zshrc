@@ -169,4 +169,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$PATH:$HOME/.rvm/bin"
 
 export GEM_HOME="$HOME/.gem"
-export PATH="$GEM_HOME/bin:$GEM_HOME/ruby/3.4.0/bin:$PATH"
+export PATH="$GEM_HOME/ruby/3.4.0/bin:$PATH"

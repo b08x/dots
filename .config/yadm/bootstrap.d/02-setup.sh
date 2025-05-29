@@ -98,8 +98,5 @@ fi
 
 echo "$(uname -n) ansible_user=$USER ansible_connection=local" > $ANSIBLE_INVENTORY
 
-ansible-playbook -K -c local -i "${ANSIBLE_INVENTORY}", "${ANSIBLE_HOME}/playbooks/full.yml" \
-                -e "newInstall=true" \
-                -e "cleanup=true"
-
+ansible-playbook -K -c local -i ${ANSIBLE_INVENTORY}, ${ANSIBLE_HOME}/playbooks/full.yml
 
