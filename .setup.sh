@@ -148,7 +148,7 @@ setup_ssh_keys() {
             ssh-keygen -t ed25519 -C "$user_email" -f "$ssh_key_path" -N "" -q || gum_fail "SSH key generation failed."
         fi
         start_ssh_agent && ssh-add "$ssh_key_path" &>/dev/null || gum_warn "Failed to add key to agent."
-        local public_key=$(<"$ssh_key_path.pub"); gum_info "--- Your Public SSH Key ---"; gum_info "$public_key"; gum_info "----------------------------"
+        local public_key=$(<"$ssh_key_path.pub"); gum_info "Your Public SSH Key"; gum_info "$public_key"; gum_info "----------------------------"
         copy_to_clipboard "$public_key"
         gum_warn "ACTION REQUIRED: Add the key to https://github.com/settings/keys"
         while ! gum_confirm "Have you added the key to GitHub?"; do gum_warn "Please add key."; done
