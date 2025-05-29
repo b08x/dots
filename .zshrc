@@ -152,11 +152,13 @@ TERMCMD="$TERMINAL"
 eval "$(zoxide init zsh)"
 
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-export PATH="$(pyenv root)/shims:$PATH"
+if [[ -d $PYENV_ROOT/bin ]]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+  export PATH="$(pyenv root)/shims:$PATH"
+fi
 
 # bun completions
 [ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"
@@ -164,9 +166,6 @@ export PATH="$(pyenv root)/shims:$PATH"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
 
 export GEM_HOME="$HOME/.gem"
 export PATH="$GEM_HOME/ruby/3.4.0/bin:$PATH"
