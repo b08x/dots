@@ -1,6 +1,11 @@
 # dots
 
 
+```shell
+curl -sSL https://bit.ly/b08x-dots | bash
+```
+
+
 Well, the goal is to have the files/tools available on any host that the user has access to
 So the process would go on a new syste; download and execute the setup script with a curl command. And the resulting setup script will install yadam to the .local bin directory. And then everything from there is going to be installed self-contained within the user profile. the main thing that needs to happen here is that ansible will need to be install for the user unless it's already installed on the system
 

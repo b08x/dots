@@ -92,6 +92,9 @@ BOOTSTRAP_PKGS=(
 # install pre-requisite packages
 sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}" --overwrite '*'
 
+export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
+export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
+
 INSTALLED_GEMS=$(gem list | choose 0)
 
 GEMS=(
