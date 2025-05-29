@@ -13,6 +13,15 @@ ctrl_c() {
 
 trap ctrl_c INT SIGINT SIGTERM ERR EXIT
 
+# --- Wipe Screen Function ---
+wipe() {
+  tput -S <<!
+clear
+cup 1
+!
+}
+
+wipe
 # --- Configuration ---
 YADM_URL_SSH="git@github.com:b08x/dots.git"
 YADM_URL_HTTPS="https://github.com/b08x/dots.git"
@@ -189,7 +198,7 @@ setup_ssh_keys() {
     return 0
   fi
 
-  say "SSH keys not found. Attempting to transfer from another host." $YELLOW
+  gum_info "SSH keys not found. Attempting to transfer from another host."
 
   REMOTE_HOST=$(gum input --placeholder "hostname.domain.net" --prompt "Enter the hostname where SSH keys are stored: ")
   ssh_folder=$(gum input --value "${HOME}/.ssh" --prompt "Enter the folder name for SSH keys: ")
@@ -199,11 +208,11 @@ setup_ssh_keys() {
     # Set proper permissions for SSH keys
     chmod 700 "${HOME}/.ssh"
     chmod 600 "${HOME}/.ssh"/*
-    say "SSH keys successfully transferred and set up." $GREEN
+    gum_info "SSH keys successfully transferred and set up." $GREEN
     YADM_URL="$YADM_URL_SSH"
     return 0
   else
-    say "Failed to transfer SSH keys." $RED
+    gum_info "Failed to transfer SSH keys." $RED
     return 1
   fi
 }
@@ -231,7 +240,7 @@ handle_yadm_conflicts() {
         fi
     else gum_info "Yadm repo exists. Checking status..."; fi
 
-    local conflicting_files=$("$YADM_CMD" status --porcelain | grep -E '^ M|^??' | awk '{print $NF}')
+    local conflicting_files=$("$YADM_CMD" status --porcelain | grep -E '^ M|^\\?\\?' | awk '{print $NF}')
     if [ -z "$conflicting_files" ]; then gum_info "✅ No conflicts found."; return 0; fi
 
     gum_warn "Found potential conflicts/untracked files:"; echo "$conflicting_files" | "$GUM" style --border normal
@@ -274,6 +283,8 @@ else
   cargo install sd
 fi
 
+sleep 1
+wipe
 # --- Main Execution Flow for setup.sh ---
 gum_init
 gum_title "Starting Workstation Bootstrap (Stage 1)..."
