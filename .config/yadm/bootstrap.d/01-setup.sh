@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # GUM
-GUM_VERSION="0.13.0"
+GUM_VERSION="0.16.0"
 : "${GUM:=$HOME/.local/bin/gum}"   # GUM=/usr/bin/gum ./your_script.sh
 
 # COLORS
@@ -158,7 +158,7 @@ trap 'trap_error ${FUNCNAME} ${LINENO}' ERR
 gum_init # Initialize gum (download if not present)
 
 gum_title "yadm bootstrap"
-gum_info "This is an info message using gum."
+gum_info "Setup the user home config."
 
 if gum_confirm "Do you want to continue?"; then
     gum_green "User confirmed!"
@@ -208,4 +208,5 @@ else
 fi
 
 TOOLS="$HOME/Workspace/Tools"
+
 

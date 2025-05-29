@@ -194,7 +194,8 @@ copy_to_clipboard() {
 # --- SSH Key Setup (Idempotent) ---
 setup_ssh_keys() {
   if [ -f "${HOME}/.ssh/id_ed25519" ] && [ -f "${HOME}/.ssh/id_ed25519.pub" ]; then
-    say "SSH keys already exist." $GREEN
+    gum_info "SSH keys already exist."
+    YADM_URL="$YADM_URL_SSH"
     return 0
   fi
 
@@ -262,26 +263,69 @@ handle_yadm_conflicts() {
      gum_info "✅ Yadm conflict handling finished."
 }
 
-if [ -x "$(command -v cargo)" ];
-then
-  echo "cargo is found!"
+# Check for cargo and install if missing, then install associated tools
+log_plain_info "Checking for cargo..."
+CARGO_AVAILABLE_FOR_TOOLS=false
+if [ -x "$(command -v cargo)" ]; then
+    log_plain_info "✅ cargo is already installed."
+    CARGO_AVAILABLE_FOR_TOOLS=true
 else
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o - | sh
+    log_plain_warn "cargo not found. Attempting to install Rust and cargo..."
+    # Use -y for default rustup installation options, --no-modify-path to prevent changes to shell profiles
+    if curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o - | sh -s -- -y --no-modify-path; then
+        log_plain_info "Rustup installation script completed."
+        # Source cargo environment to make it available in the current shell session
+        if [ -f "$HOME/.cargo/env" ]; then
+            # shellcheck source=/dev/null
+            . "$HOME/.cargo/env"
+            log_plain_info "Sourced $HOME/.cargo/env to update PATH for cargo."
+        else
+            # Fallback if .cargo/env is not created, try adding to PATH directly
+            log_plain_warn "$HOME/.cargo/env not found after rustup install. Attempting to set PATH manually for cargo."
+            export PATH="$HOME/.cargo/bin:$PATH"
+        fi
+
+        # Verify cargo is now executable
+        if [ -x "$(command -v cargo)" ]; then
+            log_plain_info "✅ cargo installed successfully and is now available."
+            CARGO_AVAILABLE_FOR_TOOLS=true
+        else
+            log_plain_warn "⚠️ cargo installation script ran, but cargo command is still not found or not executable in PATH."
+        fi
+    else
+        log_plain_warn "⚠️ Failed to download or run Rust/cargo installation script."
+    fi
 fi
 
-if [ -x "$(command -v choose)" ];
-then
-  echo "choose is found!"
+# If cargo is available, proceed to install 'choose' and 'sd'
+if [ "$CARGO_AVAILABLE_FOR_TOOLS" = true ]; then
+    log_plain_info "Checking for 'choose'..."
+    if [ -x "$(command -v choose)" ]; then
+        log_plain_info "✅ 'choose' is already installed."
+    else
+        log_plain_warn "'choose' not found. Attempting to install with cargo..."
+        if cargo install choose; then
+            log_plain_info "✅ 'choose' installed successfully via cargo."
+        else
+            log_plain_warn "⚠️ Failed to install 'choose' via cargo."
+        fi
+    fi
+
+    log_plain_info "Checking for 'sd'..."
+    if [ -x "$(command -v sd)" ]; then
+        log_plain_info "✅ 'sd' is already installed."
+    else
+        log_plain_warn "'sd' not found. Attempting to install with cargo..."
+        if cargo install sd; then
+            log_plain_info "✅ 'sd' installed successfully via cargo."
+        else
+            log_plain_warn "⚠️ Failed to install 'sd' via cargo."
+        fi
+    fi
 else
-  cargo install choose
+    log_plain_warn "cargo is not available. Skipping installation of 'choose' and 'sd'."
 fi
 
-if [ -x "$(command -v sd)" ];
-then
-  echo "sd is found!"
-else
-  cargo install sd
-fi
 
 sleep 1
 wipe
