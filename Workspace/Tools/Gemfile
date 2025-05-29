@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+
+gem 'gli', '~> 2.21'
+gem 'tty-prompt', '~> 0.23'
+gem 'tty-box', '~> 0.7'
+gem 'tty-markdown', '~> 0.7'
+gem 'tty-table', '~> 0.12'
+gem 'tty-editor', '~> 0.7'
+gem 'tty-config', '~> 0.5'
+gem 'front_matter_parser', '~> 1.0'
+gem 'pry'
+
+
+group :development do
+  # Development-only gems
+  gem 'parallel'
+  gem 'rainbow'
+  gem 'regexp_parser'
+  gem 'ruby-progressbar'
+  gem 'unicode-display_width'
+  gem 'lint_roller'  
+  gem 'listen', require: false
+  gem 'rubocop', require: false
+  gem 'rubocop-packaging'
+  gem 'rubocop-performance'
+  gem 'rubocop-rake'
+  gem 'rubocop-rspec'
+  gem 'rubocop-shopify'
+  gem 'rubocop-thread_safety'
+  gem 'ruby-lsp'
+  gem 'solargraph'
+  gem 'webrick'
+end
