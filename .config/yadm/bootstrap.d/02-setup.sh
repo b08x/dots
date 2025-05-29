@@ -30,12 +30,7 @@ BOOTSTRAP_PKGS=(
 )
 
 # install pre-requisite packages
-sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}"
-
-export GEM_HOME="${HOME}/.gem"
-
-# install ruby gems
-echo "gem: --user-install --no-document" | sudo tee /root/.gemrc
+sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}" --overwrite '*'
 
 INSTALLED_GEMS=$(gem list | choose 0)
 
@@ -86,7 +81,7 @@ mapfile -t DIFF < \
 
 
 for gem in "${DIFF[@]}"; do
-  gem install "$gem" || continue
+  gem install --user-install "$gem" || continue
 done
 
 if [ ! -d $ANSIBLE_HOME ]; then

@@ -162,7 +162,9 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
+
 echo $PATH | grep -q "$HOME/.gem/ruby/3.4.0/bin:" || export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
+echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
 
 export GEM_HOME="$(gem env user_gemhome)"
 export PATH="$PATH:$GEM_HOME/bin"
