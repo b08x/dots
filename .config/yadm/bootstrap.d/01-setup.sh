@@ -99,7 +99,7 @@ export GEM_HOME="$HOME/.gem"
 export GEM_PATH="$HOME/.gem"
 
 
-INSTALLED_GEMS=$(gem list | choose 0)
+INSTALLED_GEMS=$(gem list --config-file ~/.gemrc | choose 0)
 
 GEMS=(
   'activesupport'
