@@ -201,7 +201,12 @@ setup_ssh_keys() {
 
   gum_info "SSH keys not found. Attempting to transfer from another host."
 
-  REMOTE_HOST=$(gum input --placeholder "hostname.domain.net" --prompt "Enter the hostname where SSH keys are stored: ")
+  sleep 1
+  wipe
+  gum_info "enter the host where the ssh keys can be transferred from"
+  sleep 0.5
+  REMOTE_HOST=$(gum input --placeholder "hostname.domain.net")
+
   ssh_folder=$(gum input --value "${HOME}/.ssh" --prompt "Enter the folder name for SSH keys: ")
 
   # Copy SSH keys
@@ -211,7 +216,6 @@ setup_ssh_keys() {
     chmod 600 "${HOME}/.ssh"/*
     gum_info "SSH keys successfully transferred and set up." $GREEN
     YADM_URL="$YADM_URL_SSH"
-    return 0
   else
     gum_info "Failed to transfer SSH keys." $RED
     return 1

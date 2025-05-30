@@ -122,6 +122,7 @@ GEMS=(
   'highline'
   'i3ipc'
   'i18n'
+  'irb'
   'kramdown'
   'logging'
   'minitest'
