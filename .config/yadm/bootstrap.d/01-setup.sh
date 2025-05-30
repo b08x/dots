@@ -69,7 +69,7 @@ export PATH+=":$HOME/.local/share/gem/ruby/3.4.0/bin:/usr/local/sbin:/usr/local/
 export ANSIBLE_HOME="$HOME/.config/syncopated"
 export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
 export ANSIBLE_CONFIG="$ANSIBLE_HOME/ansible.cfg"
-export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory.ini"
+export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory/dynamic_inventory.py"
 
 BOOTSTRAP_PKGS=(
   'ansible'
@@ -95,6 +95,10 @@ sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}" --overwrite '*'
 export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
 export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
 
+export GEM_HOME="$HOME/.gem"
+export GEM_PATH="$HOME/.gem"
+
+
 INSTALLED_GEMS=$(gem list | choose 0)
 
 GEMS=(
@@ -115,6 +119,7 @@ GEMS=(
   'minitest'
   'mocha'
   'multi_json'
+  'nano-bots'
   'net-ssh'
   'parallel'
   'pastel'
@@ -157,8 +162,6 @@ fi
 
 host="$(uname -n)"
 
-echo "$host ansible_user=$USER ansible_connection=local" > $ANSIBLE_INVENTORY
-
-ansible-playbook -K -i $ANSIBLE_INVENTORY $ANSIBLE_HOME/playbooks/full.yml --limit $host
+ansible-playbook -K -i $ANSIBLE_HOME/inventory/dynamic_inventory.py $ANSIBLE_HOME/playbooks/full.yml --limit $host
 
 
