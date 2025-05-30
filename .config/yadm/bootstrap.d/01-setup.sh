@@ -191,8 +191,7 @@ gum_green "starting full playbook run"
 
 sleep 1
 
-ansible-playbook -K -i $ANSIBLE_HOME/inventory/dynamic_inventory.py \ 
-                       $ANSIBLE_HOME/playbooks/full.yml \
-                       --limit $host
+cd $ANSIBLE_HOME && \
+ansible-playbook -K -i inventory/dynamic_inventory.py playbooks/full.yml --limit $host
 
 
