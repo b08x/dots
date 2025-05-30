@@ -8,6 +8,14 @@ ctrl_c() {
 
 trap ctrl_c INT SIGINT SIGTERM ERR EXIT
 
+# --- Wipe Screen Function ---
+wipe() {
+  tput -S <<!
+clear
+cup 1
+!
+}
+
 source $HOME/.config/yadm/bootstrap.d/gum_wrapper.sh
 
 # Now you can use the gum functions
