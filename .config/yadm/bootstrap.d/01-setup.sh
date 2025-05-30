@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# set a trap to exit with CTRL+C
+ctrl_c() {
+        echo "** End."
+        sleep 1
+}
+
+trap ctrl_c INT SIGINT SIGTERM ERR EXIT
+
 source $HOME/.config/yadm/bootstrap.d/gum_wrapper.sh
 
 # Now you can use the gum functions
@@ -162,6 +170,8 @@ fi
 
 host="$(uname -n)"
 
-ansible-playbook -K -i $ANSIBLE_HOME/inventory/dynamic_inventory.py $ANSIBLE_HOME/playbooks/full.yml --limit $host
+ansible-playbook -K -i $ANSIBLE_HOME/inventory/dynamic_inventory.py \ 
+                       $ANSIBLE_HOME/playbooks/full.yml \
+                       --limit $host
 
 
