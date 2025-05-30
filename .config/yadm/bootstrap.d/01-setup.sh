@@ -74,7 +74,7 @@ DISTRO=$( hostnamectl| awk '{ print $1,$2,$3 }'|grep "Operating System"|awk '{pr
 
 export PATH+=":$HOME/.local/share/gem/ruby/3.4.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-export ANSIBLE_HOME="$HOME/.config/syncopated"
+export ANSIBLE_HOME="$HOME/.config/syncopated/ansible"
 export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
 export ANSIBLE_CONFIG="$ANSIBLE_HOME/ansible.cfg"
 export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory/dynamic_inventory.py"
@@ -149,27 +149,39 @@ GEMS=(
   'tty-tree'
 )
 
-# https://stackoverflow.com/a/42399479
-mapfile -t DIFF < \
-    <(comm -23 \
-        <(IFS=$'\n'; echo "${GEMS[*]}" | sort) \
-        <(IFS=$'\n'; echo "${INSTALLED_GEMS[*]}" | sort) \
-    )
+install_gems() {
+  # https://stackoverflow.com/a/42399479
+    mapfile -t DIFF < \
+        <(comm -23 \
+            <(IFS=$'\n'; echo "${GEMS[*]}" | sort) \
+            <(IFS=$'\n'; echo "${INSTALLED_GEMS[*]}" | sort) \
+        )
 
 
-for gem in "${DIFF[@]}"; do
-  gem install --user-install "$gem" || continue
-done
+    for gem in "${DIFF[@]}"; do
+      gem install --user-install "$gem" || continue
+    done
+}
+
+if gum_confirm "install Gems?"; then install_gems; fi
+
 
 if [ ! -d $ANSIBLE_HOME ]; then
+  gum_info "cloning Ansible collection"
   git clone --recursive git@github.com:syncopatedX/ansible.git $ANSIBLE_HOME
   cd $ANSIBLE_HOME && git checkout development
 else
-  echo "syncopated config already exists."
+  gum_yellow "ansible collection already exists, updating..."
   cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
 fi
 
 host="$(uname -n)"
+
+wipe
+
+gum_green "starting full playbook run"
+
+sleep 1
 
 ansible-playbook -K -i $ANSIBLE_HOME/inventory/dynamic_inventory.py \ 
                        $ANSIBLE_HOME/playbooks/full.yml \
