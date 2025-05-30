@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Setup logging
-SCRIPT_LOG_DIR="${PWD}/logs"
-mkdir -p "${SCRIPT_LOG_DIR}"
+SCRIPT_LOG_DIR="${HOME}/.config/syncopated/logs"
+mkdir -pv "${SCRIPT_LOG_DIR}"
 SCRIPT_LOG="${SCRIPT_LOG_DIR}/setup_$(date +%Y%m%d_%H%M%S).log"
 touch "${SCRIPT_LOG}"
 
