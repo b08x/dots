@@ -167,7 +167,7 @@ install_gems() {
 
 
     for gem in "${DIFF[@]}"; do
-      gem install --user-install "$gem" || continue
+      gem install --user-install "$gem" --conservative || continue
     done
 }
 
