@@ -1,3 +1,6 @@
 [submodule "Workspace/Tools/video_transcoding"]
 	path = Workspace/Tools/video_transcoding
 	url = git@github.com:b08x/video_transcoding.git
+[submodule "Workspace/Tools/code-packager"]
+	path = Workspace/Tools/code-packager
+	url = git@github.com:b08x/code-packager.git
