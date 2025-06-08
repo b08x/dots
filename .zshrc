@@ -3,7 +3,17 @@ export UU_ORDER="$UU_ORDER:~/.zshrc"
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
-ZSH_THEME="strug"
+if [[ "$hostname" == "ninjabot" ]]; then
+  ZSH_THEME="kphoen"
+elif [[ "$hostname" == "soundbot" ]]; then
+  ZSH_THEME="strug"
+elif [[ "$hostname" == "crambot" ]]; then
+  ZSH_THEME="kphoen"
+elif [[ "$hostname" == "lapbot" ]]; then
+  ZSH_THEME="kphoen"
+else
+  ZSH_THEME="random"
+fi
 
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
@@ -158,10 +168,10 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
   export PATH="$(pyenv root)/shims:$PATH"
+  eval "$(pyenv init - zsh)"
 fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
-
 
 echo $PATH | grep -q "$HOME/.gem/ruby/3.4.0/bin:" || export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
 echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
@@ -173,4 +183,21 @@ PATH="$HOME/Workspace/Tools/bin:$PATH"
 
 if [ -d $HOME/.rvm/bin ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
+fi
+
+hostname=$(hostname)
+
+if [[ "$hostname" == "ninjabot" ]]; then
+  export LIBVA_DRIVER_NAME=i965
+# elif [[ "$hostname" == "server2" ]]; then
+#   export MY_VAR="value_for_server2"
+# elif [[ "$hostname" == "laptop" ]]; then
+#   export MY_VAR="value_for_laptop"
+# else
+#   export MY_VAR="default_value"
+fi
+
+
+if [ -d "${HOME}/.claude/local/claude" ]; then
+  alias claude="${HOME}/.claude/local/claude"
 fi
