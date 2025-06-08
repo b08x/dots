@@ -3,8 +3,10 @@ export UU_ORDER="$UU_ORDER:~/.zshrc"
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
+hostname=$(hostname)
+
 if [[ "$hostname" == "ninjabot" ]]; then
-  ZSH_THEME="kphoen"
+  ZSH_THEME="jaischeema"
 elif [[ "$hostname" == "soundbot" ]]; then
   ZSH_THEME="strug"
 elif [[ "$hostname" == "crambot" ]]; then
@@ -184,8 +186,6 @@ PATH="$HOME/Workspace/Tools/bin:$PATH"
 if [ -d $HOME/.rvm/bin ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
 fi
-
-hostname=$(hostname)
 
 if [[ "$hostname" == "ninjabot" ]]; then
   export LIBVA_DRIVER_NAME=i965
