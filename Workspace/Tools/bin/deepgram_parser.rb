@@ -38,7 +38,10 @@ class DeepgramParser
   #
   # @return [Array<Hash>] Array of words with confidence scores
   def words_with_confidence
-    @json_data["results"]["channels"][0]["alternatives"][0]["words"].map do |word|
+    words = @json_data.dig("results", "channels", 0, "alternatives", 0, "words")
+    return [] unless words
+    
+    words.map do |word|
       { word: word["word"], confidence: word["confidence"] }
     end
   end
@@ -47,8 +50,11 @@ class DeepgramParser
   #
   # @return [Array<Hash>] Array of sentences
   def segmented_sentences
-    @json_data["results"]["channels"][0]["alternatives"][0]["paragraphs"]["paragraphs"]
-      .flat_map { |p| p["sentences"] }
+    paragraphs = @json_data.dig("results", "channels", 0, "alternatives", 0, "paragraphs", "paragraphs")
+    return [] unless paragraphs
+    
+    paragraphs
+      .flat_map { |p| p["sentences"] || [] }
       .map { |sentence| { text: sentence["text"] } }
   end
 
@@ -56,20 +62,27 @@ class DeepgramParser
   #
   # @return [Array<Hash>] Array of paragraphs containing sentence arrays
   def paragraphs_as_sentences
-    @json_data["results"]["channels"][0]["alternatives"][0]["paragraphs"]["paragraphs"]
-      .map do |p|
-        { paragraph: p["sentences"].map { |s| s["text"] } }
-      end
+    paragraphs = @json_data.dig("results", "channels", 0, "alternatives", 0, "paragraphs", "paragraphs")
+    return [] unless paragraphs
+    
+    paragraphs.map do |p|
+      sentences = p["sentences"] || []
+      { paragraph: sentences.map { |s| s["text"] } }
+    end
   end
 
   # Returns segments with their labeled topics
   #
   # @return [Array<Hash>] Array of segments with topics
   def segments_with_topics
-    @json_data["results"]["topics"]["segments"].map do |seg|
+    segments = @json_data.dig("results", "topics", "segments")
+    return [] unless segments
+    
+    segments.map do |seg|
+      topics = seg["topics"] || []
       {
         text: seg["text"],
-        topics: seg["topics"].map { |t| { topic: t["topic"] } }
+        topics: topics.map { |t| { topic: t["topic"] } }
       }
     end
   end
@@ -78,10 +91,14 @@ class DeepgramParser
   #
   # @return [Array<Hash>] Array of segments with intents
   def segments_with_intents
-    @json_data["results"]["intents"]["segments"].map do |seg|
+    segments = @json_data.dig("results", "intents", "segments")
+    return [] unless segments
+    
+    segments.map do |seg|
+      intents = seg["intents"] || []
       {
         text: seg["text"],
-        intents: seg["intents"].map { |i| { intent: i["intent"] } }
+        intents: intents.map { |i| { intent: i["intent"] } }
       }
     end
   end
@@ -142,17 +159,19 @@ class DeepgramParser
       output << "\n"
     end
 
-    if @json_data["results"]["channels"][0]["alternatives"][0]["words"]
+    words = words_with_confidence
+    unless words.empty?
       output << "## Words with Confidence\n"
-      words_with_confidence.each do |w|
+      words.each do |w|
         output << "- #{w[:word]}: #{w[:confidence]}\n"
       end
       output << "\n"
     end
 
-    if @json_data["results"]["channels"][0]["alternatives"][0]["paragraphs"]["paragraphs"]
+    sentences = segmented_sentences
+    unless sentences.empty?
       output << "## Segmented Sentences\n"
-      segmented_sentences.each do |s|
+      sentences.each do |s|
         output << "- #{s[:text]}\n"
       end
     end
@@ -164,33 +183,51 @@ class DeepgramParser
 
   # Extracts the transcript from the JSON data.
   def extract_transcript
-    @transcript = @json_data["results"]["channels"][0]["alternatives"][0]["transcript"]
+    @transcript = @json_data.dig("results", "channels", 0, "alternatives", 0, "transcript")
   end
 
   # Extracts paragraphs from the JSON data.
   def extract_paragraphs
-    @json_data["results"]["channels"][0]["alternatives"][0]["paragraphs"]["paragraphs"].each do |paragraph|
-      sentences = paragraph["sentences"].map { |sentence| sentence["text"] }
-      start_time = format_timestamp(paragraph["sentences"].first["start"])
-      end_time = format_timestamp(paragraph["sentences"].last["end"])
-      @paragraphs << { text: sentences.join(" "), start: start_time, end: end_time }
+    paragraphs = @json_data.dig("results", "channels", 0, "alternatives", 0, "paragraphs", "paragraphs")
+    return unless paragraphs
+    
+    paragraphs.each do |paragraph|
+      sentences = paragraph["sentences"] || []
+      next if sentences.empty?
+      
+      sentence_texts = sentences.map { |sentence| sentence["text"] }
+      start_time = format_timestamp(sentences.first["start"])
+      end_time = format_timestamp(sentences.last["end"])
+      @paragraphs << { text: sentence_texts.join(" "), start: start_time, end: end_time }
     end
   end
 
   # Extracts topics from the JSON data.
   def extract_topics
-    @json_data["results"]["topics"]["segments"].each do |seg|
-      @topics << { topic: seg["topics"][0]["topic"] }
+    segments = @json_data.dig("results", "topics", "segments")
+    return unless segments
+    
+    segments.each do |seg|
+      topics = seg["topics"]
+      next unless topics&.any?
+      
+      @topics << { topic: topics[0]["topic"] }
     end
     @topics.uniq!
   end
 
   # Extracts intents from the JSON data.
   def extract_intents
-    @json_data["results"]["intents"]["segments"].each do |seg|
+    segments = @json_data.dig("results", "intents", "segments")
+    return unless segments
+    
+    segments.each do |seg|
+      intents = seg["intents"]
+      next unless intents&.any?
+      
       start_time = format_timestamp(seg["start"])
       end_time = format_timestamp(seg["end"])
-      @intents << { intent: seg["intents"][0]["intent"], start: start_time, end: end_time }
+      @intents << { intent: intents[0]["intent"], start: start_time, end: end_time }
     end
     @intents.uniq!
   end
@@ -264,6 +301,8 @@ def select_file
         next unless selected_fields[index] == "TRUE"
 
         value = segment[json_key]
+        next if value.nil?
+        
         # Format arrays nicely
         value = value.join(", ") if value.is_a?(Array)
         puts "#{field_name}: #{value}"
