@@ -118,10 +118,10 @@ options = {
 
 puts TableTennis.new(display_rows, options)
 
-# Summary
-total_gems = rows.length
-nlp_gems_count = rows.count { |row| row[:nlp_related] }
-puts "\nSummary:"
-puts "Total gems: #{total_gems}"
-puts "NLP-related gems: #{nlp_gems_count}"
-puts "Non-NLP gems: #{total_gems - nlp_gems_count}"
+# # Summary
+# total_gems = rows.length
+# nlp_gems_count = rows.count { |row| row[:nlp_related] }
+# puts "\nSummary:"
+# puts "Total gems: #{total_gems}"
+# puts "NLP-related gems: #{nlp_gems_count}"
+# puts "Non-NLP gems: #{total_gems - nlp_gems_count}"

@@ -21,7 +21,7 @@
 lib_dir = File.expand_path(File.join(__dir__, '..', 'lib'))
 $LOAD_PATH.unshift lib_dir unless $LOAD_PATH.include?(lib_dir)
 
-require 'memexrag/logging' # Assuming this is your custom logging library
+require 'logging' # Assuming this is your custom logging library
 include Logging
 
 require 'json'
@@ -166,6 +166,52 @@ class GitHubIssueCreator
     @dry_run = options[:dry_run]
   end
 
+  # Ensures that the specified labels exist in the repository, creating them if necessary.
+  #
+  # @param labels [Array<String>] Array of label names to check and create if needed.
+  # @return [Hash] Result indicating success/failure and any error messages.
+  def ensure_labels_exist(labels)
+    return { success: true, message: "No labels to check" } if labels.empty?
+
+    labels.each do |label|
+      next if label.nil? || label.strip.empty?
+
+      unless @dry_run
+        # Check if label exists first
+        check_command = "gh label list --repo #{Shellwords.escape(@repo)} --search #{Shellwords.escape(label)} --json name"
+        check_output = `#{check_command} 2>/dev/null`
+        check_status = $?.exitstatus
+
+        if check_status.zero?
+          existing_labels = JSON.parse(check_output)
+          label_exists = existing_labels.any? { |existing| existing['name'].casecmp(label).zero? }
+          
+          unless label_exists
+            create_command = "gh label create #{Shellwords.escape(label)} --repo #{Shellwords.escape(@repo)}"
+            logger.info "  Creating label: #{label}"
+            create_output = `#{create_command} 2>&1`
+            create_status = $?.exitstatus
+            
+            if create_status.zero?
+              logger.info "  Successfully created label: #{label}"
+            else
+              logger.warn "  Failed to create label #{label}: #{create_output.strip}"
+            end
+          end
+        else
+          logger.warn "  Failed to check existing labels: #{check_output.strip}"
+        end
+      else
+        logger.info "  Dry run: Would check/create label: #{label}"
+      end
+    end
+
+    { success: true, message: "Label check/creation completed" }
+  rescue StandardError => e
+    logger.error "  Exception during label creation: #{e.message}"
+    { success: false, error: e.message }
+  end
+
   # Creates a GitHub issue based on a task hash using `gh` CLI.
   #
   # @param task [Hash] A hash representing a task.
@@ -188,6 +234,12 @@ class GitHubIssueCreator
     if task['main_grouping'] && task['main_grouping'] != task['category']
       group_label = task['main_grouping'].downcase.gsub(/\s+/, '-').gsub(/[^a-z0-9_:\-\.\?\&]+/, '')
       labels << group_label unless labels.include?(group_label)
+    end
+
+    # Ensure labels exist before creating the issue
+    label_result = ensure_labels_exist(labels)
+    unless label_result[:success]
+      logger.warn "  Warning: Some labels may not have been created properly: #{label_result[:error]}"
     end
 
     command_parts = ["gh issue create"]
