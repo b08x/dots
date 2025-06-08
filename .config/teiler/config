@@ -13,24 +13,24 @@ vid_path=$HOME/Videos/Screencasts
 paste_path=$HOME/Pictures/Paste
 
 # set viewer for images and videos plus editor for images
-viewer=eog
+viewer=feh
 editor=pinta
 player=mpv
 
 # Hitting Enter will upload
-always_ul=1
+always_ul=0
 
 # Uploading options
 # Possible Choices for img_ul: fb, scp, s3, imgur
 # Possible Choices for vid_ul: fb, scp, s3
 # Possible Choices for paste_ul: fb, scp, ix
-img_ul=imgur
-vid_ul=fb
-paste_ul=ix
+img_ul=scp
+vid_ul=scp
+paste_ul=scp
 
 # Screencast options
 # Resolution to change to when recording in fullscreen
-#res=800x600
+res=1920x1080
 
 # If you use a custom rate for X, set it here. 
 # rate=120

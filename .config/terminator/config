@@ -2,6 +2,11 @@
 [keybindings]
 [profiles]
   [[default]]
+    background_darkness = 0.84
+    background_type = transparent
+    scrollback_infinite = True
+    title_transmit_bg_color = "#f5c211"
+    title_receive_bg_color = "#c061cb"
 [layouts]
   [[default]]
     [[[window0]]]
