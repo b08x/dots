@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-firefox --new-instance --no-remote --name __float_front --new-window $1
