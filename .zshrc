@@ -124,10 +124,11 @@ alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 
 # completion; use cache if updated within 24h
 autoload -Uz compinit
-if [[ -n $HOME/.zcompdump(#qN.mh+24) ]]; then
- compinit -d $HOME/.zcompdump;
+# Use a simpler approach to check if the file is older than 24 hours
+if [ -f $HOME/.zcompdump ] && [ ! "$HOME/.zcompdump" -nt "$(date -d 'now - 24 hours' '+%Y%m%d%H%M.%S')" ]; then
+  compinit -d $HOME/.zcompdump;
 else
- compinit -C;
+  compinit -C;
 fi;
 
 setopt nobeep
@@ -171,6 +172,10 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv virtualenv-init -)"
   export PATH="$(pyenv root)/shims:$PATH"
   eval "$(pyenv init - zsh)"
+fi
+
+if [ -d $HOME/.cargo/bin ]; then
+  export PATH="$PATH:$HOME/.cargo/bin"
 fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
