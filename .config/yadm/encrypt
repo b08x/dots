@@ -1,1 +1,5 @@
 .env
+.ssh/id_ed25519*
+.gpg/pgp/*.gpg
+.gpg/private/*.asc
+.gpg/public/*.asc
