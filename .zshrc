@@ -5,13 +5,13 @@ export ZSH="/usr/share/oh-my-zsh"
 
 hostname=$(hostname)
 
-if [[ "$hostname" == "ninjabot" ]]; then
+if [[ $hostname == "ninjabot" ]]; then
   ZSH_THEME="jaischeema"
-elif [[ "$hostname" == "soundbot" ]]; then
+elif [[ $hostname == "soundbot" ]]; then
   ZSH_THEME="strug"
-elif [[ "$hostname" == "crambot" ]]; then
+elif [[ $hostname == "crambot" ]]; then
   ZSH_THEME="kphoen"
-elif [[ "$hostname" == "lapbot" ]]; then
+elif [[ $hostname == "lapbot" ]]; then
   ZSH_THEME="kphoen"
 else
   ZSH_THEME="random"
@@ -174,35 +174,26 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv init - zsh)"
 fi
 
-if [ -d $HOME/.cargo/bin ]; then
-  export PATH="$PATH:$HOME/.cargo/bin"
-fi
-
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-echo $PATH | grep -q "$HOME/.gem/ruby/3.4.0/bin:" || export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
+export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
 echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
-
-export GEM_HOME="$(gem env user_gemhome)"
-export PATH="$PATH:$GEM_HOME/bin"
-
-PATH="$HOME/Workspace/Tools/bin:$PATH"
 
 if [ -d $HOME/.rvm/bin ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
 fi
 
-if [[ "$hostname" == "ninjabot" ]]; then
+if [[ $hostname == "ninjabot" ]]; then
   export LIBVA_DRIVER_NAME=i965
-# elif [[ "$hostname" == "server2" ]]; then
+# elif [[ $hostname == "server2" ]]; then
 #   export MY_VAR="value_for_server2"
-# elif [[ "$hostname" == "laptop" ]]; then
+# elif [[ $hostname == "laptop" ]]; then
 #   export MY_VAR="value_for_laptop"
 # else
 #   export MY_VAR="default_value"
 fi
 
 
-if [ -d "${HOME}/.claude/local/claude" ]; then
-  alias claude="${HOME}/.claude/local/claude"
+if [ -f "$HOME/.claude/local/claude" ]; then
+  alias claude="$HOME/.claude/local/claude"
 fi
