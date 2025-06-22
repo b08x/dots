@@ -71,16 +71,12 @@ else
   gum_warn "ansible is not installed."
 fi
 
-TOOLS="$HOME/Workspace/Tools"
+TOOLS="$HOME/Tools"
 
 gum_info "ok, now to install some packages and gems"
 sleep 1
 
 gum_info "then run the ansible-playbook"
-
-DISTRO=$( hostnamectl| awk '{ print $1,$2,$3 }'|grep "Operating System"|awk '{print $3}' )
-
-export PATH+=":$HOME/.local/share/gem/ruby/3.4.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 export ANSIBLE_HOME="$HOME/.config/syncopated/ansible"
 export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
@@ -111,8 +107,7 @@ sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}" --overwrite '*'
 export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
 export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
 
-export GEM_HOME="$HOME/.gem"
-export GEM_PATH="$HOME/.gem"
+export GEM_PATH="$HOME/.local/share/gem/ruby/3.4.0"
 
 
 INSTALLED_GEMS=$(gem list --config-file ~/.gemrc | choose 0)
@@ -189,9 +184,11 @@ wipe
 
 gum_green "starting full playbook run"
 
+gum_yellow "todo"
+
 sleep 1
 
-cd $ANSIBLE_HOME && \
-ansible-playbook -K -i inventory/dynamic_inventory.py playbooks/full.yml --limit $host
+#cd $ANSIBLE_HOME && \
+#ansible-playbook -K -i inventory/dynamic_inventory.py playbooks/full.yml --limit $host
 
 
