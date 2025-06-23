@@ -89,7 +89,9 @@ EXTENSIONS=(
   'zhuangtongfa.material-theme'
 )
 
-code --install-extension "${EXTENSIONS[@]}"
+for ext in "${EXTENSIONS[@]}"; do
+  code --install-extension "$ext" || continue
+done
 
 wipe
 
