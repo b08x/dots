@@ -78,10 +78,10 @@ sleep 1
 
 gum_info "then run the ansible-playbook"
 
-export ANSIBLE_HOME="$HOME/.config/syncopated/ansible"
-export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
-export ANSIBLE_CONFIG="$ANSIBLE_HOME/ansible.cfg"
-export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory/dynamic_inventory.py"
+# export ANSIBLE_HOME="$HOME/.config/syncopated/ansible"
+# export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
+# export ANSIBLE_CONFIG="$ANSIBLE_HOME/ansible.cfg"
+# export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory/dynamic_inventory.py"
 
 BOOTSTRAP_PKGS=(
   'ansible'
@@ -104,11 +104,8 @@ BOOTSTRAP_PKGS=(
 # install pre-requisite packages
 sudo pacman -S --noconfirm --needed "${BOOTSTRAP_PKGS[@]}" --overwrite '*'
 
-export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
+export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
 export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
-
-export GEM_PATH="$HOME/.local/share/gem/ruby/3.4.0"
-
 
 INSTALLED_GEMS=$(gem list --config-file ~/.gemrc | choose 0)
 
@@ -123,25 +120,29 @@ GEMS=(
   'fractional'
   'geo_coord'
   'highline'
-  'i3ipc'
   'i18n'
+  'i3ipc'
   'irb'
   'kramdown'
   'logging'
   'minitest'
   'mocha'
   'multi_json'
-  'nano-bots'
   'net-ssh'
   'parallel'
   'pastel'
-  'pry'
   'pry-doc'
+  'pry'
   'pycall'
   'rake'
   'rdoc'
   'rexml'
   'rouge'
+  'rubocop'
+  'ruby_llm'
+  'ruby-lsp'
+  'solargraph'
+  'sublayer'
   'sync'
   'sys-proctable'
   'tty-box'
@@ -169,14 +170,14 @@ install_gems() {
 if gum_confirm "install Gems?"; then install_gems; fi
 
 
-if [ ! -d $ANSIBLE_HOME ]; then
-  gum_info "cloning Ansible collection"
-  git clone --recursive git@github.com:syncopatedX/ansible.git $ANSIBLE_HOME
-  cd $ANSIBLE_HOME && git checkout development
-else
-  gum_yellow "ansible collection already exists, updating..."
-  cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
-fi
+# if [ ! -d $ANSIBLE_HOME ]; then
+#   gum_info "cloning Ansible collection"
+#   git clone --recursive git@github.com:syncopatedX/ansible.git $ANSIBLE_HOME
+#   cd $ANSIBLE_HOME && git checkout development
+# else
+#   gum_yellow "ansible collection already exists, updating..."
+#   cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
+# fi
 
 host="$(uname -n)"
 
