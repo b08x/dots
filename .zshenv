@@ -30,6 +30,15 @@ export GUM_CONFIRM_PROMPT_FOREGROUND=027
 export GUM_CONFIRM_SELECTED_FOREGROUND=064
 export GUM_CONFIRM_UNSELECTED_FOREGROUND=010
 
+
+export WORKSPACE="$HOME/Workspace"
+
+export ARCHIVE="$HOME/Library/Archive"
+export DOCUMENTS="$HOME/Library/Documents"
+export SCREENSHOTS="$HOME/Library/Images/Screenshots"
+export SCREENCASTS="$HOME/Library/Videos/Screencasts"
+
+
 # fzf options
 export FZF_BASE=/usr/share/fzf
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:#BDBB72,border:#6B6B6B,spinner:#98BC99' --color='hl:#719872,fg:#bbb12a,header:#719872,fg+:#D9D9D9' --color='pointer:#E12672,marker:#E17899,prompt:#98BEDE,hl+:#98BC99''

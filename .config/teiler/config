@@ -8,8 +8,8 @@ _rofi () {
 # general variables
 
 # the path where images, videos and pastes should be saved
-img_path=$HOME/Pictures/Screenshots
-vid_path=$HOME/Videos/Screencasts
+img_path=$HOME/Library/Images/Screenshots
+vid_path=$HOME/Library/Videos/Screencasts
 paste_path=$HOME/Pictures/Paste
 
 # set viewer for images and videos plus editor for images

@@ -1,8 +1,0 @@
-[Desktop Entry]
-# This file is managed by Ansible.
-Type=Application
-Name=Tilda
-Comment=Starts an instance of Tilda
-Exec=tilda -g /home/b08x/.config/tilda/config_0
-Terminal=false
-X-GNOME-Autostart-enabled=true
