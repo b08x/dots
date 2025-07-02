@@ -1,0 +1,33 @@
+# whisper-stream configuration file
+# This file is loaded when whisper-stream is called without arguments
+
+# Audio recording settings
+MIN_VOLUME=2%
+SILENCE_LENGTH=2.0
+ONESHOT=false
+DURATION=0
+
+# API settings
+# TOKEN=your_groq_api_key_here
+
+# Output settings
+OUTPUT_DIR=""
+DEST_FILE=""
+QUIET_MODE=false
+
+# Transcription settings
+PROMPT=""
+LANGUAGE=""
+TRANSLATE=false
+GRANULARITIES=none
+
+# Notebook settings
+NOTEBOOK_ROOT="$HOME/Notebooks"
+NOTEBOOK=""
+
+# Device settings
+SELECTED_INPUT_DEVICE="alsa_input.usb-Nuance_PowerMicII-NS-00.mono-fallback"
+
+# Advanced settings
+AUDIO_FILE=""
+PIPE_TO_CMD=""

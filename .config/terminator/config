@@ -4,7 +4,7 @@
   [[default]]
     background_darkness = 0.84
     background_type = transparent
-    font = FiraCode Nerd Font Propo Medium 14
+    font = Hack Nerd Font 18
     scrollback_infinite = True
     use_system_font = False
     title_transmit_bg_color = "#71540d"
