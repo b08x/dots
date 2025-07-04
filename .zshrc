@@ -1,5 +1,8 @@
 export UU_ORDER="$UU_ORDER:~/.zshrc"
 
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
+
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
@@ -27,7 +30,7 @@ ZSH_CUSTOM="$HOME/.local/share/zsh"
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+# Add wisely, as o many plugins slow down shell startup.
 #consider adding common-aliases, copybuffer
 plugins=(ansible bundler docker-compose copypath fd fzf ripgrep zsh-navigation-tools ruby history systemd web-search)
 
@@ -38,7 +41,6 @@ source $ZSH/oh-my-zsh.sh
 for function in $ZSH_CUSTOM/functions/*; do
   source $function
 done
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 autoload -U colors
 colors
@@ -176,12 +178,9 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
-echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
+#export GEM_HOME="$HOME/.local/share/gem/ruby/3.2.0"
+#echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.2.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.2.0/bin"
 
-if [ -d $HOME/.rvm/bin ]; then
-  export PATH="$PATH:$HOME/.rvm/bin"
-fi
 
 if [[ $hostname == "ninjabot" ]]; then
   export LIBVA_DRIVER_NAME=i965
@@ -194,6 +193,7 @@ if [[ $hostname == "ninjabot" ]]; then
 fi
 
 
-if [ -f "$HOME/.claude/local/claude" ]; then
-  alias claude="$HOME/.claude/local/claude"
+if [ -f "$HOME/.config/claude/local/claude" ]; then
+  alias claude="$HOME/.config/claude/local/claude"
 fi
+
