@@ -85,6 +85,8 @@
                 "origin_hash": "c0c7014af7fcf51312af7659eefe2f2a"
             }
         ],
-        "target_uinput": "keyboard"
+        "target_uinput": "keyboard",
+        "output_symbol": "Shift_R + XF86LaunchB",
+        "mapping_type": "key_macro"
     }
 ]

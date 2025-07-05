@@ -1,8 +1,5 @@
 export UU_ORDER="$UU_ORDER:~/.zshrc"
 
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="$ASDF_DATA_DIR/shims:$PATH"
-
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
@@ -17,7 +14,7 @@ elif [[ $hostname == "crambot" ]]; then
 elif [[ $hostname == "lapbot" ]]; then
   ZSH_THEME="kphoen"
 else
-  ZSH_THEME="random"
+  ZSH_THEME="linuxonly"
 fi
 
 CASE_SENSITIVE="true"
@@ -178,8 +175,8 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-#export GEM_HOME="$HOME/.local/share/gem/ruby/3.2.0"
-#echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.2.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.2.0/bin"
+export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
+echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
 
 
 if [[ $hostname == "ninjabot" ]]; then
@@ -197,3 +194,12 @@ if [ -f "$HOME/.config/claude/local/claude" ]; then
   alias claude="$HOME/.config/claude/local/claude"
 fi
 
+
+# bun completions
+[ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+export PATH="$HOME/.local/bin:$PATH"

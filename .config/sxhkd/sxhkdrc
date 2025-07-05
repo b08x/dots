@@ -74,10 +74,10 @@ super + Print
   sendmidi dev 'Midi Through Port-0' panic
 
 XF86AudioPlay
-  amixer -D hw:0 sset Mic toggle
+  amixer -D hw:2 sset Mic toggle
 
 XF86AudioStop
-  amixer -D hw:1 sset Master toggle
+  amixer -D hw:0 sset Master toggle
 
 # super + XF86AudioMute
 #   mic_mute.sh unmute
