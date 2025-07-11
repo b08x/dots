@@ -1,4 +1,14 @@
-install: --user-install
-update: --user-install
-gemhome: /home/b08x/.local/share/gem/ruby/3.4.0
-gem: --user-install --bindir=/home/b08x/.local/share/gem/ruby/3.4.0/bin
+# http://docs.rubygems.org/read/chapter/11
+--- 
+gem: --document --suggestions
+benchmark: false
+verbose: true
+update_sources: true
+sources: 
+- http://gems.rubyforge.org/
+- http://rubygems.org/
+backtrace: true
+bulk_threshold: 1000
+
+# HTTP Proxy options
+# http-proxy: http://example.com:80

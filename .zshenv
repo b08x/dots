@@ -49,10 +49,4 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:
 
 [[ -f ~/.cargo/env ]] && source ~/.cargo/env
 
-if [ -d $HOME/.cargo/bin ]; then
-  export PATH="$HOME/.cargo/bin:$PATH"
-fi
 
-if [ -d $HOME/go/bin ]; then
-  export PATH="$HOME/go/bin:$PATH"
-fi

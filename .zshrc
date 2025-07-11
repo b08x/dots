@@ -1,5 +1,13 @@
 export UU_ORDER="$UU_ORDER:~/.zshrc"
 
+if [ -d $HOME/.cargo/bin ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
+if [ -d $HOME/go/bin ]; then
+  export PATH="$HOME/go/bin:$PATH"
+fi
+
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
@@ -9,7 +17,7 @@ if [[ $hostname == "ninjabot" ]]; then
   ZSH_THEME="jaischeema"
 elif [[ $hostname == "soundbot" ]]; then
   ZSH_THEME="strug"
-elif [[ $hostname == "crambot" ]]; then
+elif [[ $hostname == "gir" ]]; then
   ZSH_THEME="kphoen"
 elif [[ $hostname == "lapbot" ]]; then
   ZSH_THEME="kphoen"
@@ -175,10 +183,6 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
-echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
-
-
 if [[ $hostname == "ninjabot" ]]; then
   export LIBVA_DRIVER_NAME=i965
 # elif [[ $hostname == "server2" ]]; then
@@ -201,5 +205,3 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-export PATH="$HOME/.local/bin:$PATH"
