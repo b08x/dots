@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<submenu></submenu>
+	<unique-id>1750821277306579-1</unique-id>
+	<command>exo-open --working-directory %f --launch TerminalEmulator</command>
+	<description>Example for a custom action</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>deepin-terminal</icon>
+	<name>Code-Packager</name>
+	<submenu></submenu>
+	<unique-id>1752357568774403-1</unique-id>
+	<command>kitty -e ~/Workspace/code-packager/code-packager -S tui -V %d</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<other-files/>
+	<text-files/>
+</action>
+<action>
+	<icon>gnome-mastermind</icon>
+	<name>yadm add</name>
+	<submenu></submenu>
+	<unique-id>1752357864519168-2</unique-id>
+	<command>kitty -e yadm add %n</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<other-files/>
+	<text-files/>
+</action>
+</actions>
