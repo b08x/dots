@@ -1,0 +1,68 @@
+author:
+  handle: rwpannick
+  uri: "%<organization_uri>s/team/%<author_handle>s"
+build:
+  amazing_print: true
+  bootsnap: false
+  caliber: true
+  circle_ci: false
+  citation: true
+  cli: true
+  community: true
+  conduct: true
+  console: true
+  contributions: true
+  dcoo: true
+  debug: true
+  devcontainer: false
+  docker: true
+  funding: false
+  git: true
+  git_hub: true
+  git_hub_ci: true
+  git_lint: true
+  irb_kit: true
+  license: true
+  maximum: false
+  minimum: false
+  monads: false
+  rake: true
+  readme: true
+  reek: true
+  refinements: true
+  rspec: true
+  rtc: true
+  security: true
+  setup: true
+  simple_cov: true
+  versions: true
+  zeitwerk: true
+citation:
+  affiliation: "%<organization_label>s"
+  message: Please use the following metadata when citing this project in your work.
+documentation:
+  format: "md"
+license:
+  label: Hippocratic
+  name: hippocratic
+  version: "2.1"
+organization:
+  uri: https://undefined.io
+project:
+  uri:
+    community: "%<organization_uri>s/community"
+    conduct: "%<organization_uri>s/policies/code_of_conduct"
+    contributions: "%<organization_uri>s/policies/contributions"
+    dcoo: "%<organization_uri>s/policies/developer_certificate_of_origin"
+    download: "https://rubygems.org/gems/%<project_name>s"
+    funding: "%<repository_uri>s/sponsors/%<repository_handle>s"
+    home: "%<organization_uri>s/projects/%<project_name>s"
+    issues: "%<repository_uri>s/%<repository_handle>s/%<project_name>s/issues"
+    license: "%<organization_uri>s/policies/license"
+    security: "%<organization_uri>s/policies/security"
+    source: "%<repository_uri>s/%<repository_handle>s/%<project_name>s"
+    versions: "%<organization_uri>s/projects/%<project_name>s/versions"
+  version: 0.0.1
+repository:
+  handle: undefined
+  uri: https://github.com
