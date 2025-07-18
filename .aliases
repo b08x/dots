@@ -62,7 +62,8 @@ alias pui="paru -Rdd"
 alias listi="paru -Qe | awk '{ print $1 }'"
 alias pup="paru -Syyuu --batchinstall"
 alias paruscc="paru -Scc --noconfirm"
-
+alias provides="sudo dnf provides"
+alias dnf="sudo dnf"
 # git
 # alias gd="git diff --name-status | grep -v D | awk '{print $2}' | fzf --preview 'git diff -- {}'"
 alias gc="env GIT_EDITOR=micro git commit && gum confirm 'push changes' && git push"
