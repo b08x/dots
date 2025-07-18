@@ -1,0 +1,157 @@
+#!/usr/bin/env zsh
+
+# system power
+alias reboot="sudo shutdown -r now"
+alias shutdown="sudo shutdown -h now"
+
+# list input devices
+alias lsin="sudo libinput list-devices"
+
+alias h="history"
+
+alias cl="tput clear && tput cup 1"
+
+# confirm before overwriting something
+alias cp="cp -i"
+# confirm before overwriting something
+alias mv="mv -iv"
+# human-readable sizes
+alias df='df -h'
+
+# use exa for directory listing
+alias br="broot"
+
+alias ll="eza --sort=ext --long --level=2 --icons auto"
+alias ls="eza -h --group-directories-first -g --icons auto"
+alias llh="eza --sort=ext --long -a --level=2 --icons auto"
+alias llt="eza --sort=ext --long -a --level=2 --icons auto -s modified"
+
+# if available use bat instead of cat
+if [ -x "$(command -v bat)" ]; then
+  alias cat="bat -p"
+fi
+
+# mlocate
+alias updatedb='sudo updatedb'
+alias locate='sudo locate'
+
+# view a file without comments `nocomment file.txt`
+alias nocomment='grep -v "^\($\|#\|;;\|;\|\n\)"'
+
+# view logs with lnav
+alias checklog='sudo journalctl -r -b -o short-precise | lnav -f ~/.config/lnav/checklog.lnav'
+alias taillog='sudo journalctl -f -o json | lnav -f ~/.config/lnav/checklog.lnav'
+
+# network troubleshooting
+#TODO: convert to function
+#alias dig="dig +nocmd +multiline +noall +answer"
+alias dig="doggo"
+alias mtr="sudo mtr -t"
+
+alias netcon="lsof -i"
+alias netlog='sudo journalctl -g "iwd|Network" -f -o json | lnav'
+alias networklogdebug="sudo nmcli general logging level DEBUG domains ALL"
+alias networkloginfo="sudo nmcli general logging level INFO domains ALL"
+alias p="gping github.com"
+
+# paru
+alias pfile="paru -Fy"
+alias psearch="paru -Ss"
+alias pi="paru -S --noconfirm --batchinstall"
+alias pui="paru -Rdd"
+alias listi="paru -Qe | awk '{ print $1 }'"
+alias pup="paru -Syyuu --batchinstall"
+alias paruscc="paru -Scc --noconfirm"
+
+# git
+# alias gd="git diff --name-status | grep -v D | awk '{print $2}' | fzf --preview 'git diff -- {}'"
+alias gc="env GIT_EDITOR=micro git commit && gum confirm 'push changes' && git push"
+alias gfp="git fetch && git pull"
+alias gp="git push"
+alias glog="git log --oneline --decorate --graph --all"
+alias gs="gitui"
+
+#turn off pcspkr
+alias beepoff="rmmod pcspkr"
+
+# use most when viewing man pages
+alias man="PAGER='most' man "
+
+# alias cpup="sudo cpupower -c all frequency-set -g performance"
+alias cpu-max='tuned-adm profile latency-performance'
+alias cpu-balanced='tuned-adm profile balanced'
+alias cpu-min='tuned-adm profile laptop-battery-powersave'
+
+# store current alsa state in a file
+# load it in .xprofile
+alias alsastore="alsactl store -f ~/.asound.state"
+
+# turn off monitors
+alias monitoroff="xset dpms force off"
+
+# shortcut for ranger
+alias ra="ranger"
+
+alias dl="aria2c"
+if [ -x "$(command -v curlie)" ]; then
+  alias curl="curlie"
+fi
+
+alias duf="sudo duf"
+alias top="sudo btm --enable_cache_memory --enable_gpu_memory --process_command -n"
+alias du="sudo dust -p -r -x -d 3 -n 80"
+#exit
+alias e="exit"
+
+#pgrep
+alias pgrep="pgrep -a"
+
+alias checkxlog='lnav ~/.xorg.log'
+
+alias xev="xev -event keyboard"
+
+alias kittydif="kitty +kitten diff"
+alias kittylogin="kitty +kitten ssh"
+
+alias jekyll="bundle exec jekyll"
+alias rake="bundle exec rake"
+
+alias lib="cd $HOME/Library"
+
+alias dla="yt-dlp -o '%(title)s.%(ext)s' -x --audio-format wav --external-downloader aria2c"
+
+alias dlv="yt-dlp -o '%(title)s.%(ext)s' -f mp4 --external-downloader aria2c"
+
+# open rb file in pry
+alias loadpry='pry -r'
+
+alias baudline_jack="baudline_jack -channels 4 -jack"
+
+alias yfp="yadm fetch && yadm pull"
+alias yp="yadm push"
+
+alias yd="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
+alias yc="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
+alias ys="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
+
+alias pulse_list_sources="pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'"
+
+alias vnc_serv="x11vnc -ncache_cr -display :0"
+
+# alias changed="fd -H -t d -t f -E "*.ray-snapshots" -E "qutebrowser" -E "google-chrome" -E "*.git" -E ".cache/" -E "[Cc]ache" --changed-within 2hours | sort"
+
+# sampler
+alias soundsampler="fd -e flac -e wav -e opus -e mp3 --strip-cwd-prefix .  | fzf --preview='mpv {}' --preview-window=30% --tac --reverse -m --cycle --bind 'return:execute(play {})'"
+
+alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x'  | fzf --preview='mpv {}' --preview-window '~3,follow' --tac --reverse -m --cycle   --bind 'ctrl-/:toggle-preview' --bind 'return:execute(mpv {}),ctrl-y:change-preview-window(down|hidden|)'"
+
+alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
+
+alias unmountchroot="sudo umount /mnt/chroots/arch"
+
+alias m="micro"
+
+alias ydiff="yadm diff --staged | fabric --pattern create_git_diff_commit"
+alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
+
+alias jq="jq -r"
