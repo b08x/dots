@@ -6,6 +6,7 @@
     background_type = transparent
     font = Hack Nerd Font 18
     scrollback_infinite = True
+    login_shell = True
     use_system_font = False
     title_transmit_bg_color = "#71540d"
     title_receive_bg_color = "#c061cb"
