@@ -94,9 +94,6 @@ alias monitoroff="xset dpms force off"
 alias ra="ranger"
 
 alias dl="aria2c"
-if [ -x "$(command -v curlie)" ]; then
-  alias curl="curlie"
-fi
 
 alias duf="sudo duf"
 alias top="sudo btm --enable_cache_memory --enable_gpu_memory --process_command -n"
