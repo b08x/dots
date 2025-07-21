@@ -71,6 +71,7 @@ alias gfp="git fetch && git pull"
 alias gp="git push"
 alias glog="git log --oneline --decorate --graph --all"
 alias gs="gitui"
+alias gca="git commit --amend --no-edit" # (Amend the previous commit with the fix, keeping the same commit message.) 
 
 #turn off pcspkr
 alias beepoff="rmmod pcspkr"
