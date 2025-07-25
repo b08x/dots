@@ -7,8 +7,8 @@
                 "origin_hash": "c0c7014af7fcf51312af7659eefe2f2a"
             }
         ],
-        "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + t",
+        "target_uinput": "keyboard + mouse",
+        "output_symbol": "Super_L",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + 4",
+        "output_symbol": "Super_L + KEY_HOME",
         "mapping_type": "key_macro"
     },
     {
@@ -75,7 +75,9 @@
                 "origin_hash": "c0c7014af7fcf51312af7659eefe2f2a"
             }
         ],
-        "target_uinput": "keyboard"
+        "target_uinput": "keyboard",
+        "output_symbol": "XF86AudioRecord",
+        "mapping_type": "key_macro"
     },
     {
         "input_combination": [

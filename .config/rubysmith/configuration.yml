@@ -6,19 +6,19 @@ build:
   bootsnap: false
   caliber: true
   circle_ci: false
-  citation: true
+  citation: false
   cli: true
-  community: true
-  conduct: true
+  community: false
+  conduct: false
   console: true
-  contributions: true
-  dcoo: true
-  debug: true
+  contributions: false
+  dcoo: false
+  debug: false
   devcontainer: false
-  docker: true
+  docker: false
   funding: false
   git: true
-  git_hub: true
+  git_hub: false
   git_hub_ci: true
   git_lint: true
   irb_kit: true
@@ -28,15 +28,15 @@ build:
   monads: false
   rake: true
   readme: true
-  reek: true
-  refinements: true
+  reek: false
+  refinements: false
   rspec: true
-  rtc: true
+  rtc: false
   security: true
   setup: true
   simple_cov: true
   versions: true
-  zeitwerk: true
+  zeitwerk: false
 citation:
   affiliation: "%<organization_label>s"
   message: Please use the following metadata when citing this project in your work.
