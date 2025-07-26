@@ -27,7 +27,11 @@ cup 1
 wipe
 
 # --- Configuration ---
-DOTS_REPO="git@github.com:b08x/dots.git"
+YADM_URL_SSH="git@github.com:b08x/dots.git"
+YADM_URL_HTTPS="https://github.com/b08x/dots.git"
+YADM_URL="" # Will be set by SSH setup
+YADM_CMD="$HOME/.local/bin/yadm"
+export PATH="$HOME/.local/bin:$PATH"
 
 # ANSIBLE
 ANSIBLE_REPO="${ANSIBLE_REPO:-git@github.com:syncopatedX/ansible.git}"
@@ -476,17 +480,61 @@ setup_ssh_keys() {
 start_ssh_agent() { if ! pgrep -u "$USER" ssh-agent > /dev/null; then eval "$(ssh-agent -s)" > /dev/null; fi; }
 copy_to_clipboard() { local c="$1"; { command -v xclip &>/dev/null && echo -n "$c" | xclip -sel clip; } || { command -v wl-copy &>/dev/null && echo -n "$c" | wl-copy; } || return 1; }
 
+# --- Yadm Conflict Handler (Revised to use $YADM_URL) ---
+handle_yadm_conflicts() {
+    gum_title "Yadm Dotfile Management"
+    local yadm_repo_path="$HOME/.local/share/yadm/repo.git"
+
+    if [ -z "$YADM_URL" ]; then gum_fail "YADM_URL not set!"; fi
+
+    if [ ! -d "$yadm_repo_path" ]; then
+        gum_info "Attempting to clone yadm repository: $YADM_URL"
+        if ! "$YADM_CMD" clone "$YADM_URL"; then
+            gum_warn "Yadm clone failed. Checking for conflicts..."
+            if [ ! -d "$yadm_repo_path" ]; then
+                 git clone --bare "$YADM_URL" "$yadm_repo_path" || gum_fail "Bare clone failed."
+            fi
+        else
+            gum_info "✅ Yadm cloned. Checking out..."
+            "$YADM_CMD" checkout "$HOME" || gum_warn "Checkout had issues, checking conflicts..."
+        fi
+    else gum_info "Yadm repo exists. Checking status..."; fi
+
+    local conflicting_files=$("$YADM_CMD" status --porcelain | grep -E '^ M|^\\?\\?' | awk '{print $NF}')
+    if [ -z "$conflicting_files" ]; then gum_info "✅ No conflicts found."; return 0; fi
+
+    gum_warn "Found potential conflicts/untracked files:"; echo "$conflicting_files" | "$GUM" style --border normal
+    local selected_files; selected_files=$(echo "$conflicting_files" | gum filter --no-limit --height 10)
+
+    if [ -n "$selected_files" ]; then
+        local action; action=$(gum_choose "Backup selected" "Delete (Overwrite) selected" "Abort")
+        local backup_dir="$HOME/.yadm-backup-$(date +%F_%T)"
+        case "$action" in
+            "Backup selected")
+                mkdir -p "$backup_dir"
+                echo "$selected_files" | while read -r file; do mkdir -p "$backup_dir/$(dirname "$file")"; mv "$HOME/$file" "$backup_dir/$(dirname "$file")/" || gum_warn "Failed: $file"; done; gum_info "Backed up.";;
+            "Delete (Overwrite) selected")
+                if gum_confirm "⚠️ Sure DELETE?"; then echo "$selected_files" | xargs -I {} rm -rf "$HOME/{}"; gum_info "Deleted."; else gum_fail "Aborted."; fi ;;
+            "Abort") gum_fail "Aborted.";;
+        esac
+        "$YADM_CMD" checkout "$HOME" || gum_fail "Checkout failed after handling."
+    else gum_warn "No files selected. Proceeding."; fi
+     gum_info "✅ Yadm conflict handling finished."
+}
+
 # --- Main Application ---
 
 HOSTNAME=$(cat /etc/hostname 2>/dev/null || hostname)
 
-gum_purple $HOSTNAME
-exit
+export ANSIBLE_HOME="$HOME/.config/syncopated/ansible"
+export ANSIBLE_PLUGINS="$ANSIBLE_HOME/plugins/modules"
+export ANSIBLE_CONFIG="$ANSIBLE_HOME/ansible.cfg"
+export ANSIBLE_INVENTORY="$ANSIBLE_HOME/inventory/dynamic_inventory.py"
 
 # Check if essential commands are installed
 if ! command -v ansible &>/dev/null; then
     gum_yellow "Error: ansible is not installed."
-    sudo dnf -y install ansible || {
+    sudo dnf -y install ansible git || {
         gum_fail "Failed to install ansible. Please install it manually."
         exit 1
     }
@@ -504,43 +552,56 @@ gum_init # Initialize or install gum
 
 sleep 1
 
-clear
+wipe
 
 gum_title "Workstatin Setup - Bootstrap Script"
+gum_info "Fedora 42"; sleep 3
+
+gum_info "Hostname: $HOSTNAME"; sleep 1
+gum_info "User: $USER"; sleep 1
+gum_info "Script Log: ${SCRIPT_LOG}"; sleep 1
+gum_info "Ansible Home: $ANSIBLE_HOME"; sleep 1
 
 setup_ssh_keys
 
 gum_green "Cloning Ansible Collection"; sleep 1
 
-gum_confirm "Is this a controller host?" || {
-    gum_info "Running local setup..."
-    
-    # Clone the ansible repository
-    if ! clone_ansible_repo "$ANSIBLE_REPO" "$HOME/.config/syncopated"; then
-        gum_fail "Failed to clone ansible repository. Exiting..."
+if gum_confirm "Is this a controller host?"; then
+    gum_info "Cloning Ansible Collection to Workspace"
+    mkdir -pv $HOME/Workspace/OS
+    cd $HOME/Workspace/OS && \
+    git clone --recursive $ANSIBLE_REPO ansible || {
+        gum_fail "Failed to clone Ansible repository. Please check the URL or your network connection."
         exit 1
+    }
+    cd ansible && git checkout development
+else
+    gum_info "Running local setup..."
+    if [ ! -d $ANSIBLE_HOME ]; then
+        gum_info "cloning Ansible collection"
+        git clone --recursive $ANSIBLE_REPO $ANSIBLE_HOME
+        cd $ANSIBLE_HOME && git checkout development
+    else
+        gum_yellow "ansible collection already exists, updating..."
+        cd $ANSIBLE_HOME && git checkout development && git fetch && git pull
     fi
     
-    cd "$HOME/.config/syncopated"
-    ansible-playbook -K -i inventory/localhost.yml playbooks/local.yml || {
+    cd $ANSIBLE_HOME && \
+    ansible-playbook -K -i inventory/dynamic_inventory.py playbooks/full.yml --limit $HOSTNAME || {
         gum_fail "Failed to run local setup. Please check the logs."
         exit 1
     }
-}
+fi
+
 
 wipe
 
 # clone yadm repository
 gum_green "Cloning YADM Repository"; sleep 1
 
+wipe
 
-# repo=$(gum input --placeholder="git@github.com:b08x/dots" --prompt "Enter your git repository URL: " --header.foreground "$COLOR_PURPLE" --cursor.foreground "$COLOR_PURPLE") || {
-#     gum_yellow "No repository URL provided. Defaulting to DOTS_REPO"
-#     repo="${DOTS_REPO:-}"
-# }
+#handle_yadm_conflicts
 
-# cd $HOME && \
-# ~/.local/bin/yadm clone $repo
-# ~/.local/bin/yadm checkout $HOME
-
-# exit 0
+gum_info "🎉🎉🎉 Bootstrap process finished! 🎉🎉🎉"
+exit 0
