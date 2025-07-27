@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# This script is used to bootstrap the environment for a project.
 
 # Setup logging
 SCRIPT_LOG_DIR="${HOME}"
@@ -602,6 +601,8 @@ gum_green "Cloning YADM Repository"; sleep 1
 wipe
 
 #handle_yadm_conflicts
+
+# $YADM_CMD decrypt
 
 gum_info "🎉🎉🎉 Bootstrap process finished! 🎉🎉🎉"
 exit 0
