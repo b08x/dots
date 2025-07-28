@@ -4,7 +4,7 @@ author:
 build:
   amazing_print: true
   bootsnap: false
-  caliber: true
+  caliber: false
   circle_ci: false
   citation: false
   cli: true
@@ -13,10 +13,10 @@ build:
   console: true
   contributions: false
   dcoo: false
-  debug: false
+  debug: true
   devcontainer: false
-  docker: false
-  funding: false
+  docker: true
+  funding: true
   git: true
   git_hub: false
   git_hub_ci: true
@@ -29,7 +29,7 @@ build:
   rake: true
   readme: true
   reek: false
-  refinements: false
+  refinements: true
   rspec: true
   rtc: false
   security: true
