@@ -1,0 +1,68 @@
+{
+    "ollamaCodeFixer.ollamaApiUrl": "http://gir:11434",
+    "github.copilot.chat.byok.ollamaEndpoint": "http://gir:11434",
+    "ollama.apiHost": "http://gir:11434",
+    "ollama.defaultModel": "qwen2.5-coder:7b",
+    "ollamaCodeFixer.preferredModels": [
+        "codellama:7b",
+        "codellama:13b",
+        "codegemma:7b",
+        "llama2:7b",
+        "mistral:7b",
+        "qwen2.5-coder:7b",
+        "gemma3:4b"
+    ],
+    "ollama-commit.apiUrl": "http://gir:11434/api/generate",
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.profiles.linux": {
+
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "zsh": {
+            "path": "zsh",
+            "args": [
+                "--login"
+            ]
+        },
+        "fish": {
+            "path": "fish"
+        },
+        "tmux": {
+            "path": "tmux",
+            "icon": "terminal-tmux"
+        },
+        "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+        }
+    },
+    "redhat.telemetry.enabled": false,
+    "codium.editorButton": false,
+    "editor.minimap.enabled": false,
+    "[markdown]": {
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    },
+    "pgsql.serverGroups": [
+        {
+            "name": "Servers",
+            "id": "3F755F4A-0B35-41E3-9EB6-1AC5C74C7718",
+            "isDefault": true
+        }
+    ],
+    "ollamaCodeFixer.autoStartOllama": false,
+    "ollamaCodeFixer.modelName": "qwen2.5-coder:7b",
+    "ollamaCodeFixer.contextLength": 8192,
+    "ollamaCodeFixer.maxTokens": 4096,
+    "ollamaCodeFixer.temperature": 0.3,
+    "diffEditor.codeLens": true,
+    "sublayer-blueprints.host": "http://ninjabot:81",
+    "docker.extension.enableComposeLanguageServer": false,
+    "[ruby]": {
+    },
+    "workbench.colorTheme": "Andromeda",
+    "solargraph.formatting": true,
+    "notebook.defaultFormatter": "rubocop.vscode-rubocop",
+    "terminal.integrated.automationProfile.linux": {}
+}
