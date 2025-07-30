@@ -3,3 +3,4 @@
 .gpg/pgp/*.gpg
 .gpg/private/*.asc
 .gpg/public/*.asc
+.gpg/recipes.kdbx
