@@ -33,10 +33,10 @@ export GUM_CONFIRM_UNSELECTED_FOREGROUND=010
 
 export WORKSPACE="$HOME/Workspace"
 
-export ARCHIVE="$HOME/Library/Archive"
-export DOCUMENTS="$HOME/Library/Documents"
-export SCREENSHOTS="$HOME/Library/Images/Screenshots"
-export SCREENCASTS="$HOME/Library/Videos/Screencasts"
+export ARCHIVE="$HOME/Archive"
+export DOCUMENTS="$HOME/Documents"
+export SCREENSHOTS="$HOME/Screenshots"
+export SCREENCASTS="$HOME/Screencasts"
 
 
 # fzf options
