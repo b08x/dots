@@ -54,6 +54,8 @@ Consider the plan from an engineering perspective, aiming for efficiency, scalab
 
 Additional context or specific requirements will be provided after this prompt.
 
+{{ARGS}}
+
 Current Project Structure:
 !{ls -F}
 
