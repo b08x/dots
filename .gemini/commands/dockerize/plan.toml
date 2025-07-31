@@ -1,0 +1,87 @@
+# ~/.gemini/commands/dockerize/plan.toml
+
+description = "Generate a detailed plan for dockerizing a project, outlining necessary files, configurations, build/run steps, and project restructuring advice."
+
+prompt = """
+Act as an expert in Dockerization and application deployment. Your task is to develop a comprehensive plan for dockerizing a project. Do NOT generate actual code or files; provide only the detailed plan in a markdown document.
+
+Current project directory structure:
+```
+!{ls -F}
+```
+
+Consider the following additional project context: {{args}}. If no specific project details are provided in {{args}}, make reasonable assumptions for a typical web application (e.g., Node.js, Python Flask/Django, Ruby on Rails, Java Spring Boot, etc.) and explicitly state those assumptions, in conjunction with the detected directory structure.
+
+Your plan must cover the following sections:
+
+## Dockerization Plan Overview
+
+### 1. Project Analysis and Assumptions
+-   Briefly describe the assumed project type, technology stack, and structure based on the provided context (including the directory listing and your assumptions).
+-   Identify key dependencies and entry points.
+
+### 2. Required Files and Their Planned Contents
+
+#### A. Dockerfile
+-   **Purpose**: Explain the role of the Dockerfile as the blueprint for building your Docker image.
+-   **Planned Contents**: Detail the *logical steps and content* for a robust Dockerfile. This should include:
+    -   **Base Image Selection**: Specify the appropriate base image (e.g., `node:alpine`, `python:3.9-slim-buster`, `openjdk:17-jdk-slim`) and provide a brief rationale for its choice (e.g., size, necessary tools).
+    -   **Working Directory**: Define the `WORKDIR` inside the container.
+    -   **Copying Application Files**: Outline which files/directories should be copied into the image, prioritizing dependencies (e.g., `package.json`, `requirements.txt`) before the main application code to leverage Docker's build cache.
+    -   **Installing Dependencies**: Commands for installing project dependencies (e.g., `npm install`, `pip install -r requirements.txt`).
+    -   **Exposing Ports**: Identify which network ports the application will listen on (e.g., `EXPOSE 8080`).
+    -   **Environment Variables**: Suggest necessary environment variables for configuration.
+    -   **Entrypoint/Command**: Define how the application will be started (e.g., `CMD ["node", "src/index.js"]`, `CMD ["python", "app.py"]`).
+    -   **Multi-stage Builds (if applicable)**: If the assumed project type benefits, explain the concept and outline stages (e.g., `build` stage for compilation, `runtime` stage for a smaller final image).
+
+#### B. .dockerignore
+-   **Purpose**: Explain the role of the `.dockerignore` file in preventing unnecessary files from being copied into the Docker build context, which speeds up builds and reduces image size.
+-   **Planned Contents**: List common patterns and types of files that should be ignored, along with a brief explanation for each:
+    -   `node_modules/` (if dependencies are installed inside the container)
+    -   `.git/`, `.gitignore`
+    -   `.DS_Store`, `Thumbs.db`
+    -   `logs/`, `tmp/`
+    -   Local development configurations (e.g., `.env`, `config.local.js`)
+    -   Build artifacts generated outside Docker (e.g., `dist/`, `build/`)
+    -   `README.md`, `CONTRIBUTING.md`, `LICENSE` (if not needed in the runtime image)
+
+#### C. docker-compose.yml (Conditional)
+-   **Purpose**: Explain when a `docker-compose.yml` is beneficial (e.g., for multi-service applications, development environments requiring databases, message queues, or other auxiliary services).
+-   **Planned Contents (if applicable)**: Outline the *logical structure and services* for a basic `docker-compose.yml`. If the project is single-service and does not need external dependencies managed by Docker Compose for development, state that this file might not be necessary. If it is needed, suggest:
+    -   **Version**: Specify a `version` (e.g., `'3.8'`).
+    -   **Services**: Define individual services (e.g., `app`, `db`, `redis`).
+        -   For the `app` service:
+            -   `build` context and `dockerfile` path.
+            -   `ports` mapping (host:container).
+            -   `volumes` for development (e.g., `.:/app`).
+            -   `depends_on` if inter-service dependencies exist.
+            -   `environment` variables.
+        -   For other services (e.g., `db`):
+            -   `image` (e.g., `postgres:13-alpine`).
+            -   `environment` variables for credentials.
+            -   `volumes` for data persistence.
+    -   **Networks**: Briefly mention if custom networks are beneficial for complex setups.
+
+### 3. Step-by-Step Instructions: Building and Running the Dockerized Application
+Provide clear, concise instructions for the user to follow *after* the plan is implemented:
+-   **Build the Docker Image(s)**:
+    -   `cd` into the project root (where the Dockerfile is).
+    -   `docker build -t <your-app-name> .` (and explain the tag).
+    -   If using `docker-compose`: `docker-compose build`.
+-   **Run the Docker Container(s)**:
+    -   **Single Container**: `docker run -p <host-port>:<container-port> <your-app-name>` (explain port mapping).
+    -   **Multi-service (with Docker Compose)**: `docker-compose up -d` (explain `-d` for detached mode).
+-   **Verify Application**: Basic steps to confirm the application is running (e.g., accessing via `localhost:<port>`, checking `docker ps`).
+-   **Stop Containers**: `docker stop <container-id>` or `docker-compose down`.
+
+### 4. Project Directory Restructuring Advice for Docker Best Practices
+Offer guidance on how to optimize the project's directory structure for Dockerization to improve maintainability, build speed, and security:
+-   **Dockerfile Location**: Always place the `Dockerfile` and `.dockerignore` at the root of the project to ensure the entire project directory is the build context.
+-   **Separate Build Contexts**: If your project is a monorepo with multiple distinct services (e.g., `frontend/`, `backend/`, `auth-service/`), each requiring its own Docker image, advise creating a `Dockerfile` within each service's respective directory and managing them via `docker-compose.yml` for their separate build contexts.
+-   **Configuration Management**: Suggest using environment variables or dedicated configuration files that are easily swapped for different environments (e.g., `production.env`, `development.env`) and not committing sensitive information directly into the image.
+-   **Static Assets/Build Output**: If your application generates static assets (e.g., for a frontend SPA), advise a build process that places these in a well-defined output directory that can be easily served by a lightweight server (like Nginx) in a multi-stage build or a separate container.
+-   **Volume Mounts for Development**: Emphasize using volume mounts in `docker-compose.yml` during development (`.:/app`) to enable hot-reloading without rebuilding the image.
+-   **Dependency Caching**: Structure your Dockerfile to copy `package.json` or `requirements.txt` *before* the rest of the application code, and install dependencies, to leverage Docker's layer caching for faster subsequent builds.
+
+Ensure the entire output is formatted using Markdown for readability.
+"""

@@ -1,0 +1,62 @@
+# ~/.gemini/commands/backend/database.toml
+
+description = "Plan the implementation of a backend database and cache system using Postgresql, Pgvector, and Redis, and detail project dockerization."
+
+prompt = """
+You are an expert database architect and DevOps engineer. Your task is to plan the implementation of a robust backend database and caching solution, and subsequently, a plan for dockerizing the entire project.
+
+The core components for the database/caching are:
+-   **PostgreSQL**: For relational data storage.
+-   **Pgvector**: For efficient vector embeddings storage and similarity search within PostgreSQL.
+-   **Redis**: For high-performance caching and potentially real-time data needs.
+
+Please provide a detailed plan covering the following aspects:
+
+1.  **Database Design (PostgreSQL/Pgvector)**:
+    *   Key tables and their relationships.
+    *   Considerations for data types, primary keys, and foreign keys.
+    *   Schema design for storing vector embeddings using Pgvector.
+    *   Indexing strategies for both relational data and vector data (e.g., `ivfflat` for Pgvector).
+    *   Partitioning or sharding considerations for scalability if applicable.
+    *   Connection pooling strategies for application integration.
+
+2.  **Caching Strategy (Redis)**:
+    *   Types of data to be cached (e.g., frequently accessed queries, session data, user profiles).
+    *   Cache invalidation strategies (e.g., write-through, write-back, lazy loading, time-to-live).
+    *   Considerations for cache consistency with the primary database.
+    *   Redis data structures to use (e.g., strings, hashes, lists, sets, sorted sets).
+    *   Redis persistence (RDB/AOF) and high availability (Sentinel/Cluster) considerations.
+
+3.  **Integration and Data Flow**:
+    *   How will the application interact with both PostgreSQL and Redis?
+    *   Data synchronization mechanisms between the database and cache.
+    *   Strategies for handling cache misses.
+
+4.  **Operational Considerations**:
+    *   Backup and recovery strategies for both PostgreSQL and Redis.
+    *   Monitoring metrics for performance and health.
+    *   Security best practices (e.g., connection encryption, access control).
+    *   Potential challenges and how to mitigate them.
+
+5.  **Project Structure and Organization**:
+    *   Based on the proposed database and caching architecture, and considering the current project layout provided below, suggest a restructured high-level project folder and file organization that promotes clear separation of concerns, modularity, and maintainability.
+    *   Explain the rationale behind your proposed structure, specifically how it supports database and caching integration.
+
+6.  **Dockerization Plan**:
+    *   Generate a detailed plan for dockerizing the entire project, including the application, PostgreSQL, and Redis.
+    *   Outline the necessary `Dockerfile` configurations for each service (application, database, cache).
+    *   Detail the `docker-compose.yml` file structure for orchestrating these services, including network configurations, volume mounts for data persistence, and environment variables.
+    *   Provide clear build steps for Docker images.
+    *   Provide clear run steps for deploying the services using Docker Compose.
+    *   Discuss considerations for development vs. production Docker environments.
+
+Consider the plan from an engineering perspective, aiming for efficiency, scalability, and maintainability.
+
+Additional context or specific requirements will be provided after this prompt.
+
+Current Project Structure:
+!{ls -F}
+
+Contents of the project folder:
+!{find . -maxdepth 2 -print -exec cat {} +}
+"""

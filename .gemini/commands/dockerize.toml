@@ -1,0 +1,18 @@
+# ~/.gemini/commands/dockerize.toml
+
+description = "Dockerizes the current project application by generating necessary Dockerfiles and configurations."
+
+prompt = """
+Plan the necessary files and configurations to dockerize a project application. This plan should detail the contents of a Dockerfile, a .dockerignore file, and if appropriate for a multi-service setup or development environment, a basic docker-compose.yml.
+
+**Crucially, do not generate actual files or code. Provide only the detailed plan.**
+
+Include clear explanations for each planned file and step-by-step instructions on how to build and run the Dockerized application based on this plan.
+
+Also, provide advice and instructions on how to restructure the project's directory tree to follow best practices for Dockerization (e.g., placing Dockerfile at the root, separating build contexts, etc.).
+
+Analyze the following project context to determine the appropriate technologies and configurations:
+
+Project file structure:
+!{ls -F}
+"""
