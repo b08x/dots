@@ -1,0 +1,48 @@
+# ~/.gemini/commands/git/commit.toml
+
+description = "Analyzes Git changes, stages modified files, and generates a conventional commit message, then commits."
+
+prompt = """
+You are an expert Git assistant. Your task is to analyze the current Git repository state, identify changes, generate a concise and meaningful conventional commit message, and then execute the commit.
+
+Here is the current state of the Git repository:
+
+!{
+# Verify we're in a git repository and get status
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Not a git repository"
+    echo "This command requires git version control."
+    exit 1
+fi
+
+# Check if we have changes to commit
+if ! git diff --cached --quiet || ! git diff --quiet; then
+    echo "Current Git Status (short):"
+    git status --short
+else
+    echo "No changes to commit detected. Exiting."
+    exit 0
+fi
+
+echo ""
+echo "Detailed staged changes (diff --stat):"
+git diff --cached --stat
+echo ""
+echo "Detailed unstaged changes (diff --stat):"
+git diff --stat
+}
+
+Analyze the provided Git status and diff information to determine:
+1.  **What files were modified**: Identify all changed, added, or deleted files.
+2.  **The nature of changes**: Classify the changes as a new feature (feat), a bug fix (fix), documentation update (docs), style changes (style), code refactoring (refactor), tests (test), or general chore.
+3.  **The scope/component affected**: Identify the specific part of the codebase or module that the changes relate to (e.g., auth, UI, database, CI/CD). This is optional but preferred.
+
+**Before committing, ensure the necessary files are staged:**
+If there are modified but unstaged files, or no files are staged, you should stage all modified files (but not untracked files).
+Then, show what will be committed.
+
+!{
+# If nothing is staged, stage modified files (not untracked)
+if git diff --cached --quiet; then
+    echo "No files currently staged. Attempting to stage all modified files now."
+    git add -u
