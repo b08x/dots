@@ -3,6 +3,14 @@
     "RubyDocsKB": {
       "httpUrl": "http://ninjabot/mcp/server/yU4nORHVAPwB94hQ/mcp",
       "timeout": 5000
+    },
+    "RubyDocAgent": {
+      "httpUrl": "http://ninjabot/mcp/server/u3RvS3OjQiVDHLFB/mcp",
+      "timeout": 5000
+    },
+    "RubyEngineerAgent": {
+      "httpUrl": "http://ninjabot/mcp/server/qwPH56kYLXa05uAF/mcp",
+      "timeout": 5000
     }
   },
   "selectedAuthType": "gemini-api-key"
