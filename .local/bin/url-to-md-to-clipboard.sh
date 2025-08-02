@@ -26,7 +26,7 @@ fi
 
 # Ask the user to select an output directory using gum's file picker.
 # The user should navigate to the desired directory and press Enter.
-OUTPUT_DIR=$(gum file --directory)
+OUTPUT_DIR=${PWD}
 
 # Exit if no directory was selected.
 if [ -z "$OUTPUT_DIR" ]; then
