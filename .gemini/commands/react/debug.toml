@@ -1,0 +1,31 @@
+# ~/.gemini/commands/react/debug.toml
+
+description = "Debugs issues in a React 19, TypeScript, Vite, environment variable-enabled application."
+
+prompt = """
+I am encountering an issue with a React 19 application that uses TypeScript, Vite for bundling, and relies on environment variables for configuration.
+
+The specific problem I'm facing is: {{args}}
+
+To help diagnose this, please consider the following context from my project:
+
+- **Project Structure:**
+  !{ls -F}
+
+- **Dependencies and Scripts:**
+  !{cat package.json}
+
+- **Vite Configuration:**
+  !{cat vite.config.ts}
+
+- **TypeScript Configuration:**
+  !{cat tsconfig.json}
+
+- **Relevant Code Snippets:** Please provide any relevant code that you suspect is related to the issue, especially component code, API calls, or configuration files.
+
+- **Error Messages/Console Output:** Please paste any error messages from the browser console or terminal output.
+
+- **Environment Variable Setup:** Describe how your environment variables are configured and accessed (e.g., `.env` files, `process.env`, `import.meta.env`). Do not paste sensitive information.
+
+Based on this information, please help me identify the root cause and suggest potential solutions, including specific code changes or configuration adjustments.
+"""
