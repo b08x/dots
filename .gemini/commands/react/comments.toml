@@ -1,9 +1,9 @@
 # ~/.gemini/commands/react/comments.toml
 
-description = "Generates JSDoc/TSDoc comments for a given JavaScript or TypeScript code snippet."
+description = "Generates TSDoc comments for a given JavaScript or TypeScript code snippet."
 
 prompt = """
-Generate comprehensive and accurate JSDoc/TSDoc comments for the following JavaScript or TypeScript code snippet.
+Generate comprehensive and accurate TSDoc comments for the following TypeScript code snippet.
 
 Ensure the comments:
 - Clearly describe the purpose and functionality of the code.

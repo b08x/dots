@@ -2,29 +2,14 @@
 
 I'll format your code using the project's configured formatter.
 
-First, let me check if this project has a formatter configured by analyzing:
-- Configuration files in the project root
-- Build or task runner setups
-- Editor configuration files
-- Code style definitions
+I'll detect your project's formatter automatically by analyzing configuration files and project structure without assuming specific technologies.
 
-Based on what I find, I'll determine the appropriate formatting approach for your project.
+I'll format only modified files to avoid unnecessary changes and focus on your current work.
 
-I'll format only the files that have been modified to:
-- Avoid unnecessary changes
-- Keep the formatting focused
-- Prevent touching vendor/dependency directories
+If no formatter is configured, I'll suggest appropriate options for your project type and offer to format using language conventions.
 
-After formatting, I'll show you what changed.
+After formatting, I'll show what changed and ensure the code follows your project's established style patterns.
 
-If no formatter is found:
-- I'll list what I searched for
-- Suggest popular formatters for your project type
-- Ask if you'd like me to format manually using language conventions
+If formatting encounters issues, I'll provide specific error details and suggest solutions.
 
-If formatting fails:
-- I'll show the exact error
-- Explain what might be wrong
-- Suggest fixes or alternatives
-
-This ensures consistent code style according to your project's standards.
+This maintains consistent code style according to your project's standards efficiently.

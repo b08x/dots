@@ -1,42 +1,41 @@
 # End Coding Session
 
-I'll summarize this coding session and prepare handoff notes.
+I'll summarize this coding session and update the memory system with our accomplishments.
 
 Let me analyze what we accomplished by:
-1. Looking at what files were created/modified
-2. Checking git changes made during the session
-3. Summarizing the work completed
+1. Reviewing files created/modified during our session
+2. Checking git changes and commit history
+3. Summarizing completed work and pending items
 
-```bash
-# Find the latest session file
-SESSION_FILE=$(ls -t .claude-sessions/session_*.log 2>/dev/null | head -1)
-
-if [ -f "$SESSION_FILE" ]; then
-    echo "" >> "$SESSION_FILE"
-    echo "=== Session Summary ===" >> "$SESSION_FILE"
-    echo "Ended: $(date)" >> "$SESSION_FILE"
-    echo "" >> "$SESSION_FILE"
-fi
-
-# Check what changed
-git diff --stat $(git rev-parse HEAD~1 2>/dev/null || echo HEAD) 2>/dev/null || echo "No git changes"
-```
+I'll update the appropriate CLAUDE.md file with:
+- Session summary and accomplishments
+- Files modified and their purposes
+- Decisions made and rationale
+- Pending work and next steps
+- Any important context for future sessions
 
 ## Session Summary:
 
 ### Accomplished:
-- I'll list all completed tasks from our conversation
-- Files created/modified
-- Problems solved
+- All completed tasks from our conversation
+- Files created/modified with their purposes
+- Problems solved and solutions implemented
 
 ### Pending Items:
 - Tasks started but not completed
-- Known issues to address
-- Next steps recommended
+- Known issues requiring attention
+- Recommended next steps
 
 ### Handoff Notes:
-- Key decisions made
-- Important context for next session
-- Any blockers or dependencies
+- Key architectural decisions made
+- Important context for team members
+- Blockers or dependencies identified
+- Technical debt considerations
 
-This summary helps maintain continuity between coding sessions.
+**Important**: I will NEVER:
+- Add "Co-authored-by" or any Claude signatures
+- Include "Generated with Claude Code" or similar messages
+- Modify git config or user credentials
+- Add any AI/assistant attribution to the commit
+
+I'll preserve this summary in your memory system, ensuring continuity for future sessions and seamless handoffs to team members. This integrates with Claude Code CLI's native memory management for persistent context.

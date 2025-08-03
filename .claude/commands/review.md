@@ -2,38 +2,42 @@
 
 I'll review your code for potential issues.
 
-Let me examine the files we've been working on and any recent changes for:
+Let me create a checkpoint before detailed analysis:
+```bash
+git add -A  
+git commit -m "Pre-review checkpoint" || echo "No changes to commit"
+```
 
-1. **Security Issues**
-   - Hardcoded credentials
-   - Input validation problems
-   - Potential vulnerabilities
+I'll use specialized sub-agents for comprehensive analysis:
+- **Security sub-agent**: Credential exposure, input validation, vulnerabilities
+- **Performance sub-agent**: Bottlenecks, memory issues, optimization opportunities  
+- **Quality sub-agent**: Code complexity, maintainability, best practices
+- **Architecture sub-agent**: Layer separation, dependency direction, scalability patterns
 
-2. **Common Bugs**
-   - Null/undefined handling
-   - Error handling gaps
-   - Logic errors
+I'll examine files using the Read and Grep tools to analyze:
+1. **Security Issues** - credential exposure, input validation
+2. **Logic Problems** - error handling, edge cases  
+3. **Performance Concerns** - inefficient patterns, bottlenecks
+4. **Code Quality** - complexity, maintainability
 
-3. **Performance Concerns**
-   - Inefficient patterns
-   - Memory leaks
-   - Unnecessary operations
+When I find multiple issues, I'll create a todo list to address them systematically.
 
-4. **Code Quality**
-   - Dead code
-   - Overly complex functions
-   - Missing error handling
+For each issue, I'll:
+- Show exact location with file references
+- Explain the problem and potential impact
+- Provide specific remediation steps
+- Prioritize by severity and effort
 
-If I find multiple issues, I'll create a todo list to address them systematically.
+After review, I'll ask: "Create GitHub issues for critical findings?"
+- Yes: I'll create prioritized issues with detailed descriptions
+- Todos only: I'll maintain local tracking for resolution
+- Summary: I'll provide actionable report
 
-For each issue I find, I'll:
-- Show you exactly where it is
-- Explain why it's a problem
-- Suggest how to fix it
+**Important**: I will NEVER:
+- Add "Co-authored-by" or any Claude signatures to commits
+- Add "Created by Claude" or any AI attribution to issues
+- Include "Generated with Claude Code" in any output
+- Modify git config or repository settings
+- Add any AI/assistant signatures or watermarks
 
-If I encounter errors during review:
-- I'll continue checking other files
-- Report what couldn't be analyzed
-- Focus on the code I can access
-
-This review focuses on real problems that could affect your application.
+This focuses on real problems that impact your application's reliability and maintainability.

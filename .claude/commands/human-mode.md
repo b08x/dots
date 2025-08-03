@@ -2,12 +2,12 @@
 
 I'll adjust my approach to be more practical and less perfectionist.
 
-```bash
-# Create mode indicator file
-HUMAN_MODE_FILE="$HOME/.claude/.human_mode"
-echo "active" > "$HUMAN_MODE_FILE"
-echo "Human mode activated for this session"
-```
+## Mode Activation
+
+I'll switch to a pragmatic approach by:
+- Creating a mode indicator in `./.claude/human_mode`
+- Adjusting my responses for practicality
+- Focusing on working solutions over perfection
 
 When activated, I'll:
 - Focus on solutions that work rather than perfect architecture
@@ -15,6 +15,8 @@ When activated, I'll:
 - Skip unnecessary abstractions and over-engineering
 - Provide shorter, more focused explanations
 - Consider common pitfalls and known issues upfront
+
+## Priority Shift
 
 My priorities will shift to:
 - Getting things done quickly
@@ -30,16 +32,14 @@ I'll proactively think about:
 - Common deployment gotchas
 - Integration points that often fail
 
+## Use Cases
+
 This helps when you need:
 - Quick prototypes
 - Practical fixes
 - Simple solutions
 - Less discussion, more action
 
-To deactivate human mode:
-```bash
-rm -f "$HUMAN_MODE_FILE"
-echo "Human mode deactivated"
-```
+To deactivate human mode, simply tell me to switch back to normal mode.
 
 The mode persists for your current session and affects how I approach all tasks.

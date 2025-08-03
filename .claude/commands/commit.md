@@ -2,6 +2,13 @@
 
 I'll analyze your changes and create a meaningful commit message.
 
+**Pre-Commit Quality Checks:**
+Before committing, I'll verify:
+- Build passes (if build command exists)
+- Tests pass (if test command exists)
+- Linter passes (if lint command exists)
+- No obvious errors in changed files
+
 First, let me check if this is a git repository and what's changed:
 
 ```bash

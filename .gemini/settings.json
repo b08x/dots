@@ -1,16 +1,16 @@
 {
   "mcpServers": {
-    "RubyDocsKB": {
-      "httpUrl": "http://ninjabot/mcp/server/yU4nORHVAPwB94hQ/mcp",
+    "BridgetownEngineerAgent": {
+      "httpUrl": "http://ninjabot/mcp/server/0oU1c7cgByOCNKBN/mcp",
+      "timeout": 10000
+    },
+    "ReactTypescriptEngineerAgent": {
+      "httpUrl": "http://ninjabot/mcp/server/52wQLVP7jVfcGS7w/mcp",
       "timeout": 5000
     },
-    "RubyDocAgent": {
-      "httpUrl": "http://ninjabot/mcp/server/u3RvS3OjQiVDHLFB/mcp",
-      "timeout": 5000
-    },
-    "RubyEngineerAgent": {
-      "httpUrl": "http://ninjabot/mcp/server/qwPH56kYLXa05uAF/mcp",
-      "timeout": 5000
+    "RubyKnowledgeBase": {
+      "httpUrl": "http://ninjabot/mcp/server/8BnJJe36NFR8nRWW/mcp",
+      "timeout": 20000
     }
   },
   "selectedAuthType": "gemini-api-key"
