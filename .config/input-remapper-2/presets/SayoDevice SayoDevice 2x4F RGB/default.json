@@ -20,7 +20,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + Right",
+        "output_symbol": "Super_L + slash",
         "mapping_type": "key_macro"
     },
     {
@@ -32,7 +32,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT + 3",
+        "output_symbol": "Super_L + a",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + KEY_HOME",
+        "output_symbol": "Super_L + q",
         "mapping_type": "key_macro"
     },
     {
@@ -55,7 +55,9 @@
                 "origin_hash": "c0c7014af7fcf51312af7659eefe2f2a"
             }
         ],
-        "target_uinput": "keyboard"
+        "target_uinput": "keyboard",
+        "output_symbol": "Super_L + Alt_L + Left",
+        "mapping_type": "key_macro"
     },
     {
         "input_combination": [
@@ -65,7 +67,9 @@
                 "origin_hash": "c0c7014af7fcf51312af7659eefe2f2a"
             }
         ],
-        "target_uinput": "keyboard"
+        "target_uinput": "keyboard",
+        "output_symbol": "Super_L + Alt_L + Right",
+        "mapping_type": "key_macro"
     },
     {
         "input_combination": [
@@ -76,7 +80,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "XF86AudioRecord",
+        "output_symbol": "Control_L + Alt_L + Shift_L + 7",
         "mapping_type": "key_macro"
     },
     {
@@ -88,7 +92,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Shift_R + XF86LaunchB",
+        "output_symbol": "Control_L + Alt_L + Shift_L + 8",
         "mapping_type": "key_macro"
     }
 ]
