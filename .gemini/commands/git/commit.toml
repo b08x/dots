@@ -46,4 +46,5 @@ Then, show what will be committed.
 if git diff --cached --quiet; then
     echo "No files currently staged. Attempting to stage all modified files now."
     git add -u
+}
 """
