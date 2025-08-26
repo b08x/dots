@@ -1,0 +1,86 @@
+# ~/.gemini/commands/project/understand.toml
+
+description = "Analyze the entire project to understand its architecture, patterns, technologies, and data flow, providing a comprehensive overview. Optional arguments can provide a specific focus for the analysis."
+
+prompt = """
+I need you to act as a highly experienced software architect and system analyst. Your primary goal is to provide a comprehensive and deep understanding of the entire application, its architecture, patterns, and how all its components work together. If any additional context or specific area of focus is provided via `{{args}}`, incorporate that into your analysis.
+
+**Phase 1: Project Discovery**
+Begin by performing a comprehensive discovery of the project.
+- **Project Structure**: Analyze the overall directory structure.
+  !{ls -F}
+- **Key Files**: Read general project information from common files.
+  !{cat README.* 2>/dev/null || true}
+  !{cat package.json 2>/dev/null || true}
+  !{cat composer.json 2>/dev/null || true}
+  !{cat pom.xml 2>/dev/null || true}
+  !{cat requirements.txt 2>/dev/null || true}
+  !{cat go.mod 2>/dev/null || true}
+  !{cat .env.example 2>/dev/null || true}
+- **Technology Identification**: Infer the project type, main programming languages, frameworks, and significant libraries used.
+- **Architecture Patterns**: Identify common architectural patterns (e.g., MVC, Microservices, Event-Driven, Monolithic).
+- **Build/Deployment**: Identify potential build tools, deployment scripts, or configuration related to CI/CD.
+
+**Phase 2: Code Architecture Analysis**
+Delve into the core structure of the codebase.
+- **Entry Points**: Pinpoint the main application entry points (e.g., `index.js`, `main.py`, `App.java`, `server.ts`).
+- **Core Modules/Business Logic**: Understand how the main business logic is organized and separated.
+- **Data Layer**: Describe the database interaction, models, ORMs, and repositories.
+- **API Layer**: Detail the API structure, routes, controllers, and endpoints (if applicable).
+- **Frontend (if applicable)**: Outline the component structure, views, templates, and state management.
+- **Configuration**: Analyze how environment variables, constants, and application settings are managed.
+- **Testing**: Identify the testing framework, test directory structure, and general testing strategy.
+
+**Phase 3: Pattern Recognition**
+Identify established development patterns and conventions.
+- **Naming Conventions**: Note consistent naming for files, functions, variables, and classes.
+- **Code Style**: Observe prevalent code style and formatting rules.
+- **Error Handling**: Describe the approach to error handling and logging.
+- **Authentication/Authorization**: Outline the security mechanisms and flows.
+- **State Management**: Detail how application state is managed.
+- **Communication Patterns**: Identify how different modules and services communicate.
+
+**Phase 4: Dependency Mapping**
+Map out the internal and external dependencies.
+- **Internal Dependencies**: Show how different modules or components within the project rely on each other.
+- **External Library Usage**: List significant third-party libraries and their roles.
+- **Service Integrations**: Identify any external services, APIs, or microservices the application interacts with.
+- **Database Relationships**: Describe key database tables and their relationships (if schema files are available).
+
+**Phase 5: Documentation Synthesis**
+Synthesize all findings into a structured, clear explanation. If the analysis is exceptionally large or complex, create a prioritized to-do list for further, more granular exploration of specific areas, indicating what aspects should be investigated next and why.
+
+**Integration Points**: Clearly describe how different components interact, including API endpoints and their consumers, database queries, event systems, shared utilities, and cross-cutting concerns (e.g., logging, authentication).
+
+**Output Format**:
+Present your findings in the following structure, using text or markdown where applicable for diagrams and detailed explanations.
+
+```
+PROJECT OVERVIEW
+├── Architecture: [Type of architecture, e.g., MVC, RESTful API, Single-Page App]
+├── Main Technologies: [List of primary technologies, e.g., Node.js, React, Python, Django, PostgreSQL]
+├── Key Patterns: [List of important design patterns or conventions, e.g., Repository Pattern, Component-based UI, Centralized State Management]
+└── Entry Point: [Main application entry file/directory, e.g., src/index.js, app.py, server.go]
+
+COMPONENT MAP
+├── Frontend (if applicable)
+│   └── [Describe frontend structure, e.g., Components by feature, MVVM, Redux flow]
+├── Backend (if applicable)
+│   └── [Describe backend structure, e.g., Controllers, Services, Models, API routes]
+├── Database (if applicable)
+│   └── [Describe database schema approach, e.g., Relational, NoSQL, ORM usage, key tables]
+└── Tests (if applicable)
+    └── [Describe test strategy, e.g., Unit, Integration, E2E, testing frameworks]
+
+KEY INSIGHTS
+- [Important finding 1: e.g., "Heavy reliance on third-party API X for core functionality"]
+- [Important finding 2: e.g., "Business logic is tightly coupled within controllers, could benefit from service layer extraction"]
+- [Unique patterns: e.g., "Custom error handling middleware for all API routes"]
+- [Performance considerations: e.g., "Potential N+1 query issues in X module"]
+- [Security observations: e.g., "Missing input validation in Y endpoint"]
+
+NEXT STEPS (if applicable, for large/complex projects)
+- [Todo item 1: Investigate X module's performance bottlenecks by profiling its database queries.]
+- [Todo item 2: Document the authentication flow in detail, including token refresh mechanism.]
+```
+"""
