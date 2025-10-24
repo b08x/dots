@@ -4,7 +4,7 @@
 alias reboot="sudo shutdown -r now"
 alias shutdown="sudo shutdown -h now"
 
-alias btm="btm --enable_cache_memory --enable_gpu --process_command -n"
+alias btm="btm --enable_cache_memory --process_command -n"
 
 # list input devices
 alias lsin="sudo libinput list-devices"

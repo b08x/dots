@@ -6,9 +6,8 @@ export XDG_CONFIG_HOME=$HOME/.config
 # make default editor micro
 export EDITOR=micro
 
-if [ "$XDG_SESSION_TYPE" == "wayland" ]; then
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
     export MOZ_ENABLE_WAYLAND=1
-    export QT_QPA_PLATFORM=wayland
     export MOZ_DBUS_REMOTE=1
     export GTK_CSD=0
     export QT_QPA_PLATFORM="wayland"
@@ -18,11 +17,11 @@ if [ "$XDG_SESSION_TYPE" == "wayland" ]; then
     # Add other Wayland specific variables here
     export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
     
-elif [ "$XDG_SESSION_TYPE" == "x11" ]; then
+elif [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
 	export QT_QPA_PLATFORM="xcb"
 fi
 
-export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=qt6ct
 
 # set default shell and terminal
 export SHELL=/usr/bin/zsh

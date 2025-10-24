@@ -18,11 +18,11 @@ if [[ $hostname == "ninjabot" ]]; then
 elif [[ $hostname == "soundbot" ]]; then
   ZSH_THEME="strug"
 elif [[ $hostname == "gir" ]]; then
-  ZSH_THEME="kphoen"
+  ZSH_THEME="tjkirch_mod"
 elif [[ $hostname == "lapbot" ]]; then
-  ZSH_THEME="kphoen"
+  ZSH_THEME="jaischeema"
 else
-  ZSH_THEME="linuxonly"
+  ZSH_THEME="jaischeema"
 fi
 
 CASE_SENSITIVE="true"
@@ -205,3 +205,24 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+
+if [[ $hostname == "gir" ]]; then
+
+  export CUDAHOSTCXX=/usr/bin/g++-14
+  export CPATH=/usr/include/openmpi-x86_64:$CPATH
+  export PATH=$PATH:/usr/lib64/openmpi/bin
+  export CC=/usr/bin/gcc-14
+  export CXX=/usr/bin/g++-14
+  export NVCC_CCBIN=/usr/bin/g++-14
+  export CUDACXX=/usr/local/cuda-13.0/bin/nvcc
+  
+  export LD_LIBRARY_PATH=/usr/local/cuda-13.0/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
+  export CPATH=/usr/local/cuda-13.0/targets/x86_64-linux/include:$CPATH
+  export PATH=/usr/local/cuda-13.0/bin:$PATH
+
+fi
+
+# opencode
+export PATH=/home/b08x/.opencode/bin:$PATH
+

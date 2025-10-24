@@ -1,11 +1,8 @@
 export UU_ORDER="$UU_ORDER:~/.zshenv"
 
-unset _old_path
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
-if systemd-detect-virt -q; then
-	# if the system is running inside a virtual machine, disable hardware cursors
-	export WLR_NO_HARDWARE_CURSORS=1
-fi
+[[ -s "$HOME/.profile" ]] && source "$HOME/.profile"
 
 if [ -x "$(command -v most)" ]; then
 PAGER=most
