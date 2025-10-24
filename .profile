@@ -21,7 +21,7 @@ elif [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
 	export QT_QPA_PLATFORM="xcb"
 fi
 
-export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_QPA_PLATFORMTHEME=qt5ct
 
 # set default shell and terminal
 export SHELL=/usr/bin/zsh
