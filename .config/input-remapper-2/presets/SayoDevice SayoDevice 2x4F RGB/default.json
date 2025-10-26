@@ -20,7 +20,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + slash",
+        "output_symbol": "Super_L + 2",
         "mapping_type": "key_macro"
     },
     {
@@ -32,7 +32,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + a",
+        "output_symbol": "Super_L + Control_L + Shift_L + bracketleft",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + q",
+        "output_symbol": "Super_L + Control_L + Shift_L + bracketright",
         "mapping_type": "key_macro"
     },
     {
@@ -56,7 +56,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + Alt_L + Left",
+        "output_symbol": "Super_L",
         "mapping_type": "key_macro"
     },
     {
@@ -68,7 +68,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + Alt_L + Right",
+        "output_symbol": "XF86AudioMicMute",
         "mapping_type": "key_macro"
     },
     {
@@ -92,7 +92,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 8",
+        "output_symbol": "Shift_L + Control_L + Alt_L + l",
         "mapping_type": "key_macro"
     }
 ]

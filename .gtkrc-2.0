@@ -3,7 +3,7 @@
 
 include "/home/b08x/.gtkrc-2.0.mine"
 gtk-theme-name="Dracula-alt-style"
-gtk-icon-theme-name="Yaru-prussiangreen-dark"
+gtk-icon-theme-name="Yaru-blue-dark"
 gtk-font-name="Hack Nerd Font 12"
 gtk-cursor-theme-name="Pop"
 gtk-cursor-theme-size=48

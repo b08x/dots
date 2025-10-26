@@ -13,7 +13,7 @@
 	<directories/>
 </action>
 <action>
-	<icon>deepin-terminal</icon>
+	<icon>kitty</icon>
 	<name>Code-Packager</name>
 	<submenu></submenu>
 	<unique-id>1752357568774403-1</unique-id>
@@ -26,7 +26,7 @@
 	<text-files/>
 </action>
 <action>
-	<icon>gnome-mastermind</icon>
+	<icon>kitty</icon>
 	<name>yadm add</name>
 	<submenu></submenu>
 	<unique-id>1752357864519168-2</unique-id>
@@ -36,5 +36,29 @@
 	<patterns>*</patterns>
 	<other-files/>
 	<text-files/>
+</action>
+<action>
+	<icon>video-x-generic</icon>
+	<name>avi_to_mp4</name>
+	<submenu></submenu>
+	<unique-id>1761326825747591-1</unique-id>
+	<command>/home/b08x/.local/bin/avi_to_mp4.sh %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<video-files/>
+</action>
+<action>
+	<icon>gtk-convert</icon>
+	<name>convert_mp4_normalize_audio</name>
+	<submenu></submenu>
+	<unique-id>1761330643534262-2</unique-id>
+	<command>kitty --hold -e convert_mp4_audio.sh --normalize %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<video-files/>
 </action>
 </actions>
