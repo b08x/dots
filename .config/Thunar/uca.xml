@@ -61,4 +61,15 @@
 	<directories/>
 	<video-files/>
 </action>
+<action>
+	<icon></icon>
+	<name>vlm_preprocessing_no_audio</name>
+	<submenu></submenu>
+	<unique-id>1761515903982296-1</unique-id>
+	<command>kitty --hold -e vlm_preprocessing.sh -g --no-audio %F</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<video-files/>
+</action>
 </actions>
