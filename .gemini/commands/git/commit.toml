@@ -37,14 +37,4 @@ Analyze the provided Git status and diff information to determine:
 2.  **The nature of changes**: Classify the changes as a new feature (feat), a bug fix (fix), documentation update (docs), style changes (style), code refactoring (refactor), tests (test), or general chore.
 3.  **The scope/component affected**: Identify the specific part of the codebase or module that the changes relate to (e.g., auth, UI, database, CI/CD). This is optional but preferred.
 
-**Before committing, ensure the necessary files are staged:**
-If there are modified but unstaged files, or no files are staged, you should stage all modified files (but not untracked files).
-Then, show what will be committed.
-
-!{
-# If nothing is staged, stage modified files (not untracked)
-if git diff --cached --quiet; then
-    echo "No files currently staged. Attempting to stage all modified files now."
-    git add -u
-}
 """
