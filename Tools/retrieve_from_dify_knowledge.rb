@@ -4,7 +4,14 @@
 require 'uri'
 require 'net/http'
 require 'json'
-require 'tty-markdown' # <-- Added for formatted output
+require 'tty-markdown' # For markdown parsing
+require 'tty-box'      # For boxing
+require 'tty-screen'   # For terminal size
+
+# --- Get Terminal Dimensions ---
+SCREEN_WIDTH = TTY::Screen.width
+BOX_CHROME_WIDTH = 4 # Border (2) + Padding (2)
+CONTENT_WIDTH = SCREEN_WIDTH - BOX_CHROME_WIDTH
 
 # --- HTTP Request Setup (Unchanged) ---
 url = URI('http://dify.syncopated.net/v1/datasets/c61cc957-5b46-4cca-a1b6-7e83f1391e0a/retrieve')
@@ -66,27 +73,26 @@ end
 
 # 4. Display the query
 query_content = data.dig('query', 'content') || request_body[:query]
-puts TTY::Markdown.parse("# 📚 Dify Results for: `#{query_content}`")
+puts TTY::Markdown.parse("# 📚 Dify Results for: `#{query_content}`", width: CONTENT_WIDTH)
+puts "\n"
 
 if data['records'].empty?
   puts 'No records found.'
   exit
 end
 
-# 5. Iterate over each record and print its content as Markdown
+# --- MODIFIED LOOP ---
+
+# 5. Iterate over each record
 data['records'].each_with_index do |record, index|
-  # Extract relevant metadata
   score = record['score']
   segment = record['segment']
   content = segment['content']
   doc_name = segment.dig('document', 'name') || 'Unknown Document'
 
-  # Format the score to 4 decimal places, handling nil
   formatted_score = score ? format('%.4f', score) : 'N/A'
 
-  # Build a markdown string for this chunk
   markdown_chunk = <<~MD
-    ---
     ## 🎯 Result #{index + 1} (Score: #{formatted_score})
 
     **Source:** `#{doc_name}`
@@ -94,23 +100,30 @@ data['records'].each_with_index do |record, index|
     #{content}
   MD
 
-  # 6. Print the formatted markdown to the console
-  #
-  # --- START: MODIFIED SECTION ---
-  #
-  # We wrap this in a rescue block because tty-markdown can crash on
-  # complex Markdown (like tables with multiple images).
-  # We also pass `width: 200` to give the wrapper more space,
-  # which makes it less likely to fail.
+  # 6. Parse Markdown (Fallback 1)
+  formatted_content = ''
   begin
-    puts TTY::Markdown.parse(markdown_chunk, width: 200)
+    formatted_content = TTY::Markdown.parse(markdown_chunk, width: CONTENT_WIDTH)
   rescue StandardError => e
-    # Fallback: If tty-markdown fails, print the raw markdown chunk.
-    puts "--- TTY-MARKDOWN FAILED (Error: #{e.message}) ---"
-    puts '--- Printing Raw Markdown ---'
-    puts markdown_chunk
+    formatted_content = "--- TTY-MARKDOWN FAILED (Error: #{e.message}) ---\n"
+    formatted_content += "--- Using Raw Markdown ---\n\n"
+    formatted_content += markdown_chunk
   end
-  #
-  # --- END: MODIFIED SECTION ---
-  #
+
+  # 7. Draw Box (Fallback 2)
+  begin
+    # Try to draw the box
+    box = TTY::Box.frame(padding: 1, border: :light, width: SCREEN_WIDTH) do
+      formatted_content
+    end
+    puts box
+  rescue StandardError => e
+    # Fallback: tty-box failed. Print the content without a box,
+    # but with our own separators.
+    puts "--- TTY-BOX FAILED (Error: #{e.message}) ---"
+    puts '--- Printing Content Without Box ---'
+    puts '================================================='
+    puts formatted_content
+    puts "=================================================\n\n"
+  end
 end
