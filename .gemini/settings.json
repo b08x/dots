@@ -4,18 +4,6 @@
     "hasSeenNudge": true
   },
   "mcpServers": {
-    "BridgetownEngineerAgent": {
-      "httpUrl": "http://tinybot/mcp/server/0oU1c7cgByOCNKBN/mcp",
-      "timeout": 10000
-    },
-    "ReactTypescriptEngineerAgent": {
-      "httpUrl": "http://tinybot/mcp/server/52wQLVP7jVfcGS7w/mcp",
-      "timeout": 5000
-    },
-    "RubyKnowledgeBase": {
-      "httpUrl": "http://tinybot/mcp/server/8BnJJe36NFR8nRWW/mcp",
-      "timeout": 20000
-    },
     "context7": {
       "httpUrl": "https://mcp.context7.com/mcp",
       "headers": {
