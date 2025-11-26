@@ -2,7 +2,9 @@
 # frozen_string_literal: true
 
 # --- Dependencies ---
-# Make sure to run: gem install tty-prompt
+# Make sure to run: gem install tty-prompt informers
+# - tty-prompt: Interactive command-line prompts
+# - informers: Transformer models for re-ranking (optional, only needed with --rerank flag)
 require 'uri'
 require 'net/http'
 require 'json'
@@ -29,6 +31,11 @@ module DifySearch
       retrieval_model_dict
       top_k
     ].freeze
+
+    # Reranking configuration
+    RERANKING_MODEL = 'BAAI/bge-reranker-base'
+    RERANKING_MAX_RESULTS = 20 # Maximum number of results to rerank
+    RERANKING_ENABLED_DEFAULT = false # Default state for reranking
   end
 
   # --- DatasetManager ---
@@ -204,11 +211,88 @@ module DifySearch
     end
   end
 
+  # --- Reranker ---
+  # Re-ranks search results using a cross-encoder model
+  class Reranker
+    def initialize(query, results, max_results: Config::RERANKING_MAX_RESULTS)
+      @query = query
+      @results = results
+      @max_results = max_results
+      @prompt = TTY::Prompt.new
+      require_informers_gem
+    end
+
+    # Public entry point: re-ranks results and returns them
+    def run
+      # Limit number of results if needed
+      limited_results = @results.first(@max_results)
+
+      # Extract content for reranking
+      contents = extract_contents(limited_results)
+
+      if contents.empty?
+        @prompt.warn('No content found for reranking. Returning original results.')
+        return @results
+      end
+
+      # Initialize reranking pipeline
+      reranker = Informers.pipeline('reranking', Config::RERANKING_MODEL)
+
+      # Get reranked scores
+      reranked_data = reranker.(@query, contents)
+
+      # Apply reranking scores and return
+      apply_reranking(limited_results, reranked_data)
+    rescue StandardError => e
+      @prompt.error("Reranking failed: #{e.message}")
+      @prompt.warn('Returning original results.')
+      @results
+    end
+
+    private
+
+    # Lazy-load the informers gem
+    def require_informers_gem
+      require 'informers'
+    rescue LoadError => e
+      @prompt.error('The informers gem is required for re-ranking.')
+      @prompt.error("Please install it with: gem install informers")
+      @prompt.error("Error: #{e.message}")
+      exit 1
+    end
+
+    # Extract content strings from results array
+    def extract_contents(results)
+      results.map { |r| r[:content] || r['content'] }.compact
+    end
+
+    # Merge reranking scores back into results
+    def apply_reranking(original_results, reranked_data)
+      # reranked_data is an array of hashes with :doc_id and :score
+      reranked_results = reranked_data.map.with_index do |rerank_info, position|
+        doc_id = rerank_info[:doc_id]
+        original_result = original_results[doc_id]
+
+        # Create new result with both original and rerank scores
+        {
+          source: original_result[:source] || original_result['source'],
+          original_score: original_result[:score] || original_result['score'],
+          rerank_score: rerank_info[:score],
+          rerank_position: position + 1,
+          content: original_result[:content] || original_result['content']
+        }
+      end
+
+      reranked_results
+    end
+  end
+
   # --- CLI ---
   # Orchestrates the application flow
   class CLI
     def initialize
       @prompt = TTY::Prompt.new
+      @options = parse_arguments
     end
 
     def run
@@ -233,7 +317,8 @@ module DifySearch
       end
 
       # 3. Run query for each dataset and print results
-      @prompt.ok("Querying #{selected_ids.count} dataset(s) for '#{query}'...")
+      rerank_status = @options[:rerank] ? ' (with re-ranking)' : ''
+      @prompt.ok("Querying #{selected_ids.count} dataset(s) for '#{query}'...#{rerank_status}")
       puts "\n" # Add a newline for cleaner output
 
       selected_ids.each do |id|
@@ -243,10 +328,88 @@ module DifySearch
         querier = Querier.new(id, query)
         result_json_string = querier.run
 
+        # Parse the JSON results
+        result_data = JSON.parse(result_json_string)
+
+        # Apply re-ranking if enabled
+        if @options[:rerank] && result_data['results']&.is_a?(Array) && !result_data['results'].empty?
+          @prompt.say("Re-ranking results (limit: #{@options[:rerank_limit]})...")
+
+          # Convert string keys to symbols for Reranker
+          results_with_symbols = result_data['results'].map do |r|
+            {
+              source: r['source'],
+              score: r['score'],
+              content: r['content']
+            }
+          end
+
+          # Apply reranking
+          reranker = Reranker.new(query, results_with_symbols, max_results: @options[:rerank_limit])
+          reranked_results = reranker.run
+
+          # Update result data with reranked results
+          result_data['results'] = reranked_results
+          result_data['reranked'] = true
+          result_data['rerank_model'] = Config::RERANKING_MODEL
+        end
+
         # Pretty-print the JSON for readability
-        puts JSON.pretty_generate(JSON.parse(result_json_string))
+        puts JSON.pretty_generate(result_data)
         puts "\n" # Add space between results
       end
+    end
+
+    private
+
+    # Parse command-line arguments
+    def parse_arguments
+      options = {
+        rerank: Config::RERANKING_ENABLED_DEFAULT,
+        rerank_limit: Config::RERANKING_MAX_RESULTS
+      }
+
+      # Simple argument parsing for --rerank and --rerank-limit
+      ARGV.each_with_index do |arg, idx|
+        case arg
+        when '--rerank', '-r'
+          options[:rerank] = true
+          ARGV.delete_at(idx)
+        when '--rerank-limit'
+          if ARGV[idx + 1] && ARGV[idx + 1].match?(/^\d+$/)
+            options[:rerank_limit] = ARGV[idx + 1].to_i
+            ARGV.delete_at(idx + 1)
+            ARGV.delete_at(idx)
+          else
+            @prompt.error('--rerank-limit requires a numeric argument')
+            exit 1
+          end
+        when '--help', '-h'
+          print_help
+          exit 0
+        end
+      end
+
+      options
+    end
+
+    # Display help information
+    def print_help
+      puts <<~HELP
+        Usage: #{$PROGRAM_NAME} [OPTIONS]
+
+        Search datasets and optionally re-rank results using a cross-encoder model.
+
+        Options:
+          -r, --rerank              Enable re-ranking of search results
+          --rerank-limit N          Maximum number of results to re-rank (default: #{Config::RERANKING_MAX_RESULTS})
+          -h, --help                Show this help message
+
+        Examples:
+          #{$PROGRAM_NAME}                    # Normal search without re-ranking
+          #{$PROGRAM_NAME} --rerank           # Search with re-ranking enabled
+          #{$PROGRAM_NAME} --rerank --rerank-limit 10   # Re-rank top 10 results only
+      HELP
     end
   end
 end

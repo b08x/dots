@@ -36,7 +36,7 @@ APIs are fundamentally about **transformations** - converting inputs into output
 
 ### **SFL API Template Integration**
 
-**MUST read and apply:** Template 6 (API/Interface Documentation) from `/home/b08x/.claude/agents/04-SFL-Documentation-Templates.md`
+**MUST read and apply:** Template 6 (API/Interface Documentation) from `/home/b08x/.claude/instructions/sfl/04-SFL-Documentation-Templates.md`
 
 **Template Sections:**
 1. **Material Process Specification** - Transformation contract (HTTP method, endpoint, I/O)

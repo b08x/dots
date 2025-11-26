@@ -36,17 +36,17 @@ model: sonnet
    - Use existing 10-section structure
    - Focus: Cross-domain analysis, algorithmic complexity, linguistic grounding
 
-2. **For Architecture Documentation** → ALSO apply `/home/b08x/.claude/agents/06-Technical-Architecture-Blueprint.md`
+2. **For Architecture Documentation** → ALSO apply `/home/b08x/.claude/instructions/sfl/06-Technical-Architecture-Blueprint.md`
    - Integrate: Component relationship mapping, data flow architecture, dependency analysis
    - Maintain: 10-section structure + architecture-specific sections
    - Output: Comprehensive architecture documentation with cross-domain analysis
 
-3. **For System Overview Documentation** → ALSO apply `/home/b08x/.claude/agents/07-System-Overview-Template.md`
+3. **For System Overview Documentation** → ALSO apply `/home/b08x/.claude/instructions/sfl/07-System-Overview-Template.md`
    - Integrate: Core transformations, user journey, operational boundaries
    - Maintain: 10-section structure + system-level specifications
    - Output: System capabilities with technical depth and linguistic precision
 
-4. **For Master Reference** → `/home/b08x/.claude/agents/04-SFL-Documentation-Templates.md`
+4. **For Master Reference** → `/home/b08x/.claude/instructions/sfl/04-SFL-Documentation-Templates.md`
    - Use: Quality assurance checklist, anti-pattern prevention
    - Apply: Additional template types (Feature Description, Troubleshooting, API) when needed
 
@@ -61,13 +61,13 @@ model: sonnet
 **Step 2: Read Appropriate Templates**
 ```bash
 # For architecture documentation
-Read: /home/b08x/.claude/agents/06-Technical-Architecture-Blueprint.md
+Read: /home/b08x/.claude/instructions/sfl/06-Technical-Architecture-Blueprint.md
 
 # For system overview
-Read: /home/b08x/.claude/agents/07-System-Overview-Template.md
+Read: /home/b08x/.claude/instructions/sfl/07-System-Overview-Template.md
 
 # For additional templates
-Read: /home/b08x/.claude/agents/04-SFL-Documentation-Templates.md
+Read: /home/b08x/.claude/instructions/sfl/04-SFL-Documentation-Templates.md
 ```
 
 **Step 3: Integrate Template Sections**
@@ -386,7 +386,7 @@ When documenting system overview, the 10-section structure is enhanced with:
 
 ### **For Architecture Documentation** (System Structure)
 1. **Determine scope**: System architecture or component architecture?
-2. **Read Architecture Template**: `/home/b08x/.claude/agents/06-Technical-Architecture-Blueprint.md`
+2. **Read Architecture Template**: `/home/b08x/.claude/instructions/sfl/06-Technical-Architecture-Blueprint.md`
 3. **Apply SFL analysis** to component relationships (Relational processes)
 4. **Generate 10-section base** with architecture enhancements:
    - Section 2: Component specifications with resource profiles
@@ -400,7 +400,7 @@ When documenting system overview, the 10-section structure is enhanced with:
 
 ### **For System Overview Documentation** (Capability Overview)
 1. **Identify documentation scope**: Full system or subsystem?
-2. **Read System Overview Template**: `/home/b08x/.claude/agents/07-System-Overview-Template.md`
+2. **Read System Overview Template**: `/home/b08x/.claude/instructions/sfl/07-System-Overview-Template.md`
 3. **Apply SFL analysis** to system transformations:
    - Material: What system transforms
    - Mental: How users understand and interact

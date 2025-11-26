@@ -45,19 +45,19 @@ model: haiku
 
 Before creating documentation, **MUST** select appropriate SFL template based on documentation type:
 
-1. **System-Wide Documentation** → Read and apply: `/home/b08x/.claude/agents/07-System-Overview-Template.md`
+1. **System-Wide Documentation** → Read and apply: `/home/b08x/.claude/instructions/sfl/07-System-Overview-Template.md`
    - Use for: Architecture overviews, system capabilities, getting started guides
    - Focus: Material processes (transformations), Mental processes (user journey), Relational processes (component connections)
 
-2. **Feature Documentation** → Read and apply: `/home/b08x/.claude/agents/05-SFL-Feature-Description-Template.md`
+2. **Feature Documentation** → Read and apply: `/home/b08x/.claude/instructions/sfl/05-SFL-Feature-Description-Template.md`
    - Use for: New features, capability descriptions, user guides
    - Focus: Prevent overclaiming, evidence-based expectations, user cognitive journey
 
-3. **Troubleshooting Documentation** → Read and apply: Template 5 from `/home/b08x/.claude/agents/04-SFL-Documentation-Templates.md`
+3. **Troubleshooting Documentation** → Read and apply: Template 5 from `/home/b08x/.claude/instructions/sfl/04-SFL-Documentation-Templates.md`
    - Use for: Error documentation, diagnostic guides, resolution strategies
    - Focus: Process failure analysis, diagnostic workflows, conditional solutions
 
-4. **General Reference** → `/home/b08x/.claude/agents/04-SFL-Documentation-Templates.md`
+4. **General Reference** → `/home/b08x/.claude/instructions/sfl/04-SFL-Documentation-Templates.md`
    - Master template collection with 6 specialized templates
    - Quality assurance checklist and implementation guidelines
 

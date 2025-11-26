@@ -37,6 +37,8 @@ if systemd-detect-virt -q; then
     export WLR_NO_HARDWARE_CURSORS=1
 fi
 
+export LIBVIRT_DEFAULT_URI=qemu:///system
+
 # Disable warnings by OpenCV
 export OPENCV_LOG_LEVEL=ERROR
 
