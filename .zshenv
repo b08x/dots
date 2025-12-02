@@ -1,7 +1,5 @@
 export UU_ORDER="$UU_ORDER:~/.zshenv"
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
 [[ -s "$HOME/.profile" ]] && source "$HOME/.profile"
 
 if [ -x "$(command -v most)" ]; then
@@ -27,14 +25,12 @@ export GUM_CONFIRM_PROMPT_FOREGROUND=027
 export GUM_CONFIRM_SELECTED_FOREGROUND=064
 export GUM_CONFIRM_UNSELECTED_FOREGROUND=010
 
-
 export WORKSPACE="$HOME/Workspace"
 
 export ARCHIVE="$HOME/Archive"
 export DOCUMENTS="$HOME/Documents"
 export SCREENSHOTS="$HOME/Screenshots"
 export SCREENCASTS="$HOME/Screencasts"
-
 
 # fzf options
 export FZF_BASE=/usr/share/fzf
