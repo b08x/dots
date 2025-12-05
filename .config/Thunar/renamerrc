@@ -5,6 +5,6 @@ LastActiveRenamer=ThunarSbrReplaceRenamer
 [ThunarSbrReplaceRenamer]
 CaseSensitive=FALSE
 Replacement=
-Pattern=_command
-Regexp=FALSE
+Pattern=\\d+_page-
+Regexp=TRUE
 

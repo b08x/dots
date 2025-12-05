@@ -94,4 +94,17 @@
 	<patterns>*</patterns>
 	<video-files/>
 </action>
+<action>
+	<icon></icon>
+	<name>rename_temp</name>
+	<submenu></submenu>
+	<unique-id>1762133683470714-1</unique-id>
+	<command>kitty --hold -e /home/b08x/Notebook/rename.sh %d</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<other-files/>
+	<text-files/>
+</action>
 </actions>
