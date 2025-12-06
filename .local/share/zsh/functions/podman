@@ -1,0 +1,7 @@
+prmi() {
+  podman images | awk '{ print $3 }' | grep -v IMAGE | xargs podman image rm
+}
+
+prmc() {
+  podman ps -a | awk '{ print $1 }' | grep -v CONTAINER | xargs podman container rm
+}

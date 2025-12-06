@@ -1,0 +1,46 @@
+# A variant of rga-fzf specifically for searching Ruby codebases
+# and archives.
+#
+# It adds file-type filtering for Ruby and improves the file-opening
+# logic to be more flexible.
+rga-fzf-ruby() {
+    local QUERY=$1
+    if [[ -z "$QUERY" ]]; then
+        echo "Usage: rga-fzf-ruby <query>"
+        return 1
+    fi
+
+    # --- CHANGED ---
+    # Added '-t ruby' to the RG_PREFIX.
+    # This tells rga to only search files of type 'ruby'
+    # (e.g., .rb, Gemfile, Rakefile, etc.).
+    # This filtering also applies to files *inside* the archives
+    # supported by your adapters (zip, tar, etc.).
+    local RG_PREFIX="rga --ignore-file='$HOME/.gitignore' --hidden --files-with-matches --rga-accurate --rga-adapters='poppler,pandoc,zip,decompress,tar,sqlite,ffmpeg' -j4 -t ruby"
+    
+    local file
+
+    # --- CHANGED ---
+    # Removed the '--bind 'return:execute(...)' from the fzf command.
+    # Now, when you press 'return', fzf will simply print the
+    # selected file path to stdout, which we capture in the 'file' variable.
+    file="$(
+        FZF_DEFAULT_COMMAND="$RG_PREFIX '${QUERY}'" \
+            fzf --sort --preview="[[ ! -z {} ]] && rga --pretty --context 5 {q} {}" \
+                --phony -q "${1}" \
+                --bind "change:reload:$RG_PREFIX {q}" \
+                --preview-window="60%:wrap"
+    )"
+
+    # --- CHANGED ---
+    # This replaces the '&& echo ... && xdg-open ...' logic.
+    # If 'file' is not empty (i.e., you selected a file and didn't just
+    # exit fzf), it will open the file using your $EDITOR.
+    # If $EDITOR is not set, it defaults to 'micro'.
+    # This is more flexible than the hardcoded '/usr/bin/micro' and
+    # correctly handles opening the selected file.
+    if [[ -n "$file" ]]; then
+        echo "Opening ${file}..."
+        ${EDITOR:-micro} "$file"
+    fi
+}
