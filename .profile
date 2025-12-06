@@ -53,6 +53,12 @@ if [ -n "$(ls "$HOME"/.config/profile.d 2>/dev/null)" ]; then
     done
 fi
 
+#!/bin/bash
+# Initialize Intel oneAPI environment variables on login
+#if [ -f /opt/intel/oneapi/setvars.sh ]; then
+#    source /opt/intel/oneapi/setvars.sh > /dev/null 2>&1
+#fi
+
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
 

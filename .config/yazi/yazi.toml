@@ -1,0 +1,7 @@
+[mgr]
+ratio = [1,3,4]
+
+[preview]
+# Change them to your desired values
+max_width  = 1920
+max_height = 1080

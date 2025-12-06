@@ -1,0 +1,27 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "19dc890"
+hash = "3996fc74044bc44144b323686f887e1"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:toggle-pane"
+rev = "19dc890"
+hash = "8a7c58225816a163a6e8730c0adafbc8"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:zoom"
+rev = "19dc890"
+hash = "9dee2bf990ea941ccf67df74bca45468"
+
+[[plugin.deps]]
+use = "AnirudhG07/plugins-yazi:copy-file-contents"
+rev = "71545f4"
+hash = "f8530ee84fee95dbcc26bb1d8d8019c7"
+
+[[plugin.deps]]
+use = "Ape/open-with-cmd"
+rev = "433cf30"
+hash = "86e0312b01bc5762813c6c1d0517f073"
+
+[flavor]
+deps = []
