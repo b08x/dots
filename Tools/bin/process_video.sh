@@ -98,7 +98,7 @@ split_audio() {
 # Function to run whisper-stream
 run_whisper() {
   local wav_file="$1"
-  local whisper_stream="$HOME/Workspace/whisper-stream/whisper-stream"
+  local whisper_stream="whisper-stream"
   
   # Check if file size is under 25MB limit
   local filesize=$(stat -c%s "$wav_file")
@@ -271,7 +271,7 @@ declare ext="${infile##*.}"
 if [[ -d "$2" ]]; then
   dest_dir="$2"
 else
-  dest_dir=$(yad --file --directory)
+  dest_dir=$(gum file --directory)
 fi
 
 CHOICE=$(gum choose "Transcode" "Extract Audio" "Normalize Audio" "Unsilence Audio" "Pipeline")
