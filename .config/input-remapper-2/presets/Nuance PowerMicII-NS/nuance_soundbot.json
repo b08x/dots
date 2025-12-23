@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "KEY_LEFTCTRL + Shift_L + P + G",
+        "output_symbol": "KEY_SPACE",
         "mapping_type": "key_macro"
     },
     {

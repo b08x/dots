@@ -8,8 +8,13 @@ if [ -d $HOME/go/bin ]; then
   export PATH="$HOME/go/bin:$PATH"
 fi
 
-# Path to your oh-my-zsh installation.
-export ZSH="/usr/share/oh-my-zsh"
+if [ -d $HOME/.oh-my-zsh ]; then
+  export ZSH="$HOME/.oh-my-zsh"
+elif [ -d /usr/share/oh-my-zsh ]; then
+  export ZSH="/usr/share/oh-my-zsh"
+else
+  echo "oh-my-zsh cannot be found"
+fi
 
 hostname=$(hostname)
 
@@ -206,8 +211,7 @@ fi
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-
-if [[ $hostname == "gir" ]]; then
+if [ -d "/usr/local/cuda-13.0" ]; then
 
   export CUDAHOSTCXX=/usr/bin/g++-14
   export CPATH=/usr/include/openmpi-x86_64:$CPATH
@@ -224,8 +228,14 @@ if [[ $hostname == "gir" ]]; then
 fi
 
 # opencode
-export PATH=/home/b08x/.opencode/bin:$PATH
+# export PATH=/home/b08x/.opencode/bin:$PATH
 
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
+### bling.sh source start
+test -f /usr/share/ublue-os/bling/bling.sh && source /usr/share/ublue-os/bling/bling.sh
+### bling.sh source end
+eval "$(uv generate-shell-completion zsh)"
+
+#. "$HOME/.local/share/../bin/env"
+
+#fpath+=~/.zfunc; autoload -Uz compinit; compinit

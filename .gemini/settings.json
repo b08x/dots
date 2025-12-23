@@ -18,6 +18,9 @@
     }
   },
   "general": {
-    "previewFeatures": false
+    "previewFeatures": true
+  },
+  "ui": {
+    "theme": "Shades Of Purple"
   }
 }

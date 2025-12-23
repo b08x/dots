@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard + mouse",
-        "output_symbol": "KEY_LEFTCTRL + KEY_LEFTALT",
+        "output_symbol": "Control_L + Alt_L + Shift_L + 1",
         "mapping_type": "key_macro"
     },
     {
@@ -20,7 +20,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + 2",
+        "output_symbol": "KEY_SPACE",
         "mapping_type": "key_macro"
     },
     {
@@ -32,7 +32,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + Control_L + Shift_L + bracketleft",
+        "output_symbol": "Control_L + Alt_L + Shift_L + 3",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + Control_L + Shift_L + bracketright",
+        "output_symbol": "Super_L",
         "mapping_type": "key_macro"
     },
     {
@@ -92,7 +92,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "XF86AudioMicMute",
+        "output_symbol": "Control_L + Alt_L + Shift_L + 8",
         "mapping_type": "key_macro"
     }
 ]

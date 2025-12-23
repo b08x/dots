@@ -21,7 +21,9 @@
     },
     "zsh": {
       "path": "zsh",
-      "args": ["--login"]
+      "args": [
+        "--login"
+      ]
     },
     "fish": {
       "path": "fish"
@@ -78,5 +80,7 @@
   "roo-cline.deniedCommands": [],
   "files.associations": {
     "*.spec": "RPMSpec"
-  }
+  },
+  "makefile.configureOnOpen": true,
+  "python.defaultInterpreterPath": "/bin/python"
 }
