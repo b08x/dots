@@ -1,5 +1,7 @@
 # dots
 
+https://deepwiki.com/b08x/dots
+
 1. yadm clone <https://github.com/b08x/dots>
 2. run bootstrap
 
