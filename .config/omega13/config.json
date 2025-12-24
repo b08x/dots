@@ -4,18 +4,19 @@
     "NoiseTorch Microphone for Built-in Audio Source:capture_MONO"
   ],
   "save_path": "/var/home/b08x/Workspace/omega-13",
+  "global_hotkey": "<ctrl>+<alt>+space",
   "transcription": {
     "enabled": true,
     "auto_transcribe": true,
+    "server_url": "http://localhost:8080",
     "model_size": "large-v3-turbo",
     "save_to_file": true,
     "copy_to_clipboard": true
   },
+  "desktop_notifications": true,
   "sessions": {
     "temp_root": "/tmp/omega13",
     "default_save_location": "/var/home/b08x/Recordings",
     "auto_cleanup_days": 7
-  },
-  "global_hotkey": "<ctrl>+<alt>+<space>",
-  "desktop_notifications": true
+  }
 }

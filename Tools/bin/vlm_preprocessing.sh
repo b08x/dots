@@ -99,49 +99,33 @@ for INPUT_FILE in "${FILES[@]}"; do
 
   # Audio Handling and container decision
   CONTAINER="mp4"
+  HAS_AUDIO=0
 
   if [ $NO_AUDIO -eq 1 ]; then
     echo "Removing audio track."
     FFMPEG_CMD+=" -an"
   else
-    # Detect audio codec using ffprobe if available
+    # Detect if audio stream exists
     AUDIO_CODEC=""
     if command -v ffprobe &> /dev/null; then
       AUDIO_CODEC=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE" 2>/dev/null || true)
-    else
-      echo "Warning: ffprobe not found; defaulting to AAC for audio encoding."
     fi
 
-    if [ -z "${AUDIO_CODEC}" ]; then
-      echo "No audio stream detected or detection failed; encoding audio to AAC for safety."
+    if [ -n "$AUDIO_CODEC" ]; then
+      echo "Audio detected ($AUDIO_CODEC). Encoding to AAC for MP4 compatibility."
       FFMPEG_CMD+=" -c:a aac -b:a 128k"
-    elif [ "${AUDIO_CODEC}" = "flac" ]; then
-      echo "Input audio is FLAC: copying audio stream and switching output container to .mkv"
-      FFMPEG_CMD+=" -c:a copy"
-      CONTAINER="mkv"
-    elif [[ "${AUDIO_CODEC}" == pcm_* ]]; then
-      echo "Input audio is WAV/PCM: converting to 16-bit FLAC and switching container to .mkv"
-      FFMPEG_CMD+=" -c:a flac -sample_fmt s16 -compression_level 5"
-      CONTAINER="mkv"
+      HAS_AUDIO=1
     else
-      echo "Encoding audio to AAC (default). Detected codec: ${AUDIO_CODEC}"
-      FFMPEG_CMD+=" -c:a aac -b:a 128k"
+      echo "No audio stream detected. Processing as video-only."
+      FFMPEG_CMD+=" -an"
     fi
   fi
 
   # Stream Mapping
-  if [ $NO_AUDIO -eq 1 ]; then
-    FFMPEG_CMD+=" -map 0:v:0"
-  else
+  if [ $HAS_AUDIO -eq 1 ] && [ $NO_AUDIO -eq 0 ]; then
     FFMPEG_CMD+=" -map 0:v:0 -map 0:a:0"
-  fi
-
-  # Adjust output filename extension if container changed
-  if [ "${CONTAINER}" = "mkv" ]; then
-    OUTPUT_FILE="${INPUT_FILE%.*}_processed.mkv"
-    if [ $NO_AUDIO -eq 1 ]; then
-      OUTPUT_FILE="${INPUT_FILE%.*}_processed_no_audio.mkv"
-    fi
+  else
+    FFMPEG_CMD+=" -map 0:v:0"
   fi
 
   FFMPEG_CMD+=" -threads 4"
