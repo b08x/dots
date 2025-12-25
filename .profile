@@ -64,7 +64,9 @@ export PATH="$PATH:/home/linuxbrew/.linuxbrew/lib/ruby/gems/3.4.0/bin"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
-. "$HOME/.local/share/../bin/env"
+if [ -f "$HOME/.local/share/../bin/env" ]; then
+	. "$HOME/.local/share/../bin/env"
+fi
 
 if [ -d "$HOME/.rvm/bin" ]; then
 	# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
