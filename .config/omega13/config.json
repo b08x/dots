@@ -11,7 +11,8 @@
     "server_url": "http://localhost:8080",
     "model_size": "large-v3-turbo",
     "save_to_file": true,
-    "copy_to_clipboard": true
+    "copy_to_clipboard": true,
+    "inject_to_active_window": true
   },
   "desktop_notifications": true,
   "sessions": {
