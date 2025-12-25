@@ -42,7 +42,7 @@ ZSH_CUSTOM="$HOME/.local/share/zsh"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as o many plugins slow down shell startup.
 #consider adding common-aliases, copybuffer
-plugins=(ansible bundler docker-compose copypath fd fzf ripgrep zsh-navigation-tools ruby history systemd web-search)
+plugins=(ansible bundler docker-compose podman copypath fd fzf ripgrep zsh-navigation-tools ruby history systemd web-search)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -239,3 +239,7 @@ eval "$(uv generate-shell-completion zsh)"
 #. "$HOME/.local/share/../bin/env"
 
 #fpath+=~/.zfunc; autoload -Uz compinit; compinit
+if [ -d "$HOME/.rvm/bin" ]; then
+    # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+    export PATH="$PATH:$HOME/.rvm/bin"
+fi
