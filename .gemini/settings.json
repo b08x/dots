@@ -4,6 +4,12 @@
     "hasSeenNudge": true
   },
   "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
     "context7": {
       "httpUrl": "https://mcp.context7.com/mcp",
       "headers": {

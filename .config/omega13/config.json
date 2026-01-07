@@ -12,12 +12,19 @@
     "model_size": "large-v3-turbo",
     "save_to_file": true,
     "copy_to_clipboard": true,
-    "inject_to_active_window": true
+    "inject_to_active_window": false,
+    "inference_path": "/inference"
   },
   "desktop_notifications": true,
   "sessions": {
     "temp_root": "/tmp/omega13",
     "default_save_location": "/var/home/b08x/Recordings",
     "auto_cleanup_days": 7
+  },
+  "auto_record": {
+    "enabled": false,
+    "begin_threshold_db": -35.0,
+    "end_threshold_db": -35.0,
+    "silence_duration_seconds": 5.0
   }
 }
