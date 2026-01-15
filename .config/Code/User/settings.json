@@ -60,7 +60,7 @@
   "[ruby]": {
     "editor.defaultFormatter": "castwide.solargraph"
   },
-  "workbench.colorTheme": "Andromeda Colorizer",
+  "workbench.colorTheme": "Ayu Dark",
   "solargraph.formatting": true,
   "notebook.defaultFormatter": "rubocop.vscode-rubocop",
   "terminal.integrated.automationProfile.linux": {},
@@ -82,5 +82,7 @@
     "*.spec": "RPMSpec"
   },
   "makefile.configureOnOpen": true,
-  "python.defaultInterpreterPath": "/bin/python"
+  "python.defaultInterpreterPath": "/bin/python",
+  "git.autofetch": true,
+  "chat.mcp.gallery.enabled": true
 }

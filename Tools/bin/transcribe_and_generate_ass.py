@@ -43,12 +43,12 @@ def generate_ass_from_data(word_data, output_file):
         "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-        "Style: Host A,Arial,60,&H00FFFF00,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,50,1",
-        "Style: Host B,Arial,60,&H0000FFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,50,1",
-        "Style: Default,Arial,60,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,50,1",
+        "Style: Host A,Arial,60,&H008AB3FF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,1.5,1.0,2,10,10,50,1",
+        "Style: Host B,Arial,60,&H00FAE6E6,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,1.5,1.0,2,10,10,50,1",
+        "Style: Default,Arial,60,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,1.5,1.0,2,10,10,50,1",
         "",
         "[Events]",
-        "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
+        "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
     ]
 
     # 2. Group words into phrases
@@ -56,44 +56,53 @@ def generate_ass_from_data(word_data, output_file):
     if word_data:
         # Initialize first line
         current_line = {
-            "speaker": word_data[0]['speaker'],
-            "start": word_data[0]['start'],
-            "end": word_data[0]['end'],
-            "text": [word_data[0]['text']]
+            "speaker": word_data[0]["speaker"],
+            "start": word_data[0]["start"],
+            "end": word_data[0]["end"],
+            "text": [word_data[0]["text"]],
         }
 
         for item in word_data[1:]:
-            speaker = item.get('speaker', 'Unknown')
-            start = item.get('start', 0)
-            end = item.get('end', 0)
-            text = item.get('text', "")
+            speaker = item.get("speaker", "Unknown")
+            start = item.get("start", 0)
+            end = item.get("end", 0)
+            text = item.get("text", "")
 
             # Logic: Merge if same speaker AND short gap (< 600ms) AND line not too long
-            time_gap = start - current_line['end']
-            line_length = sum(len(w) for w in current_line['text'])
+            time_gap = start - current_line["end"]
+            line_length = sum(len(w) for w in current_line["text"])
 
-            if (speaker == current_line['speaker'] and
-                time_gap < 600 and
-                    line_length < 80):
+            if (
+                speaker == current_line["speaker"]
+                and time_gap < 600
+                and line_length < 80
+            ):
 
-                current_line['text'].append(text)
-                current_line['end'] = end
+                current_line["text"].append(text)
+                current_line["end"] = end
             else:
+                # Ensure no overlap with the NEXT line
+                if current_line["end"] > start:
+                    current_line["end"] = start
+
                 grouped_lines.append(current_line)
                 current_line = {
                     "speaker": speaker,
                     "start": start,
                     "end": end,
-                    "text": [text]
+                    "text": [text],
                 }
+        # Final overlap check for the very last line added after the loop
+        if grouped_lines and grouped_lines[-1]["end"] > current_line["start"]:
+            grouped_lines[-1]["end"] = current_line["start"]
         grouped_lines.append(current_line)
 
     # 3. Write Events
     for line in grouped_lines:
-        start_time = ms_to_ass_time(line['start'])
-        end_time = ms_to_ass_time(line['end'])
-        full_text = " ".join(line['text'])
-        speaker = line['speaker'] if line['speaker'] else "Unknown"
+        start_time = ms_to_ass_time(line["start"])
+        end_time = ms_to_ass_time(line["end"])
+        full_text = " ".join(line["text"])
+        speaker = line["speaker"] if line["speaker"] else "Unknown"
 
         # Match Style to Speaker
         # Note: If API returns "Speaker A" instead of "Host A", mapped here
@@ -103,22 +112,28 @@ def generate_ass_from_data(word_data, output_file):
         elif "Host B" in speaker or "Speaker B" in speaker:
             style = "Host B"
 
-        event_str = f"Dialogue: 0,{start_time},{end_time},{style},{speaker},0,0,0,,{full_text}"
+        event_str = (
+            f"Dialogue: 0,{start_time},{end_time},{style},{speaker},0,0,0,,{full_text}"
+        )
         ass_content.append(event_str)
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write("\n".join(ass_content))
     print(f"✅ Generated Subtitles: {output_file}")
 
 
 # --- MAIN TRANSCRIPTION LOGIC ---
 
+
 def main():
     # Set up Argument Parser
     parser = argparse.ArgumentParser(
-        description="Transcribe audio file and generate ASS subtitles.")
+        description="Transcribe audio file and generate ASS subtitles."
+    )
     parser.add_argument(
-        "audio_file", help="Path (local) or URL (remote) to the audio file to transcribe")
+        "audio_file",
+        help="Path (local) or URL (remote) to the audio file to transcribe",
+    )
     args = parser.parse_args()
 
     file_path = args.audio_file
@@ -149,7 +164,7 @@ def main():
         format_text=True,
         punctuate=True,
         speech_model=aai.SpeechModel.universal,
-        language_detection=True
+        language_detection=True,
     )
 
     # Note: 'speech_understanding' is not a standard attribute for the base
@@ -158,7 +173,7 @@ def main():
         "request": {
             "speaker_identification": {
                 "speaker_type": "role",
-                "known_values": ["Host A", "Host B"]
+                "known_values": ["Host A", "Host B"],
             }
         }
     }
@@ -181,16 +196,18 @@ def main():
     # Convert AssemblyAI Word objects to a clean dictionary list
     words_data = []
     for w in transcript.words:
-        words_data.append({
-            "text": w.text,
-            "start": w.start,
-            "end": w.end,
-            "confidence": w.confidence,
-            "speaker": w.speaker
-        })
+        words_data.append(
+            {
+                "text": w.text,
+                "start": w.start,
+                "end": w.end,
+                "confidence": w.confidence,
+                "speaker": w.speaker,
+            }
+        )
 
     # Save the raw JSON (useful for debugging)
-    with open(output_json, "w", encoding='utf-8') as f:
+    with open(output_json, "w", encoding="utf-8") as f:
         json.dump(words_data, f, indent=2)
     print(f"✅ Saved Timestamp Data: {output_json}")
 

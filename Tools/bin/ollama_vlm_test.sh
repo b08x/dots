@@ -10,13 +10,35 @@ TEMP_DIR="/tmp/ollama_capture"
 mkdir -p "$PROMPT_DIR" "$DATASET_DIR" "$TEMP_DIR"
 
 # -----------------------------------------------------------------------------
-# 1. Image Processing (Optimal Conversion Architectures)
+# 1. Argument Parsing
 # -----------------------------------------------------------------------------
 
-IMAGE_FILE="$1"
+OPTIMIZE_IMAGE=false
+IMAGE_FILE=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --optimize)
+            OPTIMIZE_IMAGE=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--optimize] <path_to_image>"
+            echo ""
+            echo "Options:"
+            echo "  --optimize    Enable image optimization (resize/convert for vision models)"
+            echo "  -h, --help    Show this help message"
+            exit 0
+            ;;
+        *)
+            IMAGE_FILE="$1"
+            shift
+            ;;
+    esac
+done
 
 if [ -z "$IMAGE_FILE" ]; then
-    echo "Usage: $0 <path_to_image>"
+    echo "Usage: $0 [--optimize] <path_to_image>"
     exit 1
 fi
 
@@ -25,36 +47,49 @@ if [ ! -f "$IMAGE_FILE" ]; then
     exit 1
 fi
 
-echo "🔍 Optimizing image per Granite 3.2 Vision guidelines..."
+# -----------------------------------------------------------------------------
+# 2. Image Processing (Conditional Optimization)
+# -----------------------------------------------------------------------------
 
-# Check image dimensions using ImageMagick
-IMG_WIDTH=$(identify -format "%w" "$IMAGE_FILE")
-IMG_HEIGHT=$(identify -format "%h" "$IMAGE_FILE")
-OPTIMIZED_IMAGE="${TEMP_DIR}/optimized_input.png"
+PROCESSED_IMAGE=""
+NEEDS_CLEANUP=false
 
-# Optimization Logic:
-# - Target: 1344px on the long edge (matches AnyRes 4x336 grid)
-# - Format: PNG (Lossless, avoid JPEG artifacts)
-# - Filter: Lanczos (Preserve text edges)
-# - Colorspace: RGB (Preserve semantic color info)
+if [ "$OPTIMIZE_IMAGE" = true ]; then
+    echo "🔍 Optimizing image per Granite 3.2 Vision guidelines..."
 
-if [ "$IMG_WIDTH" -gt 1344 ] || [ "$IMG_HEIGHT" -gt 1344 ]; then
-    echo "   • Resizing to 1344px long-edge (Lanczos)"
-    convert "$IMAGE_FILE" \
-        -resize '1344x1344>' \
-        -filter Lanczos \
-        -colorspace sRGB \
-        -quality 100 \
-        "$OPTIMIZED_IMAGE"
+    # Check image dimensions using ImageMagick
+    IMG_WIDTH=$(identify -format "%w" "$IMAGE_FILE")
+    IMG_HEIGHT=$(identify -format "%h" "$IMAGE_FILE")
+    PROCESSED_IMAGE="${TEMP_DIR}/optimized_input.png"
+    NEEDS_CLEANUP=true
+
+    # Optimization Logic:
+    # - Target: 1344px on the long edge (matches AnyRes 4x336 grid)
+    # - Format: PNG (Lossless, avoid JPEG artifacts)
+    # - Filter: Lanczos (Preserve text edges)
+    # - Colorspace: RGB (Preserve semantic color info)
+
+    if [ "$IMG_WIDTH" -gt 1344 ] || [ "$IMG_HEIGHT" -gt 1344 ]; then
+        echo "   • Resizing to 1344px long-edge (Lanczos)"
+        convert "$IMAGE_FILE" \
+            -resize '1344x1344>' \
+            -filter Lanczos \
+            -colorspace sRGB \
+            -quality 100 \
+            "$PROCESSED_IMAGE"
+    else
+        # If image is small (< 500px), user guide suggests Nearest Neighbor, 
+        # but for safety we will just convert to standard PNG RGB if it's already small enough.
+        echo "   • Converting to standardized PNG (sRGB)"
+        convert "$IMAGE_FILE" -colorspace sRGB "$PROCESSED_IMAGE"
+    fi
 else
-    # If image is small (< 500px), user guide suggests Nearest Neighbor, 
-    # but for safety we will just convert to standard PNG RGB if it's already small enough.
-    echo "   • Converting to standardized PNG (sRGB)"
-    convert "$IMAGE_FILE" -colorspace sRGB "$OPTIMIZED_IMAGE"
+    echo "📷 Using original image (no optimization)"
+    PROCESSED_IMAGE="$IMAGE_FILE"
 fi
 
 # -----------------------------------------------------------------------------
-# 2. Model Selection (Dynamic Ollama Query)
+# 3. Model Selection (Dynamic Ollama Query)
 # -----------------------------------------------------------------------------
 
 echo "🤖 Fetching models from $OLLAMA_HOST..."
@@ -77,7 +112,7 @@ if [ -z "$SELECTED_MODEL" ]; then
 fi
 
 # -----------------------------------------------------------------------------
-# 3. Prompt Selection
+# 4. Prompt Selection
 # -----------------------------------------------------------------------------
 
 # List files in ~/.prompts, strip extension for display
@@ -93,49 +128,50 @@ SELECTED_PROMPT_NAME=$(echo "$PROMPT_FILES" | gum choose --header "Select Analys
 PROMPT_CONTENT=$(cat "$PROMPT_DIR/${SELECTED_PROMPT_NAME}.txt")
 
 # -----------------------------------------------------------------------------
-# 4. Construct Payload & Optimize Parameters
+# 5. Construct Payload & Optimize Parameters
 # -----------------------------------------------------------------------------
-
-# Encode optimized image to Base64
-BASE64_DATA=$(base64 < "$OPTIMIZED_IMAGE" | tr -d '\n')
 
 # Parameter Guidelines from "Optimal Conversion Architectures":
 # - Temperature: 0.0 (Deterministic)
 # - Repeat Penalty: 1.0 (Disabled for tables/code)
-# - Num Ctx: 8192 (To fit ~6k vision tokens + output)
+# - Num Ctx: 4096 (To fit ~6k vision tokens + output)
 
-JSON_PAYLOAD=$(jq -n \
-                  --arg model "$SELECTED_MODEL" \
-                  --arg prompt "$PROMPT_CONTENT" \
-                  --arg img "$BASE64_DATA" \
-                  '{
-    model: $model,
-    messages: [
-      {
-        role: "user",
-        content: $prompt,
-        images: [$img]
+echo "🚀 Sending request to $SELECTED_MODEL (Ctx: 4096, Temp: 0.0)..."
+
+# -----------------------------------------------------------------------------
+# 6. Execute Request (Pipeline approach - No ARG_MAX limits)
+# -----------------------------------------------------------------------------
+
+# Build JSON and send in one pipeline - avoids shell argument limits
+# base64 -w 0: output without line wrapping
+# jq -R: read raw input (base64 string)
+# jq -c: compact output
+# curl --data-binary @-: read from stdin
+RESPONSE_JSON=$(base64 -w 0 "$PROCESSED_IMAGE" | \
+  jq --raw-input --compact-output \
+    --arg model "$SELECTED_MODEL" \
+    --arg prompt "$PROMPT_CONTENT" \
+    '{
+      model: $model,
+      messages: [
+        {
+          role: "user",
+          content: $prompt,
+          images: [.]
+        }
+      ],
+      stream: false,
+      options: {
+        temperature: 0.0,
+        repeat_penalty: 1.0,
+        num_ctx: 4096
       }
-    ],
-    stream: false,
-    options: {
-      temperature: 0.0,
-      repeat_penalty: 1.0,
-      num_ctx: 8192
-    }
-  }')
-
-echo "🚀 Sending request to $SELECTED_MODEL (Ctx: 8192, Temp: 0.0)..."
-
-# -----------------------------------------------------------------------------
-# 5. Execute Request
-# -----------------------------------------------------------------------------
-
-RESPONSE_JSON=$(curl -s -X POST "${OLLAMA_HOST}/api/chat" \
+    }' | \
+  curl -s -X POST "${OLLAMA_HOST}/api/chat" \
     -H "Content-Type: application/json" \
-    -d "$JSON_PAYLOAD")
+    --data-binary @-)
 
-# Extract content or error
+# Extract content or error (no variables passed to jq)
 CONTENT=$(echo "$RESPONSE_JSON" | jq -r '.message.content // empty')
 ERROR=$(echo "$RESPONSE_JSON" | jq -r '.error // empty')
 
@@ -150,7 +186,7 @@ if [ -z "$CONTENT" ] || [ "$CONTENT" == "null" ]; then
 fi
 
 # -----------------------------------------------------------------------------
-# 6. Display & Log Results
+# 7. Display & Log Results
 # -----------------------------------------------------------------------------
 
 # Render Markdown to terminal
@@ -188,5 +224,6 @@ jq -n \
 
 echo "💾 Saved analysis to $CSV_FILE"
 
-# Cleanup
-rm "$OPTIMIZED_IMAGE"
+if [ "$NEEDS_CLEANUP" = true ]; then
+    rm "$PROCESSED_IMAGE"
+fi

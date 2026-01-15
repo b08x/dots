@@ -1,6 +1,5 @@
 #!/bin/sh
 export UU_ORDER="$UU_ORDER:~/.profile"
-
 export XDG_CONFIG_HOME=$HOME/.config
 
 # make default editor micro
@@ -60,15 +59,24 @@ fi
 #fi
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/lib/ruby/gems/3.4.0/bin"
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
 if [ -f "$HOME/.local/share/../bin/env" ]; then
 	. "$HOME/.local/share/../bin/env"
 fi
 
 if [ -d "$HOME/.rvm/bin" ]; then
-	# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-	export PATH="$PATH:$HOME/.rvm/bin"
+    # Detect OS name from /etc/os-release
+    os_name=""
+    if [ -r /etc/os-release ]; then
+        os_name=$(grep -E '^NAME=' /etc/os-release | cut -d= -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')
+    fi
+
+    if [[ "${os_name}" != "bluefin" ]]; then
+        #echo "hey"
+    	[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+        # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+        export PATH="$PATH:$HOME/.rvm/bin"
+    fi
 fi
+
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/lib/ruby/gems/3.4.0/bin"
