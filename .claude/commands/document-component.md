@@ -48,3 +48,5 @@ I'll ensure the README is:
 - Follows modern documentation standards
 
 If a README already exists, I'll enhance it while preserving existing content that's still relevant.
+
+STYLE & TONE: Professional, high-level technical discourse. No fluff.
