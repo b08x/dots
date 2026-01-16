@@ -60,7 +60,7 @@
   "[ruby]": {
     "editor.defaultFormatter": "castwide.solargraph"
   },
-  "workbench.colorTheme": "Ayu Dark",
+  "workbench.colorTheme": "Visual Studio Dark",
   "solargraph.formatting": true,
   "notebook.defaultFormatter": "rubocop.vscode-rubocop",
   "terminal.integrated.automationProfile.linux": {},
@@ -84,5 +84,7 @@
   "makefile.configureOnOpen": true,
   "python.defaultInterpreterPath": "/bin/python",
   "git.autofetch": true,
-  "chat.mcp.gallery.enabled": true
+  "chat.mcp.gallery.enabled": true,
+  "editor.fontFamily": "'Hack', monospace",
+  "editor.fontSize": 16
 }
