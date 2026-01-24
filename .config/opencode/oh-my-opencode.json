@@ -3,19 +3,19 @@
   "google_auth": false,
   "agents": {
     "librarian": {
-      "model": "opencode/glm-4.7-free"
+      "model": "anthropic/claude-sonnet-4-0"
     },
     "explore": {
-      "model": "mistral/mistral-large-latest"
+      "model": "openrouter/minimax/minimax-m2.1"
     },
     "oracle": {
       "model": "openrouter/z-ai/glm-4.7"
     },
     "frontend-ui-ux-engineer": {
-      "model": "openrouter/deepseek/deepseek-v3.2"
+      "model": "anthropic/claude-sonnet-4-5"
     },
     "document-writer": {
-      "model": "openrouter/mistralai/mistral-small-creative"
+      "model": "google/gemini-3-flash-preview"
     },
     "multimodal-looker": {
       "model": "ollama-cloud/qwen3-vl-235b-instruct-cloud"
