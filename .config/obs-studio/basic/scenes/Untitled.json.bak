@@ -227,7 +227,14 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "OBSBasic.SelectScene": [],
+                "OBSBasic.SelectScene": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "alt": true,
+                        "key": "OBS_KEY_AMPERSAND"
+                    }
+                ],
                 "libobs.show_scene_item.3": [],
                 "libobs.hide_scene_item.3": []
             },
@@ -696,7 +703,14 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "OBSBasic.SelectScene": [],
+                "OBSBasic.SelectScene": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "alt": true,
+                        "key": "OBS_KEY_ASTERISK"
+                    }
+                ],
                 "libobs.show_scene_item.3": [],
                 "libobs.hide_scene_item.3": []
             },
@@ -1031,7 +1045,14 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "OBSBasic.SelectScene": [],
+                "OBSBasic.SelectScene": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "alt": true,
+                        "key": "OBS_KEY_ASCIICIRCUM"
+                    }
+                ],
                 "libobs.show_scene_item.1": [],
                 "libobs.hide_scene_item.1": []
             },
@@ -1064,7 +1085,14 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "OBSBasic.SelectScene": []
+                "OBSBasic.SelectScene": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "alt": true,
+                        "key": "OBS_KEY_PERCENT"
+                    }
+                ]
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -1079,8 +1107,8 @@
             "id": "pipewire-screen-capture-source",
             "versioned_id": "pipewire-screen-capture-source",
             "settings": {
-                "RestoreToken": "670c3b34-0e0c-4ffe-81f0-546993d567e0",
-                "ShowCursor": false
+                "ShowCursor": false,
+                "RestoreToken": "670c3b34-0e0c-4ffe-81f0-546993d567e0"
             },
             "mixers": 0,
             "sync": 0,
@@ -1106,8 +1134,8 @@
             "id": "pipewire-screen-capture-source",
             "versioned_id": "pipewire-screen-capture-source",
             "settings": {
-                "RestoreToken": "a1f41eb5-5079-4129-b876-4c078b6d148e",
-                "ShowCursor": false
+                "ShowCursor": false,
+                "RestoreToken": "a1f41eb5-5079-4129-b876-4c078b6d148e"
             },
             "mixers": 0,
             "sync": 0,
@@ -1158,7 +1186,7 @@
     "transition_duration": 5550,
     "preview_locked": false,
     "scaling_enabled": false,
-    "scaling_level": -18,
+    "scaling_level": -22,
     "scaling_off_x": 0.0,
     "scaling_off_y": 0.0,
     "modules": {
@@ -1168,7 +1196,7 @@
             "streamTimerMinutes": 0,
             "streamTimerSeconds": 30,
             "recordTimerHours": 0,
-            "recordTimerMinutes": 0,
+            "recordTimerMinutes": 14,
             "recordTimerSeconds": 30,
             "autoStartStreamTimer": false,
             "autoStartRecordTimer": false,
