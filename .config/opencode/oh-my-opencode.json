@@ -1,24 +1,64 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
-  "google_auth": false,
   "agents": {
-    "librarian": {
-      "model": "anthropic/claude-sonnet-4-0"
-    },
-    "explore": {
-      "model": "openrouter/minimax/minimax-m2.1"
+    "sisyphus": {
+      "model": "anthropic/claude-sonnet-4-5"
     },
     "oracle": {
       "model": "openrouter/z-ai/glm-4.7"
     },
-    "frontend-ui-ux-engineer": {
-      "model": "anthropic/claude-sonnet-4-5"
+    "librarian": {
+      "model": "opencode/glm-4.7-free"
     },
-    "document-writer": {
-      "model": "google/gemini-3-flash-preview"
+    "explore": {
+      "model": "openrouter/minimax/minimax-m2.1"
     },
     "multimodal-looker": {
-      "model": "ollama-cloud/qwen3-vl-235b-instruct-cloud"
+      "model": "google/gemini-3-flash"
+    },
+    "prometheus": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "variant": "max"
+    },
+    "metis": {
+      "model": "anthropic/claude-sonnet-4-5",
+      "variant": "max"
+    },
+    "momus": {
+      "model": "opencode/gpt-5.2",
+      "variant": "medium"
+    },
+    "atlas": {
+      "model": "opencode/kimi-k2.5-free"
+    }
+  },
+  "categories": {
+    "visual-engineering": {
+      "model": "google/gemini-3-pro"
+    },
+    "ultrabrain": {
+      "model": "opencode/gpt-5.2-codex",
+      "variant": "xhigh"
+    },
+    "deep": {
+      "model": "opencode/gpt-5.2-codex",
+      "variant": "medium"
+    },
+    "artistry": {
+      "model": "google/gemini-3-pro",
+      "variant": "max"
+    },
+    "quick": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "unspecified-low": {
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "unspecified-high": {
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "writing": {
+      "model": "google/gemini-3-flash"
     }
   }
 }
