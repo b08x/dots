@@ -232,9 +232,9 @@ fi
 
 
 ### bling.sh source start
-test -f /usr/share/ublue-os/bling/bling.sh && source /usr/share/ublue-os/bling/bling.sh
+#test -f /usr/share/ublue-os/bling/bling.sh && source /usr/share/ublue-os/bling/bling.sh
 ### bling.sh source end
-eval "$(uv generate-shell-completion zsh)"
+#eval "$(uv generate-shell-completion zsh)"
 
 #. "$HOME/.local/share/../bin/env"
 
