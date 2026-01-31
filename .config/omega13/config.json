@@ -3,7 +3,7 @@
   "input_ports": [
     "NoiseTorch Microphone for Built-in Audio Source:capture_MONO"
   ],
-  "save_path": "/var/home/b08x/Workspace/omega-13",
+  "save_path": "$HOME/Workspace/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",
   "transcription": {
     "enabled": true,
@@ -13,12 +13,15 @@
     "save_to_file": true,
     "copy_to_clipboard": true,
     "inject_to_active_window": false,
-    "inference_path": "/inference"
+    "inference_path": "/inference",
+    "provider": "groq",
+    "groq_api_key": "$GROQ_API_KEY",
+    "groq_model": "whisper-large-v3-turbo"
   },
   "desktop_notifications": true,
   "sessions": {
-    "temp_root": "/tmp/omega13",
-    "default_save_location": "/var/home/b08x/Recordings",
+    "temp_root": "$XDG_RUNTIME_DIR/omega13",
+    "default_save_location": "$HOME/Recordings",
     "auto_cleanup_days": 7
   },
   "auto_record": {
