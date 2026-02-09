@@ -34,8 +34,8 @@ CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-ZSH_CUSTOM="$HOME/.local/share/zsh"
-
+ZSH_LOCAL="$HOME/.local/share/zsh"
+ZSH_CUSTOM="/usr/share/oh-my-zsh/custom"
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -48,7 +48,7 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-for function in $ZSH_CUSTOM/functions/*; do
+for function in $ZSH_LOCAL/functions/*; do
   source $function
 done
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -251,3 +251,7 @@ if [ -d "$HOME/.rvm/bin" ]; then
         export PATH="$PATH:$HOME/.rvm/bin"
     fi
 fi
+
+export PATH="$HOME/.local/apps/homebrew/bin:$PATH"
+# OpenClaw Completion
+#source <(openclaw completion --shell zsh)

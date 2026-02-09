@@ -12,15 +12,26 @@ import re
 
 
 class UnicodeProcessor:
-    def __init__(self, unicode_indexer_path: str):
+    """
+    Unicode text processor for TTS systems.
+
+    Args:
+        unicode_indexer_path: Path to JSON file mapping unicode values to indices
+        strip_diacritics: If True, remove accents (for English-only).
+                         If False, preserve accents (for multilingual support).
+                         Default False to support languages like French, Spanish, etc.
+    """
+
+    def __init__(self, unicode_indexer_path: str, strip_diacritics: bool = False):
         with open(unicode_indexer_path, "r") as f:
             self.indexer = json.load(f)
+        self.strip_diacritics = strip_diacritics
 
     def _preprocess_text(self, text: str) -> str:
-        # TODO: Need advanced normalizer for better performance
-        text = normalize("NFKD", text)
-
-        # FIXME: this should be fixed for non-English languages
+        if self.strip_diacritics:
+            text = normalize("NFKD", text)
+        else:
+            text = normalize("NFC", text)
 
         # Remove emojis (wide Unicode range)
         emoji_pattern = re.compile(
@@ -47,8 +58,8 @@ class UnicodeProcessor:
             "—": "-",
             "¯": " ",
             "_": " ",
-            "\u201C": '"',  # left double quote "
-            "\u201D": '"',  # right double quote "
+            "\u201c": '"',  # left double quote "
+            "\u201d": '"',  # right double quote "
             "\u2018": "'",  # left single quote '
             "\u2019": "'",  # right single quote '
             "´": "'",
@@ -64,12 +75,12 @@ class UnicodeProcessor:
         for k, v in replacements.items():
             text = text.replace(k, v)
 
-        # Remove combining diacritics # FIXME: this should be fixed for non-English languages
-        text = re.sub(
-            r"[\u0302\u0303\u0304\u0305\u0306\u0307\u0308\u030A\u030B\u030C\u0327\u0328\u0329\u032A\u032B\u032C\u032D\u032E\u032F]",
-            "",
-            text,
-        )
+        if self.strip_diacritics:
+            text = re.sub(
+                r"[\u0302\u0303\u0304\u0305\u0306\u0307\u0308\u030A\u030B\u030C\u0327\u0328\u0329\u032A\u032B\u032C\u032D\u032E\u032F]",
+                "",
+                text,
+            )
 
         # Remove special symbols
         text = re.sub(r"[♥☆♡©\\]", "", text)
@@ -178,9 +189,9 @@ class TextToSpeech:
     def _infer(
         self, text_list: list[str], style: Style, total_step: int, speed: float = 1.05
     ) -> tuple[np.ndarray, np.ndarray]:
-        assert (
-            len(text_list) == style.ttl.shape[0]
-        ), "Number of texts must match number of style vectors"
+        assert len(text_list) == style.ttl.shape[0], (
+            "Number of texts must match number of style vectors"
+        )
         bsz = len(text_list)
         text_ids, text_mask = self.text_processor(text_list)
         dur_onnx, *_ = self.dp_ort.run(
@@ -218,9 +229,9 @@ class TextToSpeech:
         speed: float = 1.05,
         silence_duration: float = 0.3,
     ) -> tuple[np.ndarray, np.ndarray]:
-        assert (
-            style.ttl.shape[0] == 1
-        ), "Single speaker text to speech only supports single style"
+        assert style.ttl.shape[0] == 1, (
+            "Single speaker text to speech only supports single style"
+        )
         text_list = chunk_text(text)
         wav_cat = None
         dur_cat = None
