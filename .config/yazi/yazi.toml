@@ -1,5 +1,6 @@
 [mgr]
 ratio = [2,3,4]
+show_hideen = true
 
 [preview]
 # Change them to your desired values
