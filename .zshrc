@@ -211,47 +211,7 @@ fi
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-if [ -d "/usr/local/cuda-13.0" ]; then
-
-  export CUDAHOSTCXX=/usr/bin/g++-14
-  export CPATH=/usr/include/openmpi-x86_64:$CPATH
-  export PATH=$PATH:/usr/lib64/openmpi/bin
-  export CC=/usr/bin/gcc-14
-  export CXX=/usr/bin/g++-14
-  export NVCC_CCBIN=/usr/bin/g++-14
-  export CUDACXX=/usr/local/cuda-13.0/bin/nvcc
-  
-  export LD_LIBRARY_PATH=/usr/local/cuda-13.0/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
-  export CPATH=/usr/local/cuda-13.0/targets/x86_64-linux/include:$CPATH
-  export PATH=/usr/local/cuda-13.0/bin:$PATH
-
-fi
-
-# opencode
-# export PATH=/home/b08x/.opencode/bin:$PATH
-
-
-### bling.sh source start
-#test -f /usr/share/ublue-os/bling/bling.sh && source /usr/share/ublue-os/bling/bling.sh
-### bling.sh source end
-#eval "$(uv generate-shell-completion zsh)"
-
-#. "$HOME/.local/share/../bin/env"
-
-#fpath+=~/.zfunc; autoload -Uz compinit; compinit
-if [ -d "$HOME/.rvm/bin" ]; then
-    # Detect OS name from /etc/os-release
-    os_name=""
-    if [ -r /etc/os-release ]; then
-        os_name=$(grep -E '^NAME=' /etc/os-release | cut -d= -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')
-    fi
-
-    if [[ "$os_name" != "bluefin" ]]; then
-        # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-        export PATH="$PATH:$HOME/.rvm/bin"
-    fi
-fi
-
 export PATH="$HOME/.local/apps/homebrew/bin:$PATH"
+
 # OpenClaw Completion
-#source <(openclaw completion --shell zsh)
+source "/home/b08x/.openclaw/completions/openclaw.zsh"
