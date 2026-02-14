@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "anthropic/claude-sonnet-4-5"
+      "model": "anthropic/claude-sonnet-4-0"
     },
     "oracle": {
       "model": "openrouter/z-ai/glm-4.7"
@@ -11,21 +11,21 @@
       "model": "opencode/glm-4.7-free"
     },
     "explore": {
-      "model": "openrouter/minimax/minimax-m2.1"
+      "model": "openrouter/google/gemini-2.5-flash"
     },
     "multimodal-looker": {
-      "model": "google/gemini-3-flash"
+      "model": "google/antigravity-gemini-3-flash"
     },
     "prometheus": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "anthropic/claude-sonnet-4-0",
       "variant": "max"
     },
     "metis": {
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "anthropic/claude-sonnet-4-0",
       "variant": "max"
     },
     "momus": {
-      "model": "opencode/gpt-5.2",
+      "model": "openrouter/openai/gpt-5.1-codex-mini",
       "variant": "medium"
     },
     "atlas": {
@@ -34,31 +34,31 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "google/gemini-3-pro"
+      "model": "google/antigravity-gemini-3-flash"
     },
     "ultrabrain": {
-      "model": "opencode/gpt-5.2-codex",
+      "model": "openrouter/openai/gpt-5.1-codex-mini",
       "variant": "xhigh"
     },
     "deep": {
-      "model": "opencode/gpt-5.2-codex",
+      "model": "openrouter/openai/gpt-5.1-codex-mini",
       "variant": "medium"
     },
     "artistry": {
-      "model": "google/gemini-3-pro",
+      "model": "google/antigravity-gemini-3-flash",
       "variant": "max"
     },
     "quick": {
       "model": "anthropic/claude-haiku-4-5"
     },
     "unspecified-low": {
-      "model": "anthropic/claude-sonnet-4-5"
+      "model": "anthropic/claude-sonnet-4-0"
     },
     "unspecified-high": {
-      "model": "anthropic/claude-sonnet-4-5"
+      "model": "anthropic/claude-sonnet-4-0"
     },
     "writing": {
-      "model": "google/gemini-3-flash"
+      "model": "google/antigravity-gemini-3-flash"
     }
   }
 }

@@ -92,7 +92,9 @@
     "mcp@context-engineering-kit": true,
     "sadd@context-engineering-kit": true,
     "customaize-agent@context-engineering-kit": true,
-    "kaizen@context-engineering-kit": true
+    "kaizen@context-engineering-kit": true,
+    "sdd@context-engineering-kit": true,
+    "devops@context-engineering-kit": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
