@@ -69,7 +69,6 @@
     "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); remaining=$(echo \"$input\" | jq -r '.context_window.remaining_percentage // empty'); user=$(whoami); host=$(hostname -s); git_branch=\"\"; if git -C \"$cwd\" rev-parse --git-dir > /dev/null 2>&1; then branch=$(git -C \"$cwd\" branch --show-current 2>/dev/null); [ -n \"$branch\" ] && git_branch=\" (${branch})\"; fi; printf \"\\033[32m${user}@${host}\\033[0m:\\033[34m${cwd}\\033[0m${git_branch}\"; [ -n \"$remaining\" ] && printf \" \\033[33m[${remaining}%% ctx]\\033[0m\""
   },
   "enabledPlugins": {
-    "everything-claude-code@everything-claude-code": true,
     "explanatory-output-style@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
@@ -84,17 +83,13 @@
     "playground@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "ddd@context-engineering-kit": true,
-    "reflexion@context-engineering-kit": true,
-    "tech-stack@context-engineering-kit": true,
     "docs@context-engineering-kit": true,
-    "fpf@context-engineering-kit": true,
     "git@context-engineering-kit": true,
-    "mcp@context-engineering-kit": true,
-    "sadd@context-engineering-kit": true,
-    "customaize-agent@context-engineering-kit": true,
     "kaizen@context-engineering-kit": true,
-    "sdd@context-engineering-kit": true,
-    "devops@context-engineering-kit": true
+    "mcp@context-engineering-kit": true,
+    "reflexion@context-engineering-kit": true,
+    "sadd@context-engineering-kit": true,
+    "sdd@context-engineering-kit": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {

@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "anthropic/claude-sonnet-4-0"
+      "model": "opencode/minimax-m2.5-free"
     },
     "oracle": {
       "model": "openrouter/z-ai/glm-4.7"

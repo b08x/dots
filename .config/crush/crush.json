@@ -1,0 +1,78 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "options": {
+    "initialize_as": "AGENTS.md",
+    "attribution": {
+      "trailer_style": "assisted-by",
+      "generated_with": true
+    },
+    "skills_paths": [
+      "~/.config/crush/skills"
+    ],
+    "disabled_tools": [],
+    "debug": false,
+    "debug_lsp": false,
+    "disable_provider_auto_update": false,
+    "disable_metrics": false
+  },
+  "permissions": {
+    "allowed_tools": [
+      "ls",
+      "grep",
+      "view"
+    ]
+  },
+  "providers": {
+    "ollama": {
+      "name": "Ollama",
+      "base_url": "http://localhost:11434/v1/",
+      "type": "openai-compat",
+      "models": [
+        {
+          "name": "Llama 3",
+          "id": "llama3",
+          "context_window": 8192,
+          "default_max_tokens": 4096
+        }
+      ]
+    }
+  },
+  "lsp": {
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": [
+        "--stdio"
+      ]
+    },
+    "go": {
+      "command": "gopls",
+      "env": {
+        "GOTOOLCHAIN": "auto"
+      }
+    }
+  },
+  "mcp": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "timeout": 120,
+      "disabled": false,
+      "disabled_tools": [
+        "create_issue",
+        "create_pull_request"
+      ],
+      "headers": {
+        "Authorization": "Bearer $GH_PAT"
+      }
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "env": {}
+    }
+  }
+}
