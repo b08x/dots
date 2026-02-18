@@ -1,5 +1,5 @@
 {
-  "model": "sonnet",
+  "model": "claude-sonnet-4-0",
   "hooks": {
     "SessionStart": [
       {
@@ -98,5 +98,6 @@
         "repo": "affaan-m/everything-claude-code"
       }
     }
-  }
+  },
+  "effortLevel": "medium"
 }
