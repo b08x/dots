@@ -89,7 +89,9 @@
     "mcp@context-engineering-kit": true,
     "reflexion@context-engineering-kit": true,
     "sadd@context-engineering-kit": true,
-    "sdd@context-engineering-kit": true
+    "sdd@context-engineering-kit": true,
+    "devops@local-devops-tools": true,
+    "devops@context-engineering-kit": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {

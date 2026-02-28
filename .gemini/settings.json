@@ -24,7 +24,12 @@
     }
   },
   "general": {
-    "previewFeatures": true
+    "previewFeatures": true,
+    "sessionRetention": {
+      "warningAcknowledged": true,
+      "enabled": true,
+      "maxAge": "120d"
+    }
   },
   "ui": {
     "theme": "Shades Of Purple"
