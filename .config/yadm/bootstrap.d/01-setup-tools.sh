@@ -16,4 +16,4 @@ sh -c "$(curl -fsSL https://bun.sh/install)"
 
 sudo dnf install cargo perl-core zoxide ranger ansible
 
-cargo install exa gitui
+cargo install exa gitui weathr
