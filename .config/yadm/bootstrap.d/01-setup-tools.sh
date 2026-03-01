@@ -13,3 +13,7 @@ sleep 2
 
 echo "install bun"
 sh -c "$(curl -fsSL https://bun.sh/install)"
+
+sudo dnf install cargo perl-core zoxide ranger ansible
+
+cargo install exa gitui
