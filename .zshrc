@@ -24,8 +24,8 @@ elif [[ $hostname == "soundbot" ]]; then
   ZSH_THEME="strug"
 elif [[ $hostname == "gir" ]]; then
   ZSH_THEME="tjkirch_mod"
-elif [[ $hostname == "lapbot" ]]; then
-  ZSH_THEME="jaischeema"
+elif [[ $hostname == "tinybot" ]]; then
+  ZSH_THEME="xiong-chiamiov"
 else
   ZSH_THEME="jaischeema"
 fi
