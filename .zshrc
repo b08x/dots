@@ -213,5 +213,3 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export PATH="$HOME/.local/apps/homebrew/bin:$PATH"
 
-# OpenClaw Completion
-source "/home/b08x/.openclaw/completions/openclaw.zsh"

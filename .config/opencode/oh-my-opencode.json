@@ -46,7 +46,7 @@
       "model": "google/antigravity-gemini-3-flash"
     },
     "deep": {
-      "model": "openrouter/moonshotai/kimi-k2.5"
+      "model": "openrouter/openai/gpt-4.1-mini"
     },
     "artistry": {
       "model": "google/antigravity-gemini-3-flash",

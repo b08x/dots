@@ -156,3 +156,5 @@ alias ydiff="yadm diff --staged | fabric --pattern create_git_diff_commit"
 alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
 
 alias jq="jq -r"
+
+alias lzd="~/.local/bin/lazydocker"
