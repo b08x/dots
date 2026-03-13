@@ -21,7 +21,8 @@
   "security": {
     "auth": {
       "selectedType": "oauth-personal"
-    }
+    },
+    "enablePermanentToolApproval": true
   },
   "general": {
     "previewFeatures": true,
@@ -29,9 +30,23 @@
       "warningAcknowledged": true,
       "enabled": true,
       "maxAge": "120d"
+    },
+    "plan": {
+      "directory": "~/.gemini/plans"
     }
   },
   "ui": {
-    "theme": "Shades Of Purple"
+    "theme": "Shades Of Purple",
+    "showModelInfoInChat": true,
+    "showCitations": true,
+    "footer": {
+      "hideContextPercentage": false
+    },
+    "inlineThinkingMode": "full"
+  },
+  "tools": {
+    "shell": {
+      "showColor": true
+    }
   }
 }

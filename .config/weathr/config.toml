@@ -20,7 +20,7 @@ display = "mixed"
 
 # Optional: manually override the city name shown in the HUD.
 # When set, skips reverse geocoding entirely.
-# city = "Berlin"
+city = "Columbus"
 
 # Language for the resolved city name. "auto" uses the locale of the coordinates.
 # Accepts BCP-47 language tags: "en", "de", "ru", "ja", etc.

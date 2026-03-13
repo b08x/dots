@@ -9,7 +9,7 @@
       "model": "openrouter/mistralai/devstral-2512"
     },
     "hephaestus": {
-      "model": "openrouter/qwen/qwen3-coder:exacto"
+      "model": "openrouter/z-ai/glm-4.7"
     },
     "oracle": {
       "model": "openrouter/z-ai/glm-4.7"
@@ -59,7 +59,7 @@
       "model": "anthropic/claude-sonnet-4-0"
     },
     "unspecified-high": {
-      "model": "openrouter/qwen/qwen3-coder:exacto"
+      "model": "openrouter/z-ai/glm-4.7"
     },
     "writing": {
       "model": "google/antigravity-gemini-3-flash"
