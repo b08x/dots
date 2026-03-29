@@ -12,6 +12,10 @@ DEFAULT_GPU=0
 DEFAULT_NO_AUDIO=0
 # Set to 1 to extract high-quality audio by default
 DEFAULT_EXTRACT_AUDIO=0
+# Set to 1 to extract audio only (skips video processing)
+DEFAULT_AUDIO_ONLY=0
+# Set to 1 to extract audio as Opus by default
+DEFAULT_OPUS=0
 
 # --- Argument Parsing ---
 if [ "$#" -eq 0 ]; then
@@ -19,7 +23,9 @@ if [ "$#" -eq 0 ]; then
   echo "Usage: $0 [options] file1.mp4 file2.mov ..."
   echo "Options:"
   echo "  -g, --gpu           Enable GPU acceleration."
-  echo "  -e, --extract-audio  Extract high-quality MP3 for transcription."
+  echo "  -e, --extract-audio  Extract high-quality audio for transcription."
+  echo "  -a, --audio-only    Extract audio only (skips video processing)."
+  echo "  --opus              Convert extracted audio to Opus format."
   echo "  --no-audio          Remove the audio track."
   exit 1
 fi
@@ -27,6 +33,8 @@ fi
 GPU_ENABLED=$DEFAULT_GPU
 NO_AUDIO=$DEFAULT_NO_AUDIO
 EXTRACT_AUDIO=$DEFAULT_EXTRACT_AUDIO
+AUDIO_ONLY=$DEFAULT_AUDIO_ONLY
+OPUS=$DEFAULT_OPUS
 FILES=()
 
 # Separate files from options
@@ -39,6 +47,14 @@ for arg in "$@"; do
     NO_AUDIO=1
     ;;
     -e|--extract-audio)
+    EXTRACT_AUDIO=1
+    ;;
+    -a|--audio-only)
+    AUDIO_ONLY=1
+    EXTRACT_AUDIO=1
+    ;;
+    --opus)
+    OPUS=1
     EXTRACT_AUDIO=1
     ;;
     *)
@@ -73,87 +89,102 @@ for INPUT_FILE in "${FILES[@]}"; do
   echo "Processing file: $INPUT_FILE"
   echo "----------------------------------------"
 
-  # --- File Naming ---
-  OUTPUT_FILE="${INPUT_FILE%.*}_processed.mp4"
-  if [ $NO_AUDIO -eq 1 ]; then
-    OUTPUT_FILE="${INPUT_FILE%.*}_processed_no_audio.mp4"
-  fi
+  # --- Video Processing ---
+  if [ $AUDIO_ONLY -eq 0 ]; then
+    # --- File Naming ---
+    OUTPUT_FILE="${INPUT_FILE%.*}_processed.mp4"
+    if [ $NO_AUDIO -eq 1 ]; then
+      OUTPUT_FILE="${INPUT_FILE%.*}_processed_no_audio.mp4"
+    fi
 
-  # --- FFMPEG Command Construction ---
-  FFMPEG_CMD="ffmpeg -i \"$INPUT_FILE\""
+    # --- FFMPEG Command Construction ---
+    FFMPEG_CMD="ffmpeg -i \"$INPUT_FILE\""
 
-  # Video Codec
-  if [ $GPU_ENABLED -eq 1 ]; then
-    if ! command -v nvidia-smi &> /dev/null; then
-      echo "Error: NVIDIA GPU not found. 'nvidia-smi' command failed."
-      echo "Cannot use GPU acceleration. Falling back to CPU."
+    # Video Codec
+    if [ $GPU_ENABLED -eq 1 ]; then
+      if ! command -v nvidia-smi &> /dev/null; then
+        echo "Error: NVIDIA GPU not found. 'nvidia-smi' command failed."
+        echo "Cannot use GPU acceleration. Falling back to CPU."
+        FFMPEG_CMD+=" -c:v libx264 -crf 23 -preset medium"
+      else
+        echo "GPU acceleration enabled."
+        FFMPEG_CMD+=" -c:v h264_nvenc -preset medium"
+      fi
+    else
+      echo "Using CPU for encoding."
       FFMPEG_CMD+=" -c:v libx264 -crf 23 -preset medium"
-    else
-      echo "GPU acceleration enabled."
-      FFMPEG_CMD+=" -c:v h264_nvenc -preset medium"
-    fi
-  else
-    echo "Using CPU for encoding."
-    FFMPEG_CMD+=" -c:v libx264 -crf 23 -preset medium"
-  fi
-
-  # Audio Handling and container decision
-  CONTAINER="mp4"
-  HAS_AUDIO=0
-
-  if [ $NO_AUDIO -eq 1 ]; then
-    echo "Removing audio track."
-    FFMPEG_CMD+=" -an"
-  else
-    # Detect if audio stream exists
-    AUDIO_CODEC=""
-    if command -v ffprobe &> /dev/null; then
-      AUDIO_CODEC=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE" 2>/dev/null || true)
     fi
 
-    if [ -n "$AUDIO_CODEC" ]; then
-      echo "Audio detected ($AUDIO_CODEC). Encoding to AAC for MP4 compatibility."
-      FFMPEG_CMD+=" -c:a aac -b:a 128k"
-      HAS_AUDIO=1
-    else
-      echo "No audio stream detected. Processing as video-only."
+    # Audio Handling and container decision
+    CONTAINER="mp4"
+    HAS_AUDIO=0
+
+    if [ $NO_AUDIO -eq 1 ]; then
+      echo "Removing audio track."
       FFMPEG_CMD+=" -an"
+    else
+      # Detect if audio stream exists
+      AUDIO_CODEC=""
+      if command -v ffprobe &> /dev/null; then
+        AUDIO_CODEC=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$INPUT_FILE" 2>/dev/null || true)
+      fi
+
+      if [ -n "$AUDIO_CODEC" ]; then
+        echo "Audio detected ($AUDIO_CODEC). Encoding to AAC for MP4 compatibility."
+        FFMPEG_CMD+=" -c:a aac -b:a 128k"
+        HAS_AUDIO=1
+      else
+        echo "No audio stream detected. Processing as video-only."
+        FFMPEG_CMD+=" -an"
+      fi
     fi
+
+    # Stream Mapping
+    if [ $HAS_AUDIO -eq 1 ] && [ $NO_AUDIO -eq 0 ]; then
+      FFMPEG_CMD+=" -map 0:v:0 -map 0:a:0"
+    else
+      FFMPEG_CMD+=" -map 0:v:0"
+    fi
+
+    FFMPEG_CMD+=" -threads 4"
+
+    FFMPEG_CMD+=" \"$OUTPUT_FILE\""
+
+    # --- Execution ---
+    echo "Executing command: $FFMPEG_CMD"
+    eval $FFMPEG_CMD
   fi
 
-  # Stream Mapping
-  if [ $HAS_AUDIO -eq 1 ] && [ $NO_AUDIO -eq 0 ]; then
-    FFMPEG_CMD+=" -map 0:v:0 -map 0:a:0"
-  else
-    FFMPEG_CMD+=" -map 0:v:0"
-  fi
-
-  FFMPEG_CMD+=" -threads 4"
-
-  FFMPEG_CMD+=" \"$OUTPUT_FILE\""
-
-  # --- Execution ---
-  echo "Executing command: $FFMPEG_CMD"
-  eval $FFMPEG_CMD
-
-  # --- MP3 Extraction ---
+  # --- Audio Extraction ---
   if [ $EXTRACT_AUDIO -eq 1 ]; then
-    MP3_FILE="${INPUT_FILE%.*}.mp3"
-    echo "Extracting high-quality MP3: $MP3_FILE"
-    FFMPEG_AUDIO_CMD="ffmpeg -i \"$INPUT_FILE\" -vn -c:a libmp3lame -b:a 320k \"$MP3_FILE\""
+    if [ $OPUS -eq 1 ]; then
+      EXTRACTED_AUDIO_FILE="${INPUT_FILE%.*}.opus"
+      echo "Extracting high-quality Opus: $EXTRACTED_AUDIO_FILE"
+      FFMPEG_AUDIO_CMD="ffmpeg -i \"$INPUT_FILE\" -vn -c:a libopus -b:a 128k \"$EXTRACTED_AUDIO_FILE\""
+    else
+      EXTRACTED_AUDIO_FILE="${INPUT_FILE%.*}.mp3"
+      echo "Extracting high-quality MP3: $EXTRACTED_AUDIO_FILE"
+      FFMPEG_AUDIO_CMD="ffmpeg -i \"$INPUT_FILE\" -vn -c:a libmp3lame -b:a 320k \"$EXTRACTED_AUDIO_FILE\""
+    fi
+
     echo "Executing command: $FFMPEG_AUDIO_CMD"
     eval $FFMPEG_AUDIO_CMD
     if [ $? -eq 0 ]; then
-      echo "Successfully extracted MP3: $MP3_FILE"
+      echo "Successfully extracted: $EXTRACTED_AUDIO_FILE"
     else
-      echo "Error: Failed to extract MP3: $MP3_FILE"
+      echo "Error: Failed to extract: $EXTRACTED_AUDIO_FILE"
     fi
   fi
 
   # --- Completion Check ---
   if [ $? -eq 0 ]; then
     echo "Successfully processed: $INPUT_FILE"
-    echo "Output file: $OUTPUT_FILE"
+    if [ $AUDIO_ONLY -eq 0 ]; then
+      echo "Output video: $OUTPUT_FILE"
+    fi
+    if [ $EXTRACT_AUDIO -eq 1 ]; then
+      echo "Output audio: $EXTRACTED_AUDIO_FILE"
+    fi
   else
     echo "Error: An error occurred while processing: $INPUT_FILE"
   fi

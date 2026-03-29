@@ -23,7 +23,7 @@ if [[ $hostname == "ninjabot" ]]; then
 elif [[ $hostname == "soundbot" ]]; then
   ZSH_THEME="strug"
 elif [[ $hostname == "gir" ]]; then
-  ZSH_THEME="tjkirch_mod"
+  ZSH_THEME="gnzh"
 elif [[ $hostname == "tinybot" ]]; then
   ZSH_THEME="xiong-chiamiov"
 else

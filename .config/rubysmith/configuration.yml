@@ -21,7 +21,7 @@ build:
   git_hub: false
   git_hub_ci: true
   git_lint: true
-  irb_kit: true
+  irb_kit: false
   license: true
   maximum: false
   minimum: false

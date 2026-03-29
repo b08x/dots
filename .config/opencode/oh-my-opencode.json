@@ -12,16 +12,16 @@
       "model": "openrouter/z-ai/glm-4.7"
     },
     "oracle": {
-      "model": "openrouter/z-ai/glm-4.7"
+      "model": "openrouter/xiaomi/mimo-v2-pro"
     },
     "librarian": {
-      "model": "google/antigravity-gemini-3-flash"
+      "model": "opencode/minimax-m2.5-free"
     },
     "explore": {
       "model": "openrouter/google/gemini-2.5-flash"
     },
     "multimodal-looker": {
-      "model": "google/antigravity-gemini-3-flash"
+      "model": "opencode/minimax-m2.5-free"
     },
     "prometheus": {
       "model": "anthropic/claude-sonnet-4-0",
@@ -40,17 +40,16 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "google/antigravity-gemini-3-flash"
+      "model": "opencode/minimax-m2.5-free"
     },
     "ultrabrain": {
-      "model": "google/antigravity-gemini-3-flash"
+      "model": "opencode/minimax-m2.5-free"
     },
     "deep": {
       "model": "openrouter/openai/gpt-4.1-mini"
     },
     "artistry": {
-      "model": "google/antigravity-gemini-3-flash",
-      "variant": "max"
+      "model": "opencode/minimax-m2.5-free"
     },
     "quick": {
       "model": "openrouter/z-ai/glm-4.7-flash"
@@ -59,10 +58,10 @@
       "model": "anthropic/claude-sonnet-4-0"
     },
     "unspecified-high": {
-      "model": "openrouter/z-ai/glm-4.7"
+      "model": "anthropic/claude-sonnet-4-0"
     },
     "writing": {
-      "model": "google/antigravity-gemini-3-flash"
+      "model": "opencode/minimax-m2.5-free"
     }
   }
 }
