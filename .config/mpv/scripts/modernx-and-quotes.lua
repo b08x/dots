@@ -48,7 +48,7 @@ function set_clipboard(text)
         local res = utils.subprocess({args=args, cancellable=false})
         if res.error then msg.error('paste failed: '..res.error) end
     else
-        pipe_write('xclip -silent -selection clipboard -in', text)
+        pipe_write('wl-copy', text)
     end
 end
 

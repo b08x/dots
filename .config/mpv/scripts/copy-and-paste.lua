@@ -33,8 +33,8 @@ local msg = require 'mp.msg'
 local o = {
     -- Sets Linux commands for copy and paste. We do not need the alternatives
     -- for copy and paste commands of OSX and Microsoft Windows.
-    linux_copy = 'xclip -silent -selection clipboard -in',
-    linux_paste = 'xclip -selection clipboard -o',
+    linux_copy = 'wl-copy',
+    linux_paste = 'wl-paste',
     -- Enables displaying osd messages when actions occur.
     osd_messages = true,
     -- Keybind for copy file path or URL of current track.
