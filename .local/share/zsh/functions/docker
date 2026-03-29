@@ -1,7 +1,7 @@
 drmi() {
-  docker images | awk '{ print $3 }' | grep -v IMAGE | xargs docker image rm
+  docker images --format raw | grep image_id | choose 1 | xargs docker image rm
 }
 
 drmc() {
-  docker ps -a | awk '{ print $1 }' | grep -v CONTAINER | xargs docker container rm
+  docker ps -a | choose 0 | grep -v CONTAINER | xargs docker container rm
 }
