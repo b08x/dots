@@ -86,5 +86,10 @@
   "git.autofetch": true,
   "chat.mcp.gallery.enabled": true,
   "editor.fontFamily": "'Hack', monospace",
-  "editor.fontSize": 16
+  "editor.fontSize": 16,
+  "window.autoDetectColorScheme": true,
+  "terminal.external.linuxExec": "kitty",
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "chat.viewSessions.orientation": "stacked",
+  "claudeCode.preferredLocation": "panel"
 }

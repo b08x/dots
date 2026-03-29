@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "input_ports": [
+    "NoiseTorch Microphone for Built-in Audio Source:capture_MONO"
+  ],
+  "save_path": "/home/b08x/Workspace/omega-13",
+  "global_hotkey": "<ctrl>+<alt>+space",
+  "transcription": {
+    "enabled": true,
+    "auto_transcribe": true,
+    "provider": "groq",
+    "server_url": "http://tinybot:8080",
+    "inference_path": "/v1/audio/transcriptions",
+    "model_size": "large-v3-turbo",
+    "groq_model": "whisper-large-v3-turbo",
+    "save_to_file": true,
+    "copy_to_clipboard": false,
+    "inject_to_active_window": false,
+    "write_to_daily_note": true
+  },
+  "desktop_notifications": true,
+  "sessions": {
+    "temp_root": "/tmp/omega13",
+    "default_save_location": "/home/b08x/Recordings",
+    "auto_cleanup_days": 7
+  },
+  "auto_record": {
+    "enabled": false,
+    "begin_threshold_db": -35.0,
+    "end_threshold_db": -35.0,
+    "silence_duration_seconds": 2.0
+  }
+}
