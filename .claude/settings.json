@@ -1,4 +1,5 @@
 {
+  "model": "claude-sonnet-4-0",
   "hooks": {
     "SessionStart": [
       {
@@ -6,6 +7,14 @@
           {
             "type": "command",
             "command": "codemap hook session-start && echo 'git diff:' && git diff --stat && echo 'git status:' && git status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
           }
         ]
       }
@@ -19,6 +28,14 @@
             "command": "codemap hook pre-edit"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -28,6 +45,14 @@
           {
             "type": "command",
             "command": "codemap hook post-edit"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
           }
         ]
       }
@@ -58,6 +83,114 @@
           {
             "type": "command",
             "command": "codemap hook session-stop"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "Elicitation": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3002/hooks/claude"
           }
         ]
       }
@@ -98,19 +231,14 @@
     "tech-stack@context-engineering-kit": true,
     "developer-essentials@claude-code-workflows": true,
     "reverse-engineering@claude-code-workflows": true,
-    "rubysmithing@rubysmithing": true
+    "rubysmithing@syncopated-context": true,
+    "notebook@syncopated-context": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
       "source": {
         "source": "github",
         "repo": "affaan-m/everything-claude-code"
-      }
-    },
-    "rubysmithing": {
-      "source": {
-        "source": "github",
-        "repo": "b08x/rubysmithing"
       }
     },
     "context-engineering-kit": {
@@ -123,6 +251,13 @@
       "source": {
         "source": "github",
         "repo": "wshobson/agents"
+      }
+    },
+    "syncopated-context": {
+      "source": {
+        "source": "github",
+        "repo": "b08x/syncopated-context",
+        "path": "/home/b08x/Workspace/Syncopated/Context"
       }
     }
   },

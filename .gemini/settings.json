@@ -36,7 +36,7 @@
     }
   },
   "ui": {
-    "theme": "Shades Of Purple",
+    "theme": "Solarized Dark",
     "showModelInfoInChat": true,
     "showCitations": true,
     "footer": {

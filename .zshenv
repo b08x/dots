@@ -45,3 +45,5 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:
 export YDOTOOL_SOCKET="/tmp/.ydotool_socket"
 
 export PATH="$HOME/Tools/bin:$PATH"
+
+export RESTIC_REPO="/mnt/ninjabot/backup00/b08x"

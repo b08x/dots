@@ -8,7 +8,7 @@
   "transcription": {
     "enabled": true,
     "auto_transcribe": true,
-    "provider": "groq",
+    "provider": "local",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
     "model_size": "large-v3-turbo",
@@ -16,7 +16,7 @@
     "save_to_file": true,
     "copy_to_clipboard": false,
     "inject_to_active_window": false,
-    "write_to_daily_note": true
+    "write_to_daily_note": false
   },
   "desktop_notifications": true,
   "sessions": {
@@ -28,6 +28,6 @@
     "enabled": false,
     "begin_threshold_db": -35.0,
     "end_threshold_db": -35.0,
-    "silence_duration_seconds": 2.0
+    "silence_duration_seconds": 2.5
   }
 }
