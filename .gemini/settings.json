@@ -32,7 +32,7 @@
       "maxAge": "120d"
     },
     "plan": {
-      "directory": "~/.gemini/plans"
+      "directory": ".gemini/plans"
     }
   },
   "ui": {

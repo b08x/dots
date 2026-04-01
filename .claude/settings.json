@@ -14,7 +14,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -52,7 +52,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -90,7 +90,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -100,7 +100,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -110,7 +110,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -120,7 +120,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -130,7 +130,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -140,7 +140,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -150,7 +150,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -160,7 +160,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -170,7 +170,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -180,7 +180,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -190,7 +190,7 @@
         "hooks": [
           {
             "type": "http",
-            "url": "http://localhost:3002/hooks/claude"
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }

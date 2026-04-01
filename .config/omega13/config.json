@@ -16,7 +16,7 @@
     "save_to_file": true,
     "copy_to_clipboard": false,
     "inject_to_active_window": false,
-    "write_to_daily_note": false
+    "write_to_daily_note": true
   },
   "desktop_notifications": true,
   "sessions": {

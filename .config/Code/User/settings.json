@@ -91,5 +91,11 @@
   "terminal.external.linuxExec": "kitty",
   "terminal.integrated.defaultProfile.linux": "zsh",
   "chat.viewSessions.orientation": "stacked",
-  "claudeCode.preferredLocation": "panel"
+  "claudeCode.preferredLocation": "panel",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "workbench.preferredDarkColorTheme": "Dracula Theme",
+  "workbench.iconTheme": "catppuccin-macchiato",
+  "workbench.productIconTheme": "fluent-icons"
 }

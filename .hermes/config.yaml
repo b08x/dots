@@ -151,7 +151,7 @@ display:
   show_reasoning: false
   streaming: true
   show_cost: true
-  skin: default
+  skin: ares-custom
   tool_progress_command: false
   tool_preview_length: 0
   tool_progress: all
@@ -283,3 +283,7 @@ code_execution:
   max_tool_calls: 50
 web:
   backend: exa
+plugins:
+  disabled:
+  - rubysmithing
+
