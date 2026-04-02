@@ -1,0 +1,69 @@
+schemas:
+  - name: "tes-llm"
+    config:
+      ocr:
+        provider: "tesseract"
+        model: "tesseract"
+      text_correction:
+        enabled: true
+        rate_limit:  # <-- rate limits the post-processing provider not the ocr provider
+            rps: 2
+            burst: 4
+        provider:
+          provider: "openrouter"  # You can specify all the provider configs as seen in the 'Provider Configs' section
+          model: "qwen/qwen3-vl-30b-a3b-instruct"
+  - name: "sctructured-extraction"
+    config:
+      ocr:
+        provider: "openrouter"
+        model: "qwen/qwen3-vl-235b-a22b-instruct"
+        prompt: |
+          Extract content with the following formatting:
+          
+          1. DIAGRAMS: Convert all diagrams, flowcharts, and visual structures to Mermaid syntax. Use appropriate Mermaid diagram types (graph, flowchart, sequence, class, etc.).
+          
+          2. CODE BLOCKS: Extract all code snippets wrapped in markdown code blocks with language identifiers (e.g., ```python, ```javascript, etc.).
+          
+          3. TABLES: Format all tabular data as markdown tables with proper headers, alignment, and column separators.
+          
+          4. TEXT: Preserve all other text content with proper formatting and structure.
+        format: "md"
+  - name: "mistral-ocr"
+    config:
+      ocr:
+        provider: "mistral"
+        model: "mistral-ocr-latest"
+        prompt: |
+          You are an expert technical documentation assistant and OCR specialist. Your task is to extract all content from the provided images of a codebase wiki and convert it into a clean, well-structured, and highly readable Markdown document. 
+          
+          Please analyze the image carefully and transcribe the content following these strict formatting rules:
+          
+          1. Text & Headings:
+          * Preserve the document's hierarchy using standard Markdown headings (#, ##, ###).
+          * Maintain all text formatting, including **bold** and *italic* text.
+          * If there are bulleted or numbered lists, format them using standard Markdown list syntax.
+          
+          2. Source Code & File References (Metadata Tags):
+          * The images contain small, pill-shaped UI tags indicating source files and line numbers.
+          * Extract these seamlessly into the text using inline code formatting and brackets, like this: `[src/models.py 127-128]` or append them logically to the end of the relevant sentence/bullet point.
+          
+          3. Tables:
+          * If a traditional grid-based table is present, translate it strictly into a standard Markdown table format using `| Column | Column |` syntax. 
+          * Ensure alignment and include all headers, rows, and data types shown.
+          
+          4. Diagrams & Flowcharts (Crucial):
+          * Do not simply skip diagrams. You must interpret the visual relationships (boxes, arrows, hierarchies).
+          * Primary preference: Translate flowcharts, schema mappings, and entity-relationship diagrams into Mermaid.js code blocks (using ```mermaid). Use `graph TD`, `graph LR`, or `erDiagram` where appropriate.
+          * Fallback: If a diagram is too complex for Mermaid, transcribe the information into nested bullet points representing the hierarchy and relationships.
+          
+          5. UI Elements:
+          * For collapsible sections, format them as standard text headings or use HTML `<details>` and `<summary>` tags if supported.
+          
+          Goal: The final output should read logically from top to bottom, accurately capturing both the raw text and the structural/architectural meaning conveyed by the diagrams. Provide the output directly in rich markdown format. Do not wrap the entire response in a single markdown codeblock.
+        language: "eng"
+        format: "md"
+  - name: "gemini-flash"
+    config:
+      ocr:
+        provider: "gemini"
+        model: "gemini-2.5-flash"

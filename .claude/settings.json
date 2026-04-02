@@ -93,6 +93,15 @@
             "url": "http://localhost:3001/hooks/claude"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js insights --hook --native -q",
+            "timeout": 120000
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
@@ -111,6 +120,14 @@
           {
             "type": "http",
             "url": "http://localhost:3001/hooks/claude"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js sync -q"
           }
         ]
       }
@@ -230,9 +247,7 @@
     "sdd@context-engineering-kit": true,
     "tech-stack@context-engineering-kit": true,
     "developer-essentials@claude-code-workflows": true,
-    "reverse-engineering@claude-code-workflows": true,
-    "rubysmithing@syncopated-context": true,
-    "notebook@syncopated-context": true
+    "reverse-engineering@claude-code-workflows": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
@@ -251,13 +266,6 @@
       "source": {
         "source": "github",
         "repo": "wshobson/agents"
-      }
-    },
-    "syncopated-context": {
-      "source": {
-        "source": "github",
-        "repo": "b08x/syncopated-context",
-        "path": "/home/b08x/Workspace/Syncopated/Context"
       }
     }
   },

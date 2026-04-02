@@ -5,6 +5,7 @@ model:
   api_mode: chat_completions
 fallback_providers:
 - openrouter
+credential_pool_strategies: {}
 toolsets:
 - hermes-cli
 agent:
@@ -74,6 +75,7 @@ browser:
   inactivity_timeout: 120
   command_timeout: 30
   record_sessions: false
+  allow_private_urls: false
 checkpoints:
   enabled: true
   max_snapshots: 50
@@ -218,6 +220,7 @@ discord:
   require_mention: true
   free_response_channels: ''
   auto_thread: true
+  reactions: true
 whatsapp: {}
 approvals:
   mode: manual
@@ -237,7 +240,7 @@ security:
     shared_files: []
 cron:
   wrap_response: true
-_config_version: 10
+_config_version: 11
 fallback_model:
   provider: openrouter
   model: google/gemini-3.1-flash-lite-preview
@@ -286,4 +289,3 @@ web:
 plugins:
   disabled:
   - rubysmithing
-

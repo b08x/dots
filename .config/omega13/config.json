@@ -8,7 +8,7 @@
   "transcription": {
     "enabled": true,
     "auto_transcribe": true,
-    "provider": "local",
+    "provider": "groq",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
     "model_size": "large-v3-turbo",
