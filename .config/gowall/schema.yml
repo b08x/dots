@@ -16,7 +16,8 @@ schemas:
     config:
       ocr:
         provider: "openrouter"
-        model: "qwen/qwen3-vl-235b-a22b-instruct"
+        model: "google/gemma-4-31b-it"
+        temperature: 0.2
         prompt: |
           Extract content with the following formatting:
           
@@ -59,7 +60,9 @@ schemas:
           5. UI Elements:
           * For collapsible sections, format them as standard text headings or use HTML `<details>` and `<summary>` tags if supported.
           
-          Goal: The final output should read logically from top to bottom, accurately capturing both the raw text and the structural/architectural meaning conveyed by the diagrams. Provide the output directly in rich markdown format. Do not wrap the entire response in a single markdown codeblock.
+          Goal: | 
+            The final output should capture both the raw text and the structural/architectural meaning conveyed by the diagrams. 
+            Provide the output directly in rich markdown format. Do not wrap the entire response in a single markdown codeblock.
         language: "eng"
         format: "md"
   - name: "gemini-flash"

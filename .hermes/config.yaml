@@ -1,5 +1,5 @@
 model:
-  default: z-ai/glm-5
+  default: qwen/qwen3.6-plus:free
   provider: openrouter
   base_url: https://openrouter.ai/api/v1
   api_mode: chat_completions
@@ -9,7 +9,7 @@ credential_pool_strategies: {}
 toolsets:
 - hermes-cli
 agent:
-  max_turns: 30
+  max_turns: 60
   tool_use_enforcement: auto
   verbose: false
   reasoning_effort: medium
@@ -55,6 +55,7 @@ agent:
       \U0001F680"
 terminal:
   backend: local
+  modal_mode: auto
   cwd: .
   timeout: 180
   env_passthrough: []
@@ -76,9 +77,12 @@ browser:
   command_timeout: 30
   record_sessions: false
   allow_private_urls: false
+  camofox:
+    managed_persistence: false
 checkpoints:
   enabled: true
   max_snapshots: 50
+file_read_max_chars: 100000
 compression:
   enabled: true
   threshold: 0.5
@@ -152,8 +156,9 @@ display:
   bell_on_complete: false
   show_reasoning: false
   streaming: true
+  inline_diffs: true
   show_cost: true
-  skin: ares-custom
+  skin: default-steve
   tool_progress_command: false
   tool_preview_length: 0
   tool_progress: all
@@ -198,6 +203,7 @@ memory:
   user_profile_enabled: true
   memory_char_limit: 2200
   user_char_limit: 1375
+  provider: ''
   nudge_interval: 10
   flush_min_turns: 6
 delegation:

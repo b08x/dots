@@ -89,22 +89,12 @@
       {
         "hooks": [
           {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
             "type": "command",
             "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js insights --hook --native -q",
             "timeout": 120000
           }
         ]
-      }
-    ],
-    "PostToolUseFailure": [
+      },
       {
         "hooks": [
           {
@@ -118,16 +108,26 @@
       {
         "hooks": [
           {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
+            "type": "command",
+            "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js sync -q"
           }
         ]
       },
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js sync -q"
+            "type": "http",
+            "url": "http://localhost:3001/hooks/claude"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -247,7 +247,8 @@
     "sdd@context-engineering-kit": true,
     "tech-stack@context-engineering-kit": true,
     "developer-essentials@claude-code-workflows": true,
-    "reverse-engineering@claude-code-workflows": true
+    "reverse-engineering@claude-code-workflows": true,
+    "rubysmithing@syncopated-context": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
@@ -266,6 +267,12 @@
       "source": {
         "source": "github",
         "repo": "wshobson/agents"
+      }
+    },
+    "syncopated-context": {
+      "source": {
+        "source": "github",
+        "repo": "b08x/syncopated-context"
       }
     }
   },
