@@ -1,8 +1,8 @@
 model:
-  default: qwen/qwen3.6-plus:free
-  provider: openrouter
-  base_url: https://openrouter.ai/api/v1
+  default: ""
+  provider: "openrouter"
   api_mode: chat_completions
+providers: {}
 fallback_providers:
 - openrouter
 credential_pool_strategies: {}
@@ -10,7 +10,10 @@ toolsets:
 - hermes-cli
 agent:
   max_turns: 60
+  gateway_timeout: 1800
+  service_tier: ''
   tool_use_enforcement: auto
+  gateway_timeout_warning: 900
   verbose: false
   reasoning_effort: medium
   personalities:
@@ -61,6 +64,7 @@ terminal:
   env_passthrough: []
   docker_image: nikolaik/python-nodejs:python3.11-nodejs20
   docker_forward_env: []
+  docker_env: {}
   singularity_image: docker://nikolaik/python-nodejs:python3.11-nodejs20
   modal_image: nikolaik/python-nodejs:python3.11-nodejs20
   daytona_image: nikolaik/python-nodejs:python3.11-nodejs20
@@ -92,17 +96,17 @@ compression:
   summary_provider: auto
   summary_base_url: null
 smart_model_routing:
-  enabled: true
+  enabled: false
   max_simple_chars: 160
   max_simple_words: 28
   cheap_model:
     provider: openrouter
-    model: openai/gpt-4.1-nano
+    model: openai/gpt-5-nano
 auxiliary:
   vision:
     provider: auto
     model: ''
-    base_url: ''
+    base_url: ""
     api_key: ''
     timeout: 30
     download_timeout: 30
@@ -160,6 +164,7 @@ display:
   show_cost: true
   skin: default-steve
   tool_progress_command: false
+  tool_progress_overrides: {}
   tool_preview_length: 0
   tool_progress: all
   background_process_notifications: all
@@ -185,9 +190,11 @@ stt:
   provider: local
   local:
     model: whisper-large-v3-turbo
+    language: ''
   openai:
     model: whisper-large-v3-turbo
-  model: whisper-large-v3-turbo
+  mistral:
+    model: voxtral-mini-latest
 voice:
   record_key: ctrl+b
   max_recording_seconds: 120
@@ -220,11 +227,15 @@ prefill_messages_file: ''
 skills:
   external_dirs: []
   creation_nudge_interval: 15
+  config:
+    wiki:
+      path: ~/Notebook/wiki
 honcho: {}
 timezone: ''
 discord:
   require_mention: true
   free_response_channels: ''
+  allowed_channels: ''
   auto_thread: true
   reactions: true
 whatsapp: {}
@@ -246,7 +257,11 @@ security:
     shared_files: []
 cron:
   wrap_response: true
-_config_version: 11
+logging:
+  level: INFO
+  max_size_mb: 5
+  backup_count: 3
+_config_version: 14
 fallback_model:
   provider: openrouter
   model: google/gemini-3.1-flash-lite-preview
@@ -295,3 +310,19 @@ web:
 plugins:
   disabled:
   - rubysmithing
+mcp_servers:
+  context7:
+    command: "npx"
+    args: ["-y", "@upstash/context7-mcp"]
+    env: 
+      CONTEXT7_API_KEY: "${CONTEXT7_API_KEY}"
+  deepwiki:
+    url: "https://mcp.deepwiki.com/mcp"
+
+# Desktop app API server (auto-configured)
+platforms:
+  api_server:
+    enabled: true
+    extra:
+      port: 8642
+      host: "127.0.0.1"

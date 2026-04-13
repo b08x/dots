@@ -50,6 +50,7 @@
     }
   },
   "experimental": {
-    "memoryManager": true
+    "memoryManager": true,
+    "topicUpdateNarration": false
   }
 }
