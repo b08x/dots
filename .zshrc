@@ -57,8 +57,6 @@ colors
 
 export CLICOLOR=1
 
-
-
 setopt SHARE_HISTORY         # Share history between all sessions.
 setopt HIST_IGNORE_DUPS      # Do not record an event that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS  # Delete an old recorded event if a new event is a duplicate.
@@ -70,7 +68,6 @@ setopt HIST_NO_STORE         # Don't store history commands
 setopt HIST_REDUCE_BLANKS    # Remove superfluous blanks from each command line being added to the history.
 
 HISTORY_IGNORE="(ls|cd|pwd|exit|cd)*"
-
 
 HISTFILE=~/.zhistory
 HISTSIZE=10000
@@ -198,11 +195,9 @@ if [[ $hostname == "ninjabot" ]]; then
 #   export MY_VAR="default_value"
 fi
 
-
 if [ -f "$HOME/.config/claude/local/claude" ]; then
   alias claude="$HOME/.config/claude/local/claude"
 fi
-
 
 # bun completions
 [ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"

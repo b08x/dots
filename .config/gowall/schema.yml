@@ -3,7 +3,7 @@ schemas:
     config:
       ocr:
         provider: "openrouter"
-        model: "openai/gpt-5-nano"
+        model: "qwen/qwen3-vl-8b-instruct"
         prompt: |
           Transcribe image content into Markdown. Apply the following structural mapping rules:
 
@@ -19,3 +19,49 @@ schemas:
           - Omit the master ```markdown codeblock around the total output.
         language: "eng"
         format: "md"
+  - name: "tes-llm"
+    config:
+      ocr:
+        provider: "tesseract"
+        model: "tesseract"
+        language: "eng"
+        format: "md"
+#      docling_options:
+#        do_ocr: true
+#        force_ocr: true
+#        num_threads: 2
+#        device: "auto"
+#        verbose: 1
+      text_correction:
+        enabled: true
+        rate_limit:
+          rps: 1
+          burst: 1
+        provider:
+          provider: "openrouter"
+          model: "qwen/qwen3-vl-30b-a3b-instruct"
+          prompt: |
+            You are a Markdown refinement agent. You will be provided with an image and a Markdown transcription produced by Docling (OCR).
+            Your task is to correct errors in the OCR output, fix structural inconsistencies, and ensure high-quality Markdown that perfectly reflects the visual content of the image.
+
+            ## STRUCTURAL MAPPING & CORRECTIONS
+            1. **Hierarchy**: Map visual hierarchies to standard Markdown headings (#), lists (-, 1.), and emphasis (*, **). Correct any misaligned levels.
+            2. **Source References**: Ensure pill-shaped file/line tags are mapped to inline code: `[filename line-numbers]`.
+            3. **Tables**: Fix broken visual grids and map them to standard Markdown tables with proper alignment.
+            4. **Diagrams (CRITICAL)**:
+               - Convert flowcharts and ERDs to clean ```mermaid code blocks.
+               - **NEVER include HTML tags** (e.g., <br/>, <div>, <span>) in node labels. Use plain text.
+               - Quote labels with special characters: `A["Label text"]`.
+               - Map complex network topologies to nested bulleted lists if Mermaid is unsuitable.
+            5. **UI Elements**: Map collapsible sections to headings. **COMPLETELY DISCARD ALL HTML TAGS**.
+
+            ## ERROR PREVENTION & REFINEMENT
+            - **Fix Typos**: Correct OCR noise, hallucinations, and common misidentifications.
+            - **HTML Elimination**: Convert `<br/>`, `<div>`, `<span>` and other tags to plain text or spaces. Remove ALL HTML markup.
+            - **Quote Normalization**: Use straight quotes (") only. Never nest quotes in Mermaid labels.
+            - **Mermaid Syntax**: Ensure all Mermaid blocks are syntactically clean and valid.
+
+            ## OUTPUT CONSTRAINTS
+            - Output raw Markdown text only.
+            - NO conversational preamble or postscript.
+            - NO master ```markdown codeblock wrapper.

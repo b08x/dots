@@ -144,6 +144,12 @@
         "source": "github",
         "repo": "b08x/syncopated-context"
       }
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
     }
   },
   "effortLevel": "medium",
