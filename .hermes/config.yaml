@@ -1,19 +1,21 @@
 model:
-  default: ""
-  provider: "openrouter"
+  default: minimax/minimax-m2.7
+  provider: openrouter
   api_mode: chat_completions
+  base_url: https://openrouter.ai/api/v1
 providers: {}
-fallback_providers:
-- openrouter
+fallback_providers: []
 credential_pool_strategies: {}
 toolsets:
 - hermes-cli
 agent:
   max_turns: 60
   gateway_timeout: 1800
+  restart_drain_timeout: 60
   service_tier: ''
   tool_use_enforcement: auto
   gateway_timeout_warning: 900
+  gateway_notify_interval: 600
   verbose: false
   reasoning_effort: medium
   personalities:
@@ -62,6 +64,8 @@ terminal:
   cwd: .
   timeout: 180
   env_passthrough: []
+  shell_init_files: []
+  auto_source_bashrc: true
   docker_image: nikolaik/python-nodejs:python3.11-nodejs20
   docker_forward_env: []
   docker_env: {}
@@ -81,6 +85,7 @@ browser:
   command_timeout: 30
   record_sessions: false
   allow_private_urls: false
+  cdp_url: ''
   camofox:
     managed_persistence: false
 checkpoints:
@@ -92,66 +97,83 @@ compression:
   threshold: 0.5
   target_ratio: 0.2
   protect_last_n: 20
-  summary_model: google/gemini-3-flash-preview
-  summary_provider: auto
-  summary_base_url: null
-smart_model_routing:
-  enabled: false
-  max_simple_chars: 160
-  max_simple_words: 28
-  cheap_model:
-    provider: openrouter
-    model: openai/gpt-5-nano
+bedrock:
+  region: ''
+  discovery:
+    enabled: true
+    provider_filter: []
+    refresh_interval: 3600
+  guardrail:
+    guardrail_identifier: ''
+    guardrail_version: ''
+    stream_processing_mode: async
+    trace: disabled
 auxiliary:
   vision:
     provider: auto
     model: ''
-    base_url: ""
+    base_url: ''
     api_key: ''
-    timeout: 30
+    timeout: 120
+    extra_body: {}
     download_timeout: 30
   web_extract:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
-    timeout: 30
+    timeout: 360
+    extra_body: {}
   compression:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 120
+    extra_body: {}
   session_search:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
+    extra_body: {}
+    max_concurrency: 3
   skills_hub:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
+    extra_body: {}
   approval:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
+    extra_body: {}
   mcp:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
+    extra_body: {}
   flush_memories:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
+    extra_body: {}
+  title_generation:
+    provider: auto
+    model: ''
+    base_url: ''
+    api_key: ''
+    timeout: 30
+    extra_body: {}
 display:
   compact: false
   personality: kawaii
@@ -160,18 +182,26 @@ display:
   bell_on_complete: false
   show_reasoning: false
   streaming: true
+  final_response_markdown: strip
   inline_diffs: true
-  show_cost: true
-  skin: default-steve
+  show_cost: false
+  skin: default
+  user_message_preview:
+    first_lines: 2
+    last_lines: 2
+  interim_assistant_messages: true
   tool_progress_command: false
   tool_progress_overrides: {}
   tool_preview_length: 0
+  platforms: {}
   tool_progress: all
   background_process_notifications: all
+dashboard:
+  theme: default
 privacy:
   redact_pii: false
 tts:
-  provider: elevenlabs
+  provider: edge
   edge:
     voice: en-US-AriaNeural
   elevenlabs:
@@ -180,6 +210,14 @@ tts:
   openai:
     model: gpt-4o-mini-tts
     voice: alloy
+  xai:
+    voice_id: eve
+    language: en
+    sample_rate: 24000
+    bit_rate: 128000
+  mistral:
+    model: voxtral-mini-tts-2603
+    voice_id: c69964a6-ab8b-4f8a-9465-ec0925096ec8
   neutts:
     ref_audio: ''
     ref_text: ''
@@ -189,22 +227,25 @@ stt:
   enabled: true
   provider: local
   local:
-    model: whisper-large-v3-turbo
+    model: base
     language: ''
   openai:
-    model: whisper-large-v3-turbo
+    model: whisper-1
   mistral:
     model: voxtral-mini-latest
 voice:
   record_key: ctrl+b
   max_recording_seconds: 120
   auto_tts: false
+  beep_enabled: true
   silence_threshold: 200
   silence_duration: 3.0
 human_delay:
   mode: 'off'
   min_ms: 800
   max_ms: 2500
+context:
+  engine: compressor
 memory:
   memory_enabled: true
   user_profile_enabled: true
@@ -218,7 +259,12 @@ delegation:
   provider: ''
   base_url: ''
   api_key: ''
+  inherit_mcp_toolsets: true
   max_iterations: 50
+  reasoning_effort: ''
+  max_concurrent_children: 3
+  max_spawn_depth: 1
+  orchestrator_enabled: true
   default_toolsets:
   - terminal
   - file
@@ -226,10 +272,10 @@ delegation:
 prefill_messages_file: ''
 skills:
   external_dirs: []
+  template_vars: true
+  inline_shell: false
+  inline_shell_timeout: 10
   creation_nudge_interval: 15
-  config:
-    wiki:
-      path: ~/Notebook/wiki
 honcho: {}
 timezone: ''
 discord:
@@ -238,14 +284,26 @@ discord:
   allowed_channels: ''
   auto_thread: true
   reactions: true
+  channel_prompts: {}
+  server_actions: ''
 whatsapp: {}
+telegram:
+  channel_prompts: {}
+slack:
+  channel_prompts: {}
+mattermost:
+  channel_prompts: {}
 approvals:
   mode: manual
   timeout: 60
+  cron_mode: deny
 command_allowlist: []
 quick_commands: {}
+hooks: {}
+hooks_auto_accept: false
 personalities: {}
 security:
+  allow_private_urls: false
   redact_secrets: true
   tirith_enabled: true
   tirith_path: tirith
@@ -257,72 +315,67 @@ security:
     shared_files: []
 cron:
   wrap_response: true
+  max_parallel_jobs: null
+code_execution:
+  mode: project
+  timeout: 300
+  max_tool_calls: 50
 logging:
   level: INFO
   max_size_mb: 5
   backup_count: 3
-_config_version: 14
-fallback_model:
-  provider: openrouter
-  model: google/gemini-3.1-flash-lite-preview
+network:
+  force_ipv4: false
+sessions:
+  auto_prune: false
+  retention_days: 90
+  vacuum_after_prune: true
+  min_interval_hours: 24
+_config_version: 22
+smart_model_routing:
+  enabled: false
+  max_simple_chars: 160
+  max_simple_words: 28
+  cheap_model: {}
 session_reset:
   mode: both
   idle_minutes: 1440
   at_hour: 4
 group_sessions_per_user: true
-streaming:
-  enabled: false
+streaming: true false
 platform_toolsets:
   cli:
   - browser
   - clarify
-  - code_execution
-  - cronjob
   - delegation
   - file
-  - image_gen
   - memory
   - moa
   - session_search
   - skills
   - terminal
   - todo
-  - tts
-  - vision
   - web
-  telegram:
-  - hermes-telegram
-  discord:
-  - hermes-discord
-  whatsapp:
-  - hermes-whatsapp
-  slack:
-  - hermes-slack
-  signal:
-  - hermes-signal
-  homeassistant:
-  - hermes-homeassistant
-code_execution:
-  timeout: 300
-  max_tool_calls: 50
-web:
-  backend: exa
 plugins:
-  disabled:
-  - rubysmithing
-mcp_servers:
-  context7:
-    command: "npx"
-    args: ["-y", "@upstash/context7-mcp"]
-    env: 
-      CONTEXT7_API_KEY: "${CONTEXT7_API_KEY}"
-  deepwiki:
-    url: "https://mcp.deepwiki.com/mcp"
+  enabled: []
 
-# Desktop app API server (auto-configured)
-platforms:
-  api_server:
-    enabled: true
-    extra:
-      port: 8642
-      host: "127.0.0.1"
+# ── Fallback Model ────────────────────────────────────────────────────
+# Automatic provider failover when primary is unavailable.
+# Uncomment and configure to enable. Triggers on rate limits (429),
+# overload (529), service errors (503), or connection failures.
+#
+# Supported providers:
+#   openrouter   (OPENROUTER_API_KEY)  — routes to any model
+#   openai-codex (OAuth — hermes auth) — OpenAI Codex
+#   nous         (OAuth — hermes auth) — Nous Portal
+#   zai          (ZAI_API_KEY)         — Z.AI / GLM
+#   kimi-coding  (KIMI_API_KEY)        — Kimi / Moonshot
+#   kimi-coding-cn (KIMI_CN_API_KEY)   — Kimi / Moonshot (China)
+#   minimax      (MINIMAX_API_KEY)     — MiniMax
+#   minimax-cn   (MINIMAX_CN_API_KEY)  — MiniMax (China)
+#
+# For custom OpenAI-compatible endpoints, add base_url and key_env.
+#
+# fallback_model:
+#   provider: openrouter
+#   model: anthropic/claude-sonnet-4
