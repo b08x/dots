@@ -95,7 +95,7 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
-  "workbench.preferredDarkColorTheme": "Dracula Theme",
+  "workbench.preferredDarkColorTheme": "Ayu Dark",
   "workbench.iconTheme": "catppuccin-macchiato",
   "workbench.productIconTheme": "fluent-icons",
   "terminal.integrated.commandsToSkipShell": [

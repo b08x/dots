@@ -4,12 +4,6 @@
     "hasSeenNudge": true
   },
   "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    },
     "deepwiki": {
       "httpUrl": "https://mcp.deepwiki.com/mcp"
     },

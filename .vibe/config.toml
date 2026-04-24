@@ -43,12 +43,11 @@ disabled_tools = []
 agent_paths = []
 enabled_agents = []
 disabled_agents = []
-skill_paths = []
-enabled_skills = []
+skill_paths = ["~/.vibe/skills"]
+# Skill filters
+enabled_skills = ["analyse", "refactor"]
 disabled_skills = []
-installed_agents = [
-    "lean",
-]
+installed_agents = ["lean"]
 
 [[providers]]
 name = "mistral"

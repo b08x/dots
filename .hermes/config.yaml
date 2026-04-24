@@ -1,21 +1,22 @@
 model:
-  default: minimax/minimax-m2.7
+  default: deepseek/deepseek-v4-flash
   provider: openrouter
-  api_mode: chat_completions
   base_url: https://openrouter.ai/api/v1
+  api_mode: chat_completions
 providers: {}
 fallback_providers: []
 credential_pool_strategies: {}
 toolsets:
 - hermes-cli
 agent:
-  max_turns: 60
+  max_turns: 80
   gateway_timeout: 1800
   restart_drain_timeout: 60
+  api_max_retries: 3
   service_tier: ''
   tool_use_enforcement: auto
   gateway_timeout_warning: 900
-  gateway_notify_interval: 600
+  gateway_notify_interval: 180
   verbose: false
   reasoning_effort: medium
   personalities:
@@ -59,22 +60,22 @@ agent:
       \ is gonna be LEGENDARY! ARE YOU READY?! LET'S DO THIS! \U0001F4AA\U0001F624\
       \U0001F680"
 terminal:
-  backend: local
+  backend: docker
   modal_mode: auto
   cwd: .
   timeout: 180
   env_passthrough: []
   shell_init_files: []
   auto_source_bashrc: true
-  docker_image: nikolaik/python-nodejs:python3.11-nodejs20
+  docker_image: nousresearch/hermes-agent:latest
   docker_forward_env: []
   docker_env: {}
   singularity_image: docker://nikolaik/python-nodejs:python3.11-nodejs20
-  modal_image: nikolaik/python-nodejs:python3.11-nodejs20
+  modal_image: nousresearch/hermes-agent:latest
   daytona_image: nikolaik/python-nodejs:python3.11-nodejs20
   container_cpu: 1
   container_memory: 5120
-  container_disk: 51200
+  container_disk: 10240
   container_persistent: true
   docker_volumes: []
   docker_mount_cwd_to_workspace: false
@@ -83,15 +84,21 @@ terminal:
 browser:
   inactivity_timeout: 120
   command_timeout: 30
-  record_sessions: false
+  record_sessions: true
   allow_private_urls: false
   cdp_url: ''
+  dialog_policy: must_respond
+  dialog_timeout_s: 300
   camofox:
     managed_persistence: false
 checkpoints:
   enabled: true
   max_snapshots: 50
 file_read_max_chars: 100000
+tool_output:
+  max_bytes: 50000
+  max_lines: 2000
+  max_line_length: 2000
 compression:
   enabled: true
   threshold: 0.5
@@ -180,24 +187,24 @@ display:
   resume_display: full
   busy_input_mode: interrupt
   bell_on_complete: false
-  show_reasoning: false
+  show_reasoning: true
   streaming: true
   final_response_markdown: strip
   inline_diffs: true
-  show_cost: false
-  skin: default
+  show_cost: true
+  skin: ares
   user_message_preview:
     first_lines: 2
     last_lines: 2
   interim_assistant_messages: true
-  tool_progress_command: false
+  tool_progress_command: true
   tool_progress_overrides: {}
   tool_preview_length: 0
   platforms: {}
   tool_progress: all
   background_process_notifications: all
 dashboard:
-  theme: default
+  theme: mono
 privacy:
   redact_pii: false
 tts:
@@ -225,7 +232,7 @@ tts:
     device: cpu
 stt:
   enabled: true
-  provider: local
+  provider: openai
   local:
     model: base
     language: ''
@@ -239,9 +246,9 @@ voice:
   auto_tts: false
   beep_enabled: true
   silence_threshold: 200
-  silence_duration: 3.0
+  silence_duration: 3
 human_delay:
-  mode: 'off'
+  mode: typing
   min_ms: 800
   max_ms: 2500
 context:
@@ -251,7 +258,7 @@ memory:
   user_profile_enabled: true
   memory_char_limit: 2200
   user_char_limit: 1375
-  provider: ''
+  provider: builtin
   nudge_interval: 10
   flush_min_turns: 6
 delegation:
@@ -261,21 +268,62 @@ delegation:
   api_key: ''
   inherit_mcp_toolsets: true
   max_iterations: 50
+  child_timeout_seconds: 600
   reasoning_effort: ''
   max_concurrent_children: 3
   max_spawn_depth: 1
   orchestrator_enabled: true
-  default_toolsets:
-  - terminal
-  - file
-  - web
 prefill_messages_file: ''
 skills:
   external_dirs: []
   template_vars: true
   inline_shell: false
   inline_shell_timeout: 10
+  guard_agent_created: false
   creation_nudge_interval: 15
+  disabled:
+  - arxiv
+  - audiocraft-audio-generation
+  - axolotl
+  - baoyu-comic
+  - blogwatcher
+  - codebase-inspection
+  - evaluating-llms-harness
+  - excalidraw
+  - fine-tuning-with-trl
+  - github-code-review
+  - github-pr-workflow
+  - godmode
+  - google-workspace
+  - heartmula
+  - himalaya
+  - huggingface-hub
+  - ideation
+  - jupyter-live-kernel
+  - linear
+  - llama-cpp
+  - llm-wiki
+  - maps
+  - minecraft-modpack-server
+  - nano-pdf
+  - notion
+  - obliteratus
+  - ocr-and-documents
+  - openhue
+  - outlines
+  - p5js
+  - pokemon-player
+  - polymarket
+  - powerpoint
+  - research-paper-writing
+  - segment-anything-model
+  - serving-llms-vllm
+  - songsee
+  - unsloth
+  - webhook-subscriptions
+  - weights-and-biases
+  - xurl
+  - youtube-content
 honcho: {}
 timezone: ''
 discord:
@@ -332,32 +380,46 @@ sessions:
   vacuum_after_prune: true
   min_interval_hours: 24
 _config_version: 22
-smart_model_routing:
-  enabled: false
-  max_simple_chars: 160
-  max_simple_words: 28
-  cheap_model: {}
 session_reset:
-  mode: both
+  mode: none
   idle_minutes: 1440
   at_hour: 4
 group_sessions_per_user: true
-streaming: true false
+streaming:
+  enabled: false
 platform_toolsets:
   cli:
   - browser
   - clarify
+  - code_execution
+  - cronjob
   - delegation
   - file
+  - image_gen
   - memory
+  - messaging
   - moa
   - session_search
   - skills
   - terminal
   - todo
+  - tts
+  - vision
   - web
-plugins:
-  enabled: []
+  telegram:
+  - hermes-telegram
+  discord:
+  - hermes-discord
+  whatsapp:
+  - hermes-whatsapp
+  slack:
+  - hermes-slack
+  signal:
+  - hermes-signal
+  homeassistant:
+  - hermes-homeassistant
+  qqbot:
+  - hermes-qqbot
 
 # ── Fallback Model ────────────────────────────────────────────────────
 # Automatic provider failover when primary is unavailable.
