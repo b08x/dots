@@ -1,0 +1,36 @@
+# Bluefin Builder Agent Configuration
+# This agent is specialized for building custom Bluefin images using the syncopated-os template
+
+[agent]
+name = "bluefin-builder"
+description = "A specialized agent for building custom Bluefin images using the syncopated-os template"
+inherit_from = "base_agent"
+# Model configuration
+model = "devstral-2"
+temperature = 0.3
+
+# System prompt configuration
+system_prompt_id = "bluefin-builder"
+
+# Tool configuration
+[tools]
+enabled = ["bash", "read_file", "write_file", "search_replace", "grep", "ask_user_question", "task"]
+
+# Skill configuration
+[skills]
+enabled = ["bluefin-builder", "vibe"]
+
+# Behavior configuration
+[behavior]
+auto_approve = false
+max_turns = 10
+
+# Context configuration
+[context]
+include_model_info = true
+include_project_context = true
+include_prompt_detail = true
+
+# Subagent configuration
+[subagents]
+enabled = ["bluefin-builder-subagent"]

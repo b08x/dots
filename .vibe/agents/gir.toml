@@ -1,0 +1,10 @@
+display_name = "gir"
+icon = "🦧"
+description = "I am a simple agent that can answer basic questions."
+
+safety = "safe"
+
+agent_type = "agent"
+
+system_prompt_id = "gir"
+

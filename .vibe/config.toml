@@ -15,6 +15,8 @@ enable_update_checks = true
 enable_auto_update = true
 api_timeout = 720.0
 tool_paths = []
+voice_mode_enabled = true
+narrator_enabled = false
 
 [[mcp_servers]]
 transport = "http"
@@ -34,20 +36,27 @@ url = "https://mcp.deepwiki.com/mcp"
 transport = "stdio"
 name = "playwright"
 command = "npx"
-args = ["@playwright/mcp@latest"]
+args = [
+    "@playwright/mcp@latest",
+]
 startup_timeout_sec = 15.0
 sampling_enabled = false
-
 enabled_tools = []
 disabled_tools = []
 agent_paths = []
 enabled_agents = []
 disabled_agents = []
-skill_paths = ["~/.vibe/skills"]
-# Skill filters
-enabled_skills = ["analyse", "refactor"]
+skill_paths = [
+    "~/.vibe/skills",
+]
+enabled_skills = [
+    "analyse",
+    "refactor",
+]
 disabled_skills = []
-installed_agents = ["lean"]
+installed_agents = [
+    "lean",
+]
 
 [[providers]]
 name = "mistral"

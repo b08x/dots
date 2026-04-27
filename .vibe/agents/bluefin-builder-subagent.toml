@@ -1,0 +1,34 @@
+# Bluefin Builder Subagent Configuration
+# This subagent runs build commands and reports back results for the bluefin-builder agent
+
+[agent]
+name = "bluefin-builder-subagent"
+description = "A subagent for running Bluefin build commands and reporting results"
+agent_type = "subagent"
+inherit_from = "base_agent"
+
+# Model configuration
+model = "devstral-2"
+temperature = 0.1
+
+# System prompt configuration
+system_prompt_id = "bluefin-builder-subagent"
+
+# Tool configuration - limited to build-related tools only
+[tools]
+enabled = ["bash", "read_file"]
+
+# Skill configuration
+[skills]
+enabled = ["bluefin-builder"]
+
+# Behavior configuration
+[behavior]
+auto_approve = true  # Subagents typically auto-approve their operations
+max_turns = 5
+
+# Context configuration
+[context]
+include_model_info = false
+include_project_context = true
+include_prompt_detail = false

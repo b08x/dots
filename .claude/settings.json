@@ -9,14 +9,6 @@
             "command": "codemap hook session-start && echo 'git diff:' && git diff --stat && echo 'git status:' && git status"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
       }
     ],
     "PreToolUse": [
@@ -28,14 +20,6 @@
             "command": "codemap hook pre-edit"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
       }
     ],
     "PostToolUse": [
@@ -45,14 +29,6 @@
           {
             "type": "command",
             "command": "codemap hook post-edit"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -94,14 +70,6 @@
             "timeout": 120000
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
       }
     ],
     "Stop": [
@@ -110,104 +78,6 @@
           {
             "type": "command",
             "command": "node /home/b08x/Workspace/code-insights/cli/dist/index.js sync -q"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "StopFailure": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "SubagentStart": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "TeammateIdle": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "TaskCompleted": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "WorktreeCreate": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
-          }
-        ]
-      }
-    ],
-    "Elicitation": [
-      {
-        "hooks": [
-          {
-            "type": "http",
-            "url": "http://localhost:3001/hooks/claude"
           }
         ]
       }
@@ -285,8 +155,8 @@
   "effortLevel": "medium",
   "voice": {
     "enabled": true,
-    "mode": "hold"
+    "mode": "tap"
   },
-  "voiceEnabled": true,
-  "theme": "light-daltonized"
+  "theme": "light-daltonized",
+  "voiceEnabled": true
 }
