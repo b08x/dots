@@ -1,7 +1,6 @@
 # .vibe/agents/skill-architect.toml
 display_name = "Skill Architect"
 description = "Lead designer for new skills. Coordinates discovery, research, and initialization."
-agent_type = "primary" # Or just omit if it's meant to be used as a subagent, but the user said "primary agent"
 
 [config]
 system_prompt_id = "skill-architect"

@@ -1,6 +1,6 @@
 # .vibe/agents/ansible-context-gatherer.toml
 display_name = "Ansible Context Gatherer"
-description = "Collects and analyzes existing Ansible context including playbooks, roles, inventory files, variables, and environment state for the ansible-automation skill."
+description = "Collects and analyzes existing Ansible context including playbooks, roles, inventory files, variables, and environment state for the ansible-automation skill. Generates playbook visualization graphs using ansible-playbook-grapher when needed."
 agent_type = "subagent"
 safety = "neutral"
 

@@ -81,6 +81,7 @@ For complete style guide compliance, reference:
 - `references/patterns.md` - Best practice patterns with style guide examples
 - `references/modules.md` - Module usage with style guide formatting
 - `references/fedora-packages.md` - Package names and examples
+- `references/ansible-playbook-grapher.md` - CLI tool for visualizing playbook structure
 
 ## Style Guide Compliance
 

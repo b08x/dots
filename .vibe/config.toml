@@ -82,7 +82,6 @@ installed_agents = [
 name = "mistral"
 api_base = "https://api.mistral.ai/v1"
 api_key_env_var = "MISTRAL_API_KEY"
-api_style = "openai"
 backend = "mistral"
 reasoning_field_name = "reasoning_content"
 
@@ -94,15 +93,21 @@ api_style = "openai"
 backend = "generic"
 reasoning_field_name = "reasoning_content"
 
-# Mistral Models
 [[models]]
 name = "mistral-vibe-cli-latest"
 provider = "mistral"
-alias = "devstral-2"
-temperature = 0.2
-input_price = 0.4
-output_price = 2.0
-thinking = "off"
+alias = "mistral-medium-3.5"
+temperature = 1.0
+input_price = 1.5
+output_price = 7.5
+thinking = "high"
+
+[[models]]
+name = "devstral-2"
+provider = "mistral"
+alias = "devstral"
+temperature = 0.7
+thinking = "medium"
 
 [[models]]
 name = "mistral-medium-3.5"
