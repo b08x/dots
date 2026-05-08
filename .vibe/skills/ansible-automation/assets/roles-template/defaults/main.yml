@@ -1,0 +1,41 @@
+---
+# Role: defaults/main.yml
+# Default variables for this role with lower precedence
+# These can be overridden by vars/main.yml, group_vars/, or host_vars/
+
+# Service defaults
+role_service_name: myapp
+role_service_port: 8080
+role_service_enabled: true
+role_service_state: started
+
+# Path defaults
+role_install_dir: /opt/{{ role_service_name }}
+role_config_dir: /etc/{{ role_service_name }}
+role_data_dir: /var/lib/{{ role_service_name }}
+role_log_dir: /var/log/{{ role_service_name }}
+
+# User defaults
+role_service_user: "{{ role_service_name }}"
+role_service_group: "{{ role_service_name }}"
+role_create_user: true
+role_create_group: true
+
+# Package defaults
+role_packages: []
+role_package_state: present
+
+# Docker defaults
+role_docker_enabled: false
+role_docker_image: ""
+role_docker_tag: latest
+role_docker_network: ""
+
+# Feature flags
+role_feature_enabled: false
+role_debug_mode: false
+role_verbose_logging: false
+
+# Resource limits
+role_max_memory: ""
+role_max_cpu: ""

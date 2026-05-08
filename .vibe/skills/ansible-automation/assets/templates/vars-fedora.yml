@@ -1,0 +1,78 @@
+---
+# Fedora Variables Template
+# This template provides Fedora-specific package names and configuration
+# Copy and customize for your needs
+
+# Package lists by category
+fedora_packages_base:
+  - kitty
+  - ranger
+  - ffmpeg
+  - git
+  - curl
+  - wget
+  - htop
+  - iotop
+  - tmux
+  - tree
+  - ncdu
+
+fedora_packages_dev:
+  - python3
+  - python3-devel
+  - python3-pip
+  - python3-venv
+  - gcc
+  - gcc-c++
+  - make
+  - cmake
+  - autoconf
+  - automake
+  - libtool
+  - openssl-devel
+  - libffi-devel
+  - zlib-devel
+  - bzip2-devel
+  - readline-devel
+  - sqlite-devel
+
+fedora_packages_python:
+  - python3-requests
+  - python3-flask
+  - python3-jinja2
+  - python3-yaml
+  - python3-pyyaml
+
+fedora_packages_docker:
+  - docker
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - runc
+  - docker-compose
+
+fedora_packages_services:
+  - nginx
+  - postgresql-server
+  - redis
+  - memcached
+
+# System configuration
+fedora_version: "{{ ansible_distribution_version }}"
+fedora_dnf_update_cache: true
+
+# Repository configuration
+fedora_enable_rpm_fusion: false
+fedora_enable_copr_repos: []
+
+# Service defaults
+fedora_service_manager: systemd
+
+# Paths
+fedora_install_prefix: /opt
+fedora_config_prefix: /etc
+fedora_var_prefix: /var
+
+# Docker configuration
+fedora_docker_group_members:
+  - "{{ ansible_user_id }}"

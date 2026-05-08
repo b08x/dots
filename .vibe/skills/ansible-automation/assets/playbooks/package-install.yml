@@ -1,0 +1,52 @@
+---
+# Package Installation Playbook
+# This template installs packages on target systems
+# Usage: Copy this file, customize variables, and run with ansible-playbook
+
+- name: Install packages
+  hosts: all
+  gather_facts: true
+
+  vars:
+    # Package list - customize this
+    package_install_packages: []
+
+    # Package state
+    package_install_state: present
+
+    # Update cache
+    package_install_update_cache: true
+
+  tasks:
+    # Fedora/RHEL/CentOS
+    - name: Install packages (Fedora/RHEL/CentOS)
+      ansible.builtin.dnf:
+        name: "{{ package_install_packages }}"
+        state: "{{ package_install_state }}"
+        update_cache: "{{ package_install_update_cache }}"
+      become: true
+      when: ansible_distribution in ["Fedora", "RedHat", "CentOS"]
+      tags: ["packages", "install"]
+
+    # Debian/Ubuntu
+    - name: Install packages (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name: "{{ package_install_packages }}"
+        state: "{{ package_install_state }}"
+        update_cache: "{{ package_install_update_cache }}"
+      become: true
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+      tags: ["packages", "install"]
+
+    # Verify installation
+    - name: Verify packages are installed
+      ansible.builtin.command: "{{ ansible_pkg_mgr }} list installed {{ package_install_packages | join(" ") }}"
+      register: pkg_check
+      changed_when: false
+      ignore_errors: true
+      tags: ["packages", "verify"]
+
+    - name: Display installed packages
+      ansible.builtin.debug:
+        msg: "Packages verified: {{ pkg_check.stdout | default("skipped") }}"
+      tags: ["packages", "verify"]

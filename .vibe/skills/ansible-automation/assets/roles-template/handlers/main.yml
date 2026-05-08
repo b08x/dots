@@ -1,0 +1,22 @@
+---
+# Role: handlers/main.yml
+# Handlers for this role
+
+- name: Restart service
+  ansible.builtin.systemd:
+    name: "{{ role_service_name | default("myapp") }}"
+    state: restarted
+  become: true
+
+- name: Reload service
+  ansible.builtin.systemd:
+    name: "{{ role_service_name | default("myapp") }}"
+    state: reloaded
+  become: true
+
+- name: Restart Docker containers
+  community.docker.docker_container:
+    name: "{{ role_container_name | default("myapp") }}"
+    state: restarted
+  when: role_container_name is defined
+  become: true

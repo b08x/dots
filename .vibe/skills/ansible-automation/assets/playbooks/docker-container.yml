@@ -1,0 +1,157 @@
+---
+# Docker Container Deployment Playbook
+# This template deploys a Docker container with configurable options
+# Usage: Copy this file, customize variables, and run with ansible-playbook
+
+- name: Deploy Docker container
+  hosts: all
+  gather_facts: true
+
+  vars:
+    # Container configuration
+    docker_container_name: myapp
+    docker_container_image: nginx
+    docker_container_tag: latest
+    docker_container_repository: docker.io/library
+
+    # Network configuration
+    docker_container_ports: []
+
+    # Volume mounts
+    docker_container_volumes: []
+
+    # Environment variables
+    docker_container_env: {}
+
+    # Container options
+    docker_container_restart_policy: unless-stopped
+    docker_container_detach: true
+    docker_container_tty: true
+    docker_container_privileged: false
+
+    # Command to run
+    docker_container_command: []
+
+    # Docker network
+    docker_container_network: null
+
+    # Full image name
+    docker_container_full_image: "{{ docker_container_repository }}/{{ docker_container_image }}:{{ docker_container_tag }}"
+
+  tasks:
+    # Ensure Docker is installed
+    - name: Install Docker
+      ansible.builtin.dnf:
+        name:
+          - docker
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+      become: true
+      when: ansible_distribution in ["Fedora", "RedHat", "CentOS"]
+      tags: ["docker", "packages"]
+
+    - name: Install Docker (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: true
+      become: true
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+      tags: ["docker", "packages"]
+
+    - name: Start and enable Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+      become: true
+      tags: ["docker", "services"]
+
+    - name: Ensure user is in docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: true
+      become: true
+      tags: ["docker", "user"]
+
+    # Create custom network if specified
+    - name: Create Docker network
+      community.docker.docker_network:
+        name: "{{ docker_container_network }}"
+        driver: bridge
+        state: present
+      when: docker_container_network is not none
+      tags: ["docker", "network"]
+
+    # Pull Docker image
+    - name: Pull Docker image
+      community.docker.docker_image:
+        name: "{{ docker_container_full_image }}"
+        source: pull
+      tags: ["docker", "pull"]
+
+    # Stop and remove existing container
+    - name: Stop existing container
+      community.docker.docker_container:
+        name: "{{ docker_container_name }}"
+        state: stopped
+      ignore_errors: true
+      tags: ["docker", "deploy"]
+
+    - name: Remove existing container
+      community.docker.docker_container:
+        name: "{{ docker_container_name }}"
+        state: absent
+      ignore_errors: true
+      tags: ["docker", "deploy"]
+
+    # Run container
+    - name: Run Docker container
+      community.docker.docker_container:
+        name: "{{ docker_container_name }}"
+        image: "{{ docker_container_full_image }}"
+        state: started
+        restart_policy: "{{ docker_container_restart_policy }}"
+        detach: "{{ docker_container_detach }}"
+        tty: "{{ docker_container_tty }}"
+        privileged: "{{ docker_container_privileged }}"
+        ports: "{{ docker_container_ports }}"
+        volumes: "{{ docker_container_volumes }}"
+        env: "{{ docker_container_env }}"
+        command: "{{ docker_container_command }}"
+        networks:
+          - name: "{{ docker_container_network }}"
+      when: docker_container_network is not none
+      tags: ["docker", "deploy"]
+
+    - name: Run Docker container (without custom network)
+      community.docker.docker_container:
+        name: "{{ docker_container_name }}"
+        image: "{{ docker_container_full_image }}"
+        state: started
+        restart_policy: "{{ docker_container_restart_policy }}"
+        detach: "{{ docker_container_detach }}"
+        tty: "{{ docker_container_tty }}"
+        privileged: "{{ docker_container_privileged }}"
+        ports: "{{ docker_container_ports }}"
+        volumes: "{{ docker_container_volumes }}"
+        env: "{{ docker_container_env }}"
+        command: "{{ docker_container_command }}"
+      when: docker_container_network is none
+      tags: ["docker", "deploy"]
+
+    # Display container info
+    - name: Display container information
+      ansible.builtin.debug:
+        msg: |
+          Container deployed:
+          Name: {{ docker_container_name }}
+          Image: {{ docker_container_full_image }}
+          Ports: {{ docker_container_ports | join(", ") if docker_container_ports | length > 0 else "none" }}
+          Volumes: {{ docker_container_volumes | join(", ") if docker_container_volumes | length > 0 else "none" }}
+      tags: ["docker", "info"]

@@ -1,0 +1,32 @@
+---
+# Role: tasks/main.yml
+# Main tasks file for this role
+
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: /etc/{{ role_name | default("myapp") }}
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+  tags: ["setup", "directories"]
+
+- name: Deploy configuration file
+  ansible.builtin.template:
+    src: config.j2
+    dest: /etc/{{ role_name | default("myapp") }}/config.conf
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+  notify: Restart service
+  tags: ["config", "templates"]
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name: "{{ role_packages | default([]) }}"
+    state: present
+  become: true
+  when: role_packages is defined and role_packages | length > 0
+  tags: ["packages"]

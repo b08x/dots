@@ -1,0 +1,121 @@
+---
+# Python Environment Setup Playbook
+# This template creates a Python virtual environment and installs packages
+# Usage: Copy this file, customize variables, and run with ansible-playbook
+
+- name: Setup Python environment
+  hosts: all
+  gather_facts: true
+
+  vars:
+    # Customize these variables
+    python_environment_python_version: "3"
+    python_environment_venv_path: /opt/venvs/{{ ansible_user_id }}
+    python_environment_venv_name: myenv
+    python_environment_requirements_file: requirements.txt
+    python_environment_pip_packages: []
+
+    # Derived variables
+    python_environment_full_venv_path: "{{ python_environment_venv_path }}/{{ python_environment_venv_name }}"
+
+  tasks:
+    # Install Python and dependencies
+    - name: Install Python and pip
+      ansible.builtin.dnf:
+        name:
+          - "python{{ python_environment_python_version }}"
+          - "python{{ python_environment_python_version }}-pip"
+          - "python{{ python_environment_python_version }}-devel"
+          - "python{{ python_environment_python_version }}-venv"
+        state: present
+      become: true
+      when: ansible_distribution in ["Fedora", "RedHat", "CentOS"]
+      tags: ["python", "packages"]
+
+    - name: Install Python and pip (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name:
+          - "python{{ python_environment_python_version }}-venv"
+          - "python{{ python_environment_python_version }}-pip"
+          - "python{{ python_environment_python_version }}-dev"
+        state: present
+        update_cache: true
+      become: true
+      when: ansible_distribution in ["Debian", "Ubuntu"]
+      tags: ["python", "packages"]
+
+    # Create directory for virtual environments
+    - name: Create virtual environments directory
+      ansible.builtin.file:
+        path: "{{ python_environment_venv_path }}"
+        state: directory
+        mode: "0755"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+      become: true
+      tags: ["python", "setup"]
+
+    # Create virtual environment
+    - name: Create Python virtual environment
+      ansible.builtin.command: "python{{ python_environment_python_version }} -m venv {{ python_environment_full_venv_path }}"
+      args:
+        creates: "{{ python_environment_full_venv_path }}/bin/python"
+      tags: ["python", "setup"]
+
+    # Copy requirements file (optional)
+    - name: Copy requirements file
+      ansible.builtin.copy:
+        src: "{{ python_environment_requirements_file }}"
+        dest: "{{ python_environment_full_venv_path }}/{{ python_environment_requirements_file }}"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: "0644"
+      when: python_environment_requirements_file != "" and python_environment_requirements_file != "requirements.txt"
+      tags: ["python", "requirements"]
+
+    # Install from requirements file
+    - name: Install Python packages from requirements
+      ansible.builtin.pip:
+        requirements: "{{ python_environment_full_venv_path }}/{{ python_environment_requirements_file }}"
+        virtualenv: "{{ python_environment_full_venv_path }}"
+        state: latest
+      when: python_environment_requirements_file != ""
+      tags: ["python", "requirements"]
+
+    # Install additional packages via pip
+    - name: Install additional Python packages
+      ansible.builtin.pip:
+        name: "{{ python_environment_pip_packages }}"
+        virtualenv: "{{ python_environment_full_venv_path }}"
+        state: latest
+      when: python_environment_pip_packages | length > 0
+      tags: ["python", "packages"]
+
+    # Upgrade pip in virtual environment
+    - name: Upgrade pip in virtual environment
+      ansible.builtin.pip:
+        name: pip
+        state: latest
+        virtualenv: "{{ python_environment_full_venv_path }}"
+      tags: ["python", "upgrade"]
+
+    # Set executable permissions
+    - name: Set virtual environment permissions
+      ansible.builtin.file:
+        path: "{{ python_environment_full_venv_path }}"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        recurse: true
+      become: true
+      tags: ["python", "permissions"]
+
+    # Display summary
+    - name: Display Python environment info
+      ansible.builtin.debug:
+        msg: |
+          Python environment created:
+          Path: {{ python_environment_full_venv_path }}
+          Python: python{{ python_environment_python_version }}
+          Pip: {{ python_environment_full_venv_path }}/bin/pip
+          Activate with: source {{ python_environment_full_venv_path }}/bin/activate
+      tags: ["python", "info"]

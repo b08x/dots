@@ -1,0 +1,30 @@
+---
+# Role: vars/main.yml
+# Variables for this role with higher precedence
+# These override defaults/main.yml
+
+# Service configuration
+role_service_name: myapp
+role_service_port: 8080
+role_service_user: myapp
+role_service_group: myapp
+
+# Installation paths
+role_install_dir: /opt/{{ role_service_name }}
+role_config_dir: /etc/{{ role_service_name }}
+role_data_dir: /var/lib/{{ role_service_name }}
+role_log_dir: /var/log/{{ role_service_name }}
+
+# Package lists
+role_packages:
+  - package1
+  - package2
+
+# Docker configuration
+role_docker_image: myapp:latest
+role_docker_ports:
+  - "8080:8080"
+
+# Feature flags
+role_feature_enabled: true
+role_debug_mode: false
