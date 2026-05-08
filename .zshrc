@@ -42,7 +42,7 @@ ZSH_CUSTOM="/usr/share/oh-my-zsh/custom"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as o many plugins slow down shell startup.
 #consider adding common-aliases, copybuffer
-plugins=(ansible bundler docker-compose podman copypath fd fzf ripgrep zsh-navigation-tools ruby history systemd web-search)
+plugins=(ansible bundler docker-compose podman copypath fzf zsh-navigation-tools ruby history systemd web-search)
 
 source $ZSH/oh-my-zsh.sh
 

@@ -1,0 +1,14 @@
+#!/usr/bin/env zsh
+
+mkv2mp4() {
+  timestamp=$(date +%s)
+
+  infile=$1
+  outfile="${infile%.*}.mp4"
+
+  ffmpeg -i "$infile" -qscale:v 0 "$outfile"
+
+  if [ $? = 0 ]; then
+    rm -rf $infile
+  fi
+}
