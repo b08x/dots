@@ -1,6 +1,6 @@
 # .vibe/agents/ansible-docs-researcher.toml
 display_name = "Ansible Docs Researcher"
-description = "Uses Context7 MCP tool to query Ansible and Mistral Vibe documentation for syntax verification, best practices, and module information in the ansible-automation skill."
+description = "Uses Context7 MCP tool to query Ansible documentation and web_search for external topics (e.g., Podman quadlets Fedora 42) for syntax verification, best practices, and module information in the ansible-automation skill."
 agent_type = "subagent"
 safety = "neutral"
 
@@ -8,11 +8,14 @@ safety = "neutral"
 system_prompt_id = "ansible-docs-researcher"
 auto_approve = true  # Safe read-only research operations
 
-# Enable Context7 MCP tools for documentation research
-enabled_tools = ["context7_query-docs", "read_file", "grep", "todo"]
+# Enable Context7 MCP and web search tools for documentation research
+enabled_tools = ["context7_query-docs", "web_search", "read_file", "grep", "todo"]
 disabled_tools = ["write_file", "search_replace", "bash", "ask_user_question"]
 
 [config.tools.context7_query-docs]
+permission = "always"
+
+[config.tools.web_search]
 permission = "always"
 
 [config.tools.read_file]
