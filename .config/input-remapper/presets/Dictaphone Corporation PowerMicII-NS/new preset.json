@@ -1,0 +1,28 @@
+{
+    "mapping": {
+        "1,256,1": [
+            "KEY_LEFTCTRL + v",
+            "keyboard"
+        ],
+        "1,258,1": [
+            "KEY_RECORD",
+            "keyboard"
+        ],
+        "1,262,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + s",
+            "keyboard"
+        ],
+        "1,264,1": [
+            "KP_Enter",
+            "keyboard"
+        ],
+        "1,257,1": [
+            "XF86AudioMute",
+            "keyboard"
+        ],
+        "1,259,1": [
+            "KEY_LEFTCTRL + KEY_LEFTALT + Shift_L + j",
+            "keyboard"
+        ]
+    }
+}
