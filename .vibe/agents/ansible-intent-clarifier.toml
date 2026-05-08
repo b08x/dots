@@ -1,0 +1,19 @@
+# .vibe/agents/ansible-intent-clarifier.toml
+display_name = "Ansible Intent Clarifier"
+description = "Asks highly detailed questions to precisely understand user requirements and constraints for Ansible automation tasks in the ansible-automation skill."
+agent_type = "subagent"
+safety = "neutral"
+
+[config]
+system_prompt_id = "ansible-intent-clarifier"
+auto_approve = false  # Keep human in loop for question answering
+
+# Enable tools for asking questions
+enabled_tools = ["ask_user_question", "todo"]
+disabled_tools = ["read_file", "write_file", "search_replace", "grep", "bash", "context7_query-docs"]
+
+[config.tools.ask_user_question]
+permission = "always"
+
+[config.tools.todo]
+permission = "always"

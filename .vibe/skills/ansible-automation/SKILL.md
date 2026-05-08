@@ -28,6 +28,11 @@ Use this skill when users request:
 - Setup of Docker containers via Ansible
 - Package installation and environment configuration via Ansible
 
+**For complex tasks**: Use the specialized subagents for comprehensive support:
+- Spawn `ansible-intent-clarifier` to gather detailed requirements
+- Spawn `ansible-context-gatherer` to analyze existing automation
+- Spawn `ansible-docs-researcher` to query Ansible and Mistral Vibe documentation
+
 ## Quick Start
 
 ### Create a Playbook
@@ -254,6 +259,23 @@ Use the Context7 MCP tool (`context7_query-docs`) with library ID `/ansible/ansi
 3. **For style guide compliance**: Reference `references/patterns.md`
 4. **For module examples**: Check `references/modules.md` or query Context7
 
+### Subagent Workflow
+
+For comprehensive Ansible automation support, use the three specialized subagents in sequence:
+
+1. **ansible-intent-clarifier**: Asks detailed questions to understand requirements (target environment, scope, constraints, style preferences)
+2. **ansible-context-gatherer**: Scans existing Ansible files, roles, inventory, and environment state
+3. **ansible-docs-researcher**: Queries Context7 MCP with `/ansible/ansible-documentation` and `/mistralai/mistral-vibe` for syntax verification and best practices
+
+**Example workflow:**
+```
+User Request → ansible-intent-clarifier → ansible-context-gatherer → ansible-docs-researcher → Execution
+```
+
+The `ansible-docs-researcher` subagent uses:
+- `context7_query-docs` with `libraryId: /ansible/ansible-documentation` for Ansible syntax
+- `context7_query-docs` with `libraryId: /mistralai/mistral-vibe` for Mistral Vibe integration patterns
+
 ## Bundled Resources
 
 ### References
@@ -275,3 +297,12 @@ Use the Context7 MCP tool (`context7_query-docs`) with library ID `/ansible/ansi
 ### Scripts
 
 Scripts directory available for future automation utilities.
+
+### Subagents
+
+Specialized subagents for comprehensive Ansible automation support:
+- **ansible-context-gatherer**: Collects and analyzes existing Ansible files, roles, inventory, and environment state
+- **ansible-intent-clarifier**: Asks highly detailed questions to precisely understand user requirements and constraints
+- **ansible-docs-researcher**: Uses Context7 MCP tool (`context7_query-docs`) with library IDs `/ansible/ansible-documentation` and `/mistralai/mistral-vibe` to verify syntax, look up module parameters, and access official documentation
+
+See `subagents/SUBAGENTS.md` for complete subagent documentation, workflow patterns, and usage examples.
