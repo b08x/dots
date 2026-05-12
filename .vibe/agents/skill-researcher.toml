@@ -1,22 +1,21 @@
-# .vibe/agents/skill-researcher.toml
-display_name = "Skill Researcher"
+[agent]
+name = "Skill Researcher"
 description = "Technical researcher for skill contents. Searches libraries, drafts scripts, and structures references."
 agent_type = "subagent"
+id = "skill-researcher"
+safety = "neutral"
 
 [config]
-system_prompt_id = "skill-researcher"
-auto_approve = true # Research is safe to run autonomously
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "mcp_context7_resolve-library-id",
+    "mcp_context7_query-docs",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+]
 
-# Enable tools for research and reading context
-# Including mcp_context7 if it's available in the environment
-enabled_tools = ["read_file", "grep", "bash", "mcp_context7_resolve-library-id", "mcp_context7_query-docs"]
-disabled_tools = ["write_file", "search_replace"]
-
-[config.tools.read_file]
-permission = "always"
-
-[config.tools.grep]
-permission = "always"
-
-[config.tools.bash]
-permission = "always"
+[config.tools]

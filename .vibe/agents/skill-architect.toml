@@ -1,17 +1,19 @@
-# .vibe/agents/skill-architect.toml
-display_name = "Skill Architect"
+[agent]
+name = "Skill Architect"
 description = "Lead designer for new skills. Coordinates discovery, research, and initialization."
+id = "skill-architect"
+agent_type = "agent"
+safety = "neutral"
 
 [config]
-system_prompt_id = "skill-architect"
-auto_approve = false
-
-# Needs task to delegate, and ask_user to talk to the human
-enabled_tools = ["task", "ask_user", "bash", "read_file", "write_file", "grep"]
+enabled_tools = [
+    "task",
+    "ask_user",
+    "bash",
+    "read_file",
+    "write_file",
+    "grep",
+]
 disabled_tools = []
 
-[config.tools.task]
-permission = "always"
-
-[config.tools.ask_user]
-permission = "always"
+[config.tools]

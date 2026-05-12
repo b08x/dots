@@ -1,25 +1,21 @@
-# .vibe/agents/ansible-context-gatherer.toml
-display_name = "Ansible Context Gatherer"
+[agent]
+name = "Ansible Context Gatherer"
 description = "Collects and analyzes existing Ansible context including playbooks, roles, inventory files, variables, and environment state for the ansible-automation skill. Generates playbook visualization graphs using ansible-playbook-grapher when needed."
 agent_type = "subagent"
 safety = "neutral"
+id = "ansible-context-gatherer"
 
 [config]
-system_prompt_id = "ansible-context-gatherer"
-auto_approve = true  # Safe read-only operations
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "todo",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+    "context7_query-docs",
+]
 
-# Enable tools for context gathering (read-only)
-enabled_tools = ["read_file", "grep", "bash", "todo"]
-disabled_tools = ["write_file", "search_replace", "context7_query-docs"]
-
-[config.tools.read_file]
-permission = "always"
-
-[config.tools.grep]
-permission = "always"
-
-[config.tools.bash]
-permission = "always"
-
-[config.tools.todo]
-permission = "always"
+[config.tools]

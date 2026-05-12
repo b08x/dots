@@ -3,6 +3,7 @@
     "autoload": {
         "Nuance PowerMicII-NS": "nuance_soundbot",
         "SayoDevice SayoDevice 2x4F RGB": "default",
-        "AT Translated Set 2 keyboard": "default"
+        "AT Translated Set 2 keyboard": "default",
+        "2.4G RF Keyboard & Mouse": "default"
     }
 }

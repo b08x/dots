@@ -208,4 +208,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export PATH="$HOME/.local/apps/homebrew/bin:$PATH"
 
-export PATH="$HOME/.dotfiles/python_env_manager/bin:$PATH"
+export PATH="$HOME/WorkspaceV3/bin:$PATH"
