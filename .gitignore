@@ -307,3 +307,7 @@ plugins/node_modules/
 .hermes/profiles/**/bin/
 .hermes/profiles/**/home/*.
 **/hermes-achievements/
+
+**/.hub/*.json
+.curator_state
+
