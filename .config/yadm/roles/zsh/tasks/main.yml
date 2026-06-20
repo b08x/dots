@@ -1,0 +1,50 @@
+---
+# tasks file for zsh
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["always"]
+
+- name: Install Zsh packages
+  ansible.builtin.import_tasks: packages.yml
+  tags: ["zsh", "packages"]
+
+- name: Deploy Custom Zsh Functions & Completions
+  ansible.builtin.import_tasks: functions.yml
+  tags: ["zsh", "functions"]
+
+- name: Deploy custom zshrc
+  ansible.builtin.template:
+    src: .zshrc.j2
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    mode: '0644'
+    backup: true
+
+- name: Deploy custom zshenv
+  ansible.builtin.template:
+    src: .zshenv.j2
+    dest: "{{ ansible_env.HOME }}/.zshenv"
+    mode: '0644'
+    backup: true
+
+- name: Deploy custom zprofile
+  ansible.builtin.template:
+    src: .zprofile.j2
+    dest: "{{ ansible_env.HOME }}/.zprofile"
+    mode: '0644'
+    backup: true
+
+- name: Deploy custom zlogin
+  ansible.builtin.template:
+    src: .zlogin.j2
+    dest: "{{ ansible_env.HOME }}/.zlogin"
+    mode: '0644'
+    backup: true
+
+- name: Deploy custom aliases
+  ansible.builtin.template:
+    src: .aliases.j2
+    dest: "{{ ansible_env.HOME }}/.aliases"
+    mode: '0644'
+    backup: true
+
+

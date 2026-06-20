@@ -1,0 +1,5 @@
+---
+# Zsh packages for RedHat/Rocky
+packages__zsh:
+  - zsh
+  - util-linux-user

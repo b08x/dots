@@ -1,0 +1,35 @@
+---
+- name: Ensure ~/.local/share/zsh subdirectories exist
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/share/zsh/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - functions
+    - site-functions
+    - completion
+    - themes
+
+- name: Deploy custom Zsh functions
+  ansible.builtin.copy:
+    src: "home/.local/share/zsh/functions/"
+    dest: "{{ ansible_env.HOME }}/.local/share/zsh/functions/"
+    mode: '0755'
+
+- name: Deploy custom Zsh site-functions
+  ansible.builtin.copy:
+    src: "home/.local/share/zsh/site-functions/"
+    dest: "{{ ansible_env.HOME }}/.local/share/zsh/site-functions/"
+    mode: '0755'
+
+- name: Deploy custom Zsh completions
+  ansible.builtin.copy:
+    src: "home/.local/share/zsh/completion/"
+    dest: "{{ ansible_env.HOME }}/.local/share/zsh/completion/"
+    mode: '0644'
+
+- name: Deploy custom Zsh themes
+  ansible.builtin.copy:
+    src: "home/.local/share/zsh/themes/"
+    dest: "{{ ansible_env.HOME }}/.local/share/zsh/themes/"
+    mode: '0644'

@@ -1,0 +1,25 @@
+---
+# Defaults for zsh role
+zsh_change_default_shell: true
+zsh_oh_my_zsh_dir: "/usr/share/oh-my-zsh"
+zsh_custom_theme: "minimal-terminal-prompt"
+zsh_zoxide_enable: true
+zsh_fzf_enable: true
+
+# Oh-my-zsh standard plugins
+zsh_plugins:
+  - git
+  - fzf
+  - copypath
+  - copyfile
+  - dirhistory
+  - jsontools
+  - web-search
+
+# Host-specific theme map (dynamic theme selection by hostname)
+zsh_theme_map:
+  default: "minimal-terminal-prompt"
+  ninjabot: "robbyrussell"
+  soundbot: "minimal-terminal-prompt"
+  crambot: "minimal-terminal-prompt"
+  lapbot: "minimal-terminal-prompt"

@@ -1,0 +1,6 @@
+---
+# Zsh packages for Fedora
+packages__zsh:
+  - zsh
+  - fzf
+  - util-linux-user

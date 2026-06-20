@@ -1,0 +1,7 @@
+catxclip() {
+  
+  FILE=$1
+
+  /usr/bin/cat $1 | xclip -selection clipboard
+
+}
