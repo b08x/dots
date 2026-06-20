@@ -1,0 +1,21 @@
+---
+font:
+  primary:
+    name: FiraCode Nerd Font
+    size: 12
+    hintstyle: hintsfull
+  glyphs:
+    name: FontAwesome
+  mono:
+    name: FiraCode Nerd Font Mono
+
+# theme options
+theme:
+  name: Arc-Dark
+  icons: Numix-Circle
+  cursor: Adwaita
+  kvantum: KvGnomeDark
+  qtstyle: Fusion
+
+qt5ct_style: kvantum
+qt6ct_style: fusion
