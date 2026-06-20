@@ -1,0 +1,43 @@
+---
+# vars file for sway-desktop on AlmaLinux/RHEL
+sway_desktop_packages:
+  # Core
+  - sway
+  - swayidle
+  - swaylock
+  - xdg-desktop-portal-wlr
+
+  # Application launchers
+  - rofi-wayland
+
+  # Status and notifications
+  - waybar
+  - mako
+
+  # Display management
+  - swaybg
+  - kanshi
+  - wlogout
+
+  # Screenshots and recording
+  - grim
+  - slurp
+  - wf-recorder
+  - wl-clipboard
+
+  # Terminal
+  - foot
+
+  # System utilities
+  - brightnessctl
+  - libnotify
+  - xdg-user-dirs
+  - playerctl
+  - wlsunset
+  - wob
+  - inotify-tools
+  - lm_sensors
+
+  # Fonts
+  - google-roboto-fonts-all
+  - fontawesome-fonts

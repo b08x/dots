@@ -1,0 +1,6 @@
+---
+- name: Reload sway
+  ansible.builtin.command: bash -lc "swaymsg reload"
+  become: false
+  changed_when: false
+  failed_when: false

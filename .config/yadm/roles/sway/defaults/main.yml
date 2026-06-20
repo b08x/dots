@@ -1,0 +1,50 @@
+---
+# defaults file for sway_desktop
+# Convention over Configuration: all values here are sane defaults
+# that work for a standard Fedora/AlmaLinux workstation install.
+
+sway_desktop_theme: "matcha-green"
+sway_desktop_terminal: "foot"
+sway_desktop_lock_timeout: 300
+sway_desktop_screen_timeout: 60
+sway_desktop_brightness_step: 5
+sway_desktop_volume_step: 5
+sway_desktop_volume_limit: 150
+
+# User config directory
+ansible_user: "{{lookup('env', 'user')}}"
+sway_desktop_user_home: "{{ ansible_env.HOME | default('/home/' + ansible_user) }}"
+sway_desktop_config_dir: "{{ sway_desktop_user_home }}/.config"
+
+
+# System-level shared data
+sway_desktop_libexec: /usr/libexec/sway
+sway_desktop_share: /usr/share/sway
+
+# Waybar theme colors (overridable via group_vars or host_vars)
+sway_desktop_color_background: "rgba(20, 26, 27, 0.9)"
+sway_desktop_color_text: "#eeeeee"
+sway_desktop_color_accent: "#16a085"
+sway_desktop_color_warning: "#db7b55"
+sway_desktop_color_error: "#Cd3f45"
+
+font:
+  primary:
+    name: Hack Nerd Font
+    size: 12
+    hintstyle: hintsfull
+  glyphs:
+    name: FontAwesome
+  mono:
+    name: FiraCode Nerd Font Mono
+
+# theme options
+theme:
+  name: Orchis-Grey-Dark
+  icons: Numix-Circle
+  cursor: Adwaita
+  kvantum: KvGnomeDark
+  qtstyle: Fusion
+
+qt5ct_style: kvantum
+qt6ct_style: fusion

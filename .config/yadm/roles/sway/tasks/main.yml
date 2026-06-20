@@ -1,0 +1,215 @@
+---
+# Main tasks for sway_desktop role
+# Self-contained: installs packages, deploys configs, no external role deps.
+
+- name: Load OS-specific package list
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - Fedora.yml
+  tags: ["always"]
+
+- name: Install sway_desktop packages
+  ansible.builtin.dnf5:
+    name: "{{ sway_desktop_packages }}"
+    state: present
+  become: true
+  tags: ["packages", "sway_desktop"]
+
+- name: Ensure sway config directories exist
+  ansible.builtin.file:
+    path: "{{ sway_desktop_config_dir }}/{{ item }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - sway
+    - sway/config.d
+    - sway/inputs
+    - sway/modes
+    - sway/definitions.d
+    - waybar
+    - mako
+    - wlogout
+    - rofi
+    - rofi/colors
+    - rofi/launchers
+    - rofi/scripts
+  tags: ["directories", "sway_desktop"]
+
+- name: Deploy system-level sway configurations
+  tags: ["system-config", "sway_desktop"]
+  become: true
+  block:
+    - name: Ensure sway config directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+      loop:
+        - /usr/libexec/sway
+        - /usr/share/sway
+
+    - name: Copy layered-include script
+      ansible.builtin.copy:
+        src: usr/libexec/sway/layered-include
+        dest: "{{ sway_desktop_libexec }}/layered-include"
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Copy volume-helper script
+      ansible.builtin.copy:
+        src: usr/libexec/sway/volume-helper
+        dest: "{{ sway_desktop_libexec }}/volume-helper"
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Copy sway shared scripts
+      ansible.builtin.copy:
+        src: usr/share/sway/scripts/
+        dest: "{{ sway_desktop_share }}/scripts/"
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Copy sway templates and themes
+      ansible.builtin.copy:
+        src: "usr/share/sway/{{ item.src }}"
+        dest: "{{ sway_desktop_share }}/{{ item.dest }}"
+        mode: "0644"
+        owner: root
+        group: root
+        directory_mode: "0755"
+      loop:
+        - { src: "templates/", dest: "templates/" }
+        - { src: "themes/", dest: "themes/" }
+
+    - name: Copy system config.d defaults
+      ansible.builtin.copy:
+        src: usr/share/sway/config.d/
+        dest: "{{ sway_desktop_share }}/config.d/"
+        mode: "0644"
+        owner: root
+        group: root
+        directory_mode: "0755"
+
+- name: Deploy user-level sway configurations
+  tags: ["user-config", "sway_desktop"]
+  become: false
+  block:
+    - name: Deploy sway main config
+      ansible.builtin.template:
+        src: home/.config/sway/config.j2
+        dest: "{{ sway_desktop_config_dir }}/sway/config"
+        mode: "0644"
+        backup: true
+      notify: Reload sway
+
+    - name: Deploy global definitions
+      ansible.builtin.copy:
+        src: home/.config/sway/definitions
+        dest: "{{ sway_desktop_config_dir }}/sway/definitions"
+        mode: "0644"
+        backup: true
+      notify: Reload sway
+
+    - name: Deploy autostart definitions
+      ansible.builtin.copy:
+        src: home/.config/sway/autostart
+        dest: "{{ sway_desktop_config_dir }}/sway/autostart"
+        mode: "0644"
+        backup: true
+
+    - name: Deploy idle configuration
+      ansible.builtin.copy:
+        src: home/.config/sway/idle.yaml
+        dest: "{{ sway_desktop_config_dir }}/sway/idle.yaml"
+        mode: "0644"
+        backup: true
+
+    - name: Deploy input configurations
+      ansible.builtin.copy:
+        src: "home/.config/sway/inputs/{{ item }}"
+        dest: "{{ sway_desktop_config_dir }}/sway/inputs/{{ item }}"
+        mode: "0644"
+        backup: true
+      loop:
+        - default-keyboard
+        - default-touchpad
+      notify: Reload sway
+
+    - name: Deploy mode configurations
+      ansible.builtin.copy:
+        src: "home/.config/sway/modes/{{ item }}"
+        dest: "{{ sway_desktop_config_dir }}/sway/modes/{{ item }}"
+        mode: "0644"
+        backup: true
+      loop:
+        - default
+        - resize
+        - screenshot
+        - recording
+        - scratchpad
+        - shutdown
+      notify: Reload sway
+
+- name: Deploy waybar configuration
+  tags: ["waybar", "sway_desktop"]
+  become: false
+  block:
+    # - name: Deploy waybar base config
+    #   ansible.builtin.copy:
+    #     src: home/.config/waybar/config.jsonc
+    #     dest: "{{ sway_desktop_config_dir }}/waybar/config"
+    #     mode: "0644"
+    #     backup: true
+
+    - name: Deploy waybar style template
+      ansible.builtin.template:
+        src: home/.config/waybar/style.css.j2
+        dest: "{{ sway_desktop_config_dir }}/waybar/style.css"
+        mode: "0644"
+        backup: true
+
+    - name: Deploy waybar theme template
+      ansible.builtin.template:
+        src: home/.config/waybar/theme.css.j2
+        dest: "{{ sway_desktop_config_dir }}/waybar/theme.css"
+        mode: "0644"
+        backup: true
+
+- name: Deploy wlogout style templates
+  tags: ["wlogout", "sway_desktop"]
+  become: false
+  block:
+    - name: Deploy style.css
+      ansible.builtin.template:
+        src: home/.config/wlogout/style.css.j2
+        dest: "{{ sway_desktop_config_dir }}/wlogout/style.css"
+        mode: "0644"
+        backup: true
+
+    - name: Deploy theme.css
+      ansible.builtin.template:
+        src: home/.config/wlogout/theme.css.j2
+        dest: "{{ sway_desktop_config_dir }}/wlogout/theme.css"
+        mode: "0644"
+        backup: true
+
+- name: Deploy user profile
+  ansible.builtin.copy:
+    src: home/.profile
+    dest: "{{ sway_desktop_user_home }}/.profile"
+    mode: "0644"
+    backup: true
+  become: false
+  tags: ["profile", "sway_desktop"]
+
+- name: Install rofi configs
+  ansible.builtin.import_tasks: rofi.yml
+  tags: ["rofi", "packages"]

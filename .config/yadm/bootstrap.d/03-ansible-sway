@@ -1,0 +1,31 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: Workstation Setup Playbook
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Verify OS Support
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family == "RedHat"
+          - ansible_distribution in ["Fedora", "Rocky", "CentOS", "RedHat"]
+        fail_msg: "This playbook is only supported on RedHat-family distributions (Fedora, Rocky, CentOS, RHEL)."
+      tags: ["always"]
+
+    - name: Display distribution
+      ansible.builtin.debug:
+        msg: |
+          The host {{ inventory_hostname }} has {{ ansible_distribution }} {{ ansible_distribution_major_version }} installed,
+          which belongs to the {{ ansible_os_family }} OS family
+      tags: ["always"]
+
+  tasks:
+    - import_role:
+        name: ~/.config/yadm/roles/sway
+      vars:
+        ansible_user: "{{ansible_env.USER}}"
+      tags: ["sway", "rofi"]

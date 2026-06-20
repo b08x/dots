@@ -1,0 +1,47 @@
+---
+# vars file for sway-desktop on Fedora
+sway_desktop_packages:
+  # Core
+  - "@sway-desktop-environment"
+  - swayidle
+  - swaylock
+  - xdg-desktop-portal-wlr
+  - xorg-x11-server-Xwayland
+
+  # Application launchers
+  - rofi-wayland
+  - wofi
+
+  # Status and notifications
+  - waybar
+  - mako
+
+  # Display management
+  - swaybg
+  - kanshi
+  - wlogout
+
+  # Screenshots and recording
+  - grim
+  - slurp
+  - wf-recorder
+  - wl-clipboard
+  - swappy
+
+  # Terminal
+  - foot
+
+  # System utilities
+  - brightnessctl
+  - libnotify
+  - xdg-user-dirs
+  - playerctl
+  - wlsunset
+  - wob
+  - nwg-wrapper
+  - inotify-tools
+  - lm_sensors
+
+  # Fonts
+  - google-roboto-fonts
+  - fontawesome-fonts
