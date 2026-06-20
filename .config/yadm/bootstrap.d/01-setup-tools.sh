@@ -7,21 +7,21 @@ source "$HOME/.config/yadm/scripts/gum-helpers.sh"
 # Initialize gum before using it
 gum_init || { echo "Failed to initialize gum"; exit 1; }
 
-# Show Tetris header for this step
-show_tetris_header "Prerequisites Setup"
+# Show Field Note header for this step
+fn_header "Prerequisites Setup"
 
 # 1. Update/Install Ansible and dependencies via DNF
-tetris_step "Installing Ansible and dependencies..."
+fn_step "Installing Ansible and dependencies..."
 if ! command -v ansible-playbook >/dev/null 2>&1; then
-    tetris_info "Installing Ansible, git, python3-pip, python3-devel..."
+    fn_info "Installing Ansible, git, python3-pip, python3-devel..."
     if sudo dnf install -y ansible git python3-pip python3-devel; then
-        tetris_success "Ansible and dependencies installed successfully!"
+        fn_success "Ansible and dependencies installed successfully!"
     else
-        tetris_error "Failed to install Ansible dependencies"
+        fn_error "Failed to install Ansible dependencies"
         exit 1
     fi
 else
-    tetris_success "Ansible is already installed."
+    fn_success "Ansible is already installed."
 fi
 
 sleep 1
@@ -44,7 +44,7 @@ for crate in "${!CARGO_CRATES[@]}"; do
 done
 
 # 2. Install community collections if needed
-tetris_step "Verifying Ansible collections..."
+fn_step "Verifying Ansible collections..."
 
 CHOOSE_CMD="choose"
 if ! command -v choose >/dev/null 2>&1 && [[ -x "$HOME/.cargo/bin/choose" ]]; then
@@ -53,18 +53,18 @@ fi
 
 if ansible-galaxy collection list 2>/dev/null | $CHOOSE_CMD 0 2>/dev/null | grep -q "posix" && \
    ansible-galaxy collection list 2>/dev/null | $CHOOSE_CMD 0 2>/dev/null | grep -q "general"; then
-    tetris_success "Ansible collections are already installed."
+    fn_success "Ansible collections are already installed."
 else
-    tetris_info "Installing Ansible collections via DNF..."
+    fn_info "Installing Ansible collections via DNF..."
     if sudo dnf install -y ansible-collection-ansible-posix ansible-collection-community-general; then
-        tetris_success "Ansible collections installed/updated via DNF."
+        fn_success "Ansible collections installed/updated via DNF."
     else
-        tetris_error "Failed to install Ansible collections"
+        fn_error "Failed to install Ansible collections"
     fi
 fi
 
 echo ""
-tetris_success "Prerequisites bootstrap complete! Ready to run Ansible."
+fn_success "Prerequisites bootstrap complete! Ready to run Ansible."
 echo ""
 
 

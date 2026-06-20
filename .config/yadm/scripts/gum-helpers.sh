@@ -34,25 +34,23 @@ COLOR_PURPLE=212
 COLOR_YELLOW=221
 COLOR_RED=9
 
-# TETRIS COLOR PALETTE
-TETRIS_CYAN=51
-TETRIS_YELLOW=226
-TETRIS_PURPLE=165
-TETRIS_GREEN=40
-TETRIS_RED=196
-TETRIS_BLUE=21
-TETRIS_ORANGE=208
-TETRIS_WHITE="$COLOR_WHITE"
-
-# Piece shape -> color mapping, in spawn order
-TETRIS_PIECE_ORDER=(I O T L J S Z)
-TETRIS_COLOR_I="$TETRIS_CYAN"
-TETRIS_COLOR_O="$TETRIS_YELLOW"
-TETRIS_COLOR_T="$TETRIS_PURPLE"
-TETRIS_COLOR_L="$TETRIS_ORANGE"
-TETRIS_COLOR_J="$TETRIS_BLUE"
-TETRIS_COLOR_S="$TETRIS_GREEN"
-TETRIS_COLOR_Z="$TETRIS_RED"
+# FIELD NOTE COLOR PALETTE (from b08x.github.io theme-tokens.html)
+FN_BG="#EDE6D6"
+FN_BG2="#E3DBC8"
+FN_BORDER="#D2C7B4"
+FN_BORDER2="#C9B8A0"
+FN_AMBER="#B5654A"
+FN_AMBER_HI="#C97A5E"
+FN_TEXT="#2A2420"
+FN_TEXT2="#5C5248"
+FN_MUTED="#8A7F72"
+FN_DIM="#B0A492"
+FN_RED="#A8453A"
+FN_BADGE_BLUE="#5C7C99"
+FN_BADGE_GREEN="#6B7F52"
+FN_BADGE_RED="#A8453A"
+FN_BADGE_TEXT="#F4EFE3"
+FN_BADGE_NEUTRAL="#8A7F72"
 
 SCRIPT_TMP_DIR="$(mktemp -d "/tmp/.tmp.gum_XXXXX")"
 log "INFO" "Created temporary directory: ${SCRIPT_TMP_DIR}"
@@ -117,180 +115,78 @@ trap_exit() {
 }
 
 # ////////////////////////////////////////////////////////////////////////////////////////////////////
-# TETRIS SPLASH SCREEN FUNCTIONS
+# FIELD NOTE BANNER FUNCTIONS
 # ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-# Tetris piece ASCII art
-TETRIS_I_PIECE=$'████'
-TETRIS_O_PIECE=$'██\n██'
-TETRIS_T_PIECE=$' █ \n███\n █ '
-TETRIS_L_PIECE=$'  █\n███\n  █'
-TETRIS_J_PIECE=$'█  \n███\n█  '
-TETRIS_S_PIECE=$' ██\n██ '
-TETRIS_Z_PIECE=$'██ \n ██'
+fn_rule() {
+	local width="${1:-50}"
+	gum style --foreground "$FN_BORDER" "$(printf -- '─%.0s' $(seq 1 "$width"))"
+}
 
-# Show Tetris-themed splash screen
-show_tetris_splash() {
+# Show Field Note-themed splash screen
+fn_splash() {
 	local title="${1:-YADM Bootstrap}"
 	local subtitle="${2:-Building your workstation...}"
-	
-	# Clear screen
+
 	clear
-	
-	# Centered title with Tetris theme
-	local title_line="$(gum style --foreground "$TETRIS_CYAN" --bold " TETRIS BOOTSTRAP ")"
-	local subtitle_line="$(gum style --foreground "$TETRIS_YELLOW" " $subtitle ")"
-	
-	# Create a Tetris well border
-	local well_width=20
-	local well_height=10
-	
-	# Top border
-	local top_border="$(printf '%*s' "$((well_width + 2))" | tr ' ' '─')"
-	gum style --foreground "$TETRIS_BLUE" "┌${top_border}┐"
-	
-	# Empty well rows with Tetris pieces falling
-	# Row 1: I piece (cyan)
-	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")" \
-		"$(gum style --foreground "$TETRIS_CYAN" "    ${TETRIS_I_PIECE}    ")" \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")"
-	
-	# Row 2: O piece (yellow)
-	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")" \
-		"$(gum style --foreground "$TETRIS_YELLOW" "    ${TETRIS_O_PIECE}   ")" \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")"
-	
-	# Row 3: T piece (purple)
-	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")" \
-		"$(gum style --foreground "$TETRIS_PURPLE" "   ${TETRIS_T_PIECE}   ")" \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")"
-	
-	# Row 4: L piece (orange)
-	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")" \
-		"$(gum style --foreground "$TETRIS_ORANGE" "    ${TETRIS_L_PIECE}  ")" \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")"
-	
-	# Empty rows
-	for i in {1..4}; do
-		gum join \
-			"$(gum style --foreground "$TETRIS_BLUE" "│")" \
-			"$(printf '%*s' "$well_width")" \
-			"$(gum style --foreground "$TETRIS_BLUE" "│")"
-	done
-	
-	# Bottom border
-	local bottom_border="$(printf '%*s' "$((well_width + 2))" | tr ' ' '─')"
-	gum style --foreground "$TETRIS_BLUE" "└${bottom_border}┘"
-	
-	# Blank line
 	echo ""
-	
-	# Title and subtitle centered
-	gum join \
-		"$(gum style --foreground "$TETRIS_CYAN" --bold "  ╭─────────────────────────────────╮")" \
-		"$(gum style --foreground "$TETRIS_CYAN" --bold "  │  ")$(gum style --foreground "$TETRIS_YELLOW" --bold "$title")$(gum style --foreground "$TETRIS_CYAN" --bold "  │")" \
-		"$(gum style --foreground "$TETRIS_CYAN" --bold "  │  ")$(gum style --foreground "$TETRIS_PURPLE" "$subtitle")$(gum style --foreground "$TETRIS_CYAN" --bold "  │")" \
-		"$(gum style --foreground "$TETRIS_CYAN" --bold "  ╰─────────────────────────────────╯")"
-	
-	# Blank line
-	echo ""
-	
-	# Tetris-themed status
-	gum join \
-		"$(gum style --foreground "$TETRIS_GREEN" --bold "▰▰▰")" \
-		"$(gum style --foreground "$TETRIS_WHITE" " Loading...")" \
-		"$(gum style --foreground "$TETRIS_GREEN" --bold "▰▰▰")"
-	
+	fn_rule 50
+	gum style --foreground "$FN_AMBER" --bold --align center --width 50 "$title"
+	gum style --foreground "$FN_MUTED" --align center --width 50 "$subtitle"
+	fn_rule 50
 	echo ""
 }
 
-# Show simple Tetris header (for sub-scripts)
-show_tetris_header() {
+# Show simple Field Note header (for sub-scripts)
+fn_header() {
 	local title="${1:-Setup}"
-	
-	gum style --foreground "$TETRIS_BLUE" "╔════════════════════════════════════════"
+
+	fn_rule 50
 	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "║")" \
-		"$(gum style --foreground "$TETRIS_CYAN" --bold " Tetris Bootstrap: ")" \
-		"$(gum style --foreground "$TETRIS_YELLOW" --bold "$title")" \
-		"$(gum style --foreground "$TETRIS_BLUE" "║")"
-	gum style --foreground "$TETRIS_BLUE" "╚════════════════════════════════════════"
+		"$(gum style --foreground "$FN_MUTED" "BOOTSTRAP  ")" \
+		"$(gum style --foreground "$FN_AMBER" --bold "$title")"
+	fn_rule 50
 	echo ""
 }
 
-# Tetris-themed progress spinner
-show_tetris_progress() {
-	local message="${1:-Processing...}"
-	gum spin \
-		--spinner dot \
-		--spinner.foreground "$TETRIS_CYAN" \
-		--title "$(gum style --foreground "$TETRIS_YELLOW" "$message")" \
-		--title.foreground "$TETRIS_PURPLE" \
-		"$@"
-}
-
 # ////////////////////////////////////////////////////////////////////////////////////////////////////
-# TETRIS TASK BOARD (one row per bootstrap.d script)
+# FIELD NOTE TASK BOARD (one row per bootstrap.d script)
 # ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TETRIS_BOARD_WIDTH=40
-TETRIS_BOARD_NEXT=0
-TETRIS_BOARD_PASS=0
-TETRIS_BOARD_FAIL=0
+FN_BOARD_WIDTH=44
+FN_BOARD_PASS=0
+FN_BOARD_FAIL=0
 
-tetris_board_init() {
-	TETRIS_BOARD_NEXT=0
-	TETRIS_BOARD_PASS=0
-	TETRIS_BOARD_FAIL=0
-	local border
-	border="$(printf -- '─%.0s' $(seq 1 "$((TETRIS_BOARD_WIDTH + 2))"))"
-	gum style --foreground "$TETRIS_BLUE" "┌${border}┐"
+fn_board_init() {
+	FN_BOARD_PASS=0
+	FN_BOARD_FAIL=0
 }
 
-# tetris_board_place <success|fail> <label>
-tetris_board_place() {
+# fn_board_place <success|fail> <label>
+fn_board_place() {
 	local result="$1" label="$2"
-	local letter="${TETRIS_PIECE_ORDER[$((TETRIS_BOARD_NEXT % 7))]}"
-	local color_var="TETRIS_COLOR_${letter}"
-	local color="${!color_var}"
-	TETRIS_BOARD_NEXT=$((TETRIS_BOARD_NEXT + 1))
+	local badge label_text
 
-	local block jitter marker marker_color label_text
+	label_text="$(print_filled_space "$((FN_BOARD_WIDTH - 10))" "$label")"
+
 	if [ "$result" = "success" ]; then
-		jitter=""
-		block="$(gum style --foreground "$color" "██")"
-		marker="$(gum style --foreground "$TETRIS_GREEN" --bold "✓")"
-		TETRIS_BOARD_PASS=$((TETRIS_BOARD_PASS + 1))
+		badge="$(gum style --foreground "$FN_BADGE_TEXT" --background "$FN_BADGE_GREEN" --bold --padding "0 1" " OK ")"
+		FN_BOARD_PASS=$((FN_BOARD_PASS + 1))
 	else
-		jitter=" "
-		block="$(gum style --foreground "$TETRIS_RED" "██")"
-		marker="$(gum style --foreground "$TETRIS_RED" --bold "✗")"
-		TETRIS_BOARD_FAIL=$((TETRIS_BOARD_FAIL + 1))
+		badge="$(gum style --foreground "$FN_BADGE_TEXT" --background "$FN_BADGE_RED" --bold --padding "0 1" " FAIL ")"
+		FN_BOARD_FAIL=$((FN_BOARD_FAIL + 1))
 	fi
 
-	label_text="$(print_filled_space "$((TETRIS_BOARD_WIDTH - 5))" "$label")"
-
-	gum join \
-		"$(gum style --foreground "$TETRIS_BLUE" "│ ")" \
-		"${jitter}${block} " \
-		"$(gum_white "$label_text")" \
-		" $marker " \
-		"$(gum style --foreground "$TETRIS_BLUE" "│")"
+	gum join "$(gum style --foreground "$FN_TEXT" "$label_text")" "  " "$badge"
 }
 
-tetris_board_summary() {
-	local border
-	border="$(printf -- '─%.0s' $(seq 1 "$((TETRIS_BOARD_WIDTH + 2))"))"
-	gum style --foreground "$TETRIS_BLUE" "└${border}┘"
-	local total=$((TETRIS_BOARD_PASS + TETRIS_BOARD_FAIL))
-	if [ "$TETRIS_BOARD_FAIL" -gt 0 ]; then
-		tetris_warn "${TETRIS_BOARD_PASS}/${total} pieces locked, ${TETRIS_BOARD_FAIL} misaligned"
+fn_board_summary() {
+	local total=$((FN_BOARD_PASS + FN_BOARD_FAIL))
+	fn_rule "$FN_BOARD_WIDTH"
+	if [ "$FN_BOARD_FAIL" -gt 0 ]; then
+		gum style --foreground "$FN_MUTED" "${FN_BOARD_PASS}/${total} completed · ${FN_BOARD_FAIL} failed"
 	else
-		tetris_success "${TETRIS_BOARD_PASS}/${total} pieces locked cleanly"
+		gum style --foreground "$FN_BADGE_GREEN" --bold "${FN_BOARD_PASS}/${total} completed"
 	fi
 }
 
@@ -425,12 +321,12 @@ gum_info() { gum join "$(gum_green --bold "• ")" "$(gum_white "${*}")"; }
 gum_warn() { gum join "$(gum_yellow --bold "• ")" "$(gum_white "${*}")"; }
 gum_fail() { gum join "$(gum_red --bold "• ")" "$(gum_white "${*}")"; }
 
-# Tetris-themed gum prints
-tetris_info() { gum join "$(gum style --foreground "$TETRIS_CYAN" --bold "▰ ")" "$(gum_white "${*}")"; }
-tetris_success() { gum join "$(gum style --foreground "$TETRIS_GREEN" --bold "▰ ")" "$(gum_white "${*}")"; }
-tetris_warn() { gum join "$(gum style --foreground "$TETRIS_YELLOW" --bold "▰ ")" "$(gum_white "${*}")"; }
-tetris_error() { gum join "$(gum style --foreground "$TETRIS_RED" --bold "▰ ")" "$(gum_white "${*}")"; }
-tetris_step() { gum join "$(gum style --foreground "$TETRIS_PURPLE" --bold "▱ ")" "$(gum_white --bold "${*}")"; }
+# Field Note-themed gum prints
+fn_info()    { gum join "$(gum style --foreground "$FN_BADGE_BLUE" --bold "• ")" "$(gum style --foreground "$FN_TEXT" "${*}")"; }
+fn_success() { gum join "$(gum style --foreground "$FN_BADGE_GREEN" --bold "• ")" "$(gum style --foreground "$FN_TEXT" "${*}")"; }
+fn_warn()    { gum join "$(gum style --foreground "$FN_AMBER" --bold "• ")" "$(gum style --foreground "$FN_TEXT" "${*}")"; }
+fn_error()   { gum join "$(gum style --foreground "$FN_RED" --bold "• ")" "$(gum style --foreground "$FN_TEXT" "${*}")"; }
+fn_step()    { gum join "$(gum style --foreground "$FN_AMBER" --bold "▸ ")" "$(gum style --foreground "$FN_TEXT" --bold "${*}")"; }
 
 # Gum wrapper
 gum_style() { gum style "${@}"; }
@@ -453,6 +349,84 @@ print_filled_space() {
 	local padding=$((total - length)) && printf '%s%*s\n' "$text" "$padding" ""
 }
 
-# Ensure traps are set after sourcing gum_helpers
-trap 'trap_exit' EXIT
-trap 'trap_error ${FUNCNAME} ${LINENO}' ERR
+# ////////////////////////////////////////////////////////////////////////////////////////////////////
+# KITTY DASHBOARD (fullscreen status window, fed by an event log)
+# ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# Resolve the kitty remote-control socket: prefer the live env var (set
+# automatically when already running inside a kitty pane), fall back to
+# the static socket configured in ~/.config/kitty/kitty.conf.
+fn_kitty_socket() {
+	if [ -n "${KITTY_LISTEN_ON:-}" ]; then
+		echo "$KITTY_LISTEN_ON"
+	else
+		echo "unix:/tmp/mykitty"
+	fi
+}
+
+# Returns 0 if a kitty remote-control socket is reachable, 1 otherwise.
+fn_kitty_available() {
+	command -v kitty >/dev/null 2>&1 || return 1
+	local socket
+	socket="$(fn_kitty_socket)"
+	kitty @ --to "$socket" ls >/dev/null 2>&1
+}
+
+# fn_open_dashboard <state_file>
+# Spawns a fullscreen kitty OS window running fn_render_loop against
+# state_file. Requires $SCRIPTS_DIR to point at this file's directory.
+fn_open_dashboard() {
+	local state_file="$1"
+	local socket
+	socket="$(fn_kitty_socket)"
+	kitty @ --to "$socket" launch \
+		--type=os-window \
+		--os-window-state=fullscreen \
+		--title "YADM Bootstrap" \
+		bash -c "export GUM_HELPERS_NO_TRAP=1; source '$SCRIPTS_DIR/gum-helpers.sh' >/dev/null 2>&1; gum_init >/dev/null; fn_render_loop '$state_file'"
+}
+
+# fn_emit_event <state_file> <event> <label>
+# event is one of: running, success, fail, done
+fn_emit_event() {
+	local state_file="$1" event="$2" label="$3"
+	echo "${event}|${label}" >>"$state_file"
+}
+
+# fn_render_loop <state_file>
+# Tails state_file, redrawing the Field Note board as events arrive.
+# Blocks until it reads a "done|<code>" line, then waits for a keypress.
+fn_render_loop() {
+	local state_file="$1"
+	fn_board_init
+	fn_header "YADM Bootstrap"
+
+	while IFS='|' read -r event payload; do
+		case "$event" in
+		running)
+			fn_step "Running: $payload"
+			;;
+		success)
+			fn_board_place success "$payload"
+			;;
+		fail)
+			fn_board_place fail "$payload"
+			;;
+		done)
+			fn_board_summary
+			break
+			;;
+		esac
+	done < <(tail -n +1 -f "$state_file")
+
+	echo ""
+	fn_info "Press any key to close this window..."
+	read -n 1 -s -r
+}
+
+# Ensure traps are set after sourcing gum_helpers (skipped when this file is
+# sourced by the kitty dashboard renderer — see fn_open_dashboard)
+if [ -z "${GUM_HELPERS_NO_TRAP:-}" ]; then
+	trap 'trap_exit' EXIT
+	trap 'trap_error ${FUNCNAME} ${LINENO}' ERR
+fi

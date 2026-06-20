@@ -12,44 +12,76 @@ source "$SCRIPTS_DIR/gum-helpers.sh"
 # Initialize gum before using it
 gum_init || { echo "Failed to initialize gum"; exit 1; }
 
-# Show Tetris splash screen
-show_tetris_splash "YADM Bootstrap Pipeline" "Building your workstation..."
+RAW_MODE=0
+for arg in "$@"; do
+    [ "$arg" = "--raw" ] && RAW_MODE=1
+done
 
-if [ -d "$BOOTSTRAP_DIR" ]; then
-    # Run all executable files in bootstrap.d/ in sorted order
-    tetris_step "Running bootstrap scripts..."
+USE_DASHBOARD=0
+if [ "$RAW_MODE" -eq 0 ] && fn_kitty_available; then
+    USE_DASHBOARD=1
+fi
+
+fn_splash "YADM Bootstrap Pipeline" "Building your workstation..."
+
+if [ ! -d "$BOOTSTRAP_DIR" ]; then
+    fn_error "Bootstrap directory $BOOTSTRAP_DIR not found!"
+    exit 1
+fi
+
+fn_step "Running bootstrap scripts..."
+echo ""
+
+any_failed=0
+
+if [ "$USE_DASHBOARD" -eq 1 ]; then
+    STATE_FILE="$SCRIPT_TMP_DIR/board.events"
+    touch "$STATE_FILE"
+    fn_open_dashboard "$STATE_FILE"
+    fn_info "Dashboard opened in a new kitty window — watch progress there."
     echo ""
 
-    tetris_board_init
-    any_failed=0
+    for script in $(find "$BOOTSTRAP_DIR" -maxdepth 1 -type f -executable | sort); do
+        name="$(basename "$script")"
+        fn_emit_event "$STATE_FILE" running "$name"
+        if "$script" >>"$SCRIPT_LOG" 2>&1; then
+            fn_emit_event "$STATE_FILE" success "$name"
+        else
+            fn_emit_event "$STATE_FILE" fail "$name"
+            any_failed=1
+        fi
+    done
+
+    fn_emit_event "$STATE_FILE" done "$any_failed"
+else
+    fn_board_init
 
     for script in $(find "$BOOTSTRAP_DIR" -maxdepth 1 -type f -executable | sort); do
-        tetris_info "Running: $(basename "$script")"
+        name="$(basename "$script")"
+        fn_info "Running: $name"
         if "$script"; then
-            tetris_success "Finished: $(basename "$script")"
-            tetris_board_place success "$(basename "$script")"
+            fn_success "Finished: $name"
+            fn_board_place success "$name"
         else
-            tetris_error "Failed: $(basename "$script")"
-            tetris_board_place fail "$(basename "$script")"
+            fn_error "Failed: $name"
+            fn_board_place fail "$name"
             any_failed=1
         fi
         echo ""
     done
 
-    tetris_board_summary
+    fn_board_summary
     echo ""
-
-    if [ "$any_failed" -eq 0 ]; then
-        tetris_success "YADM Bootstrap Pipeline Complete!"
-        echo ""
-        gum style --foreground "$TETRIS_CYAN" --bold "  All systems ready! Enjoy your Tetris-themed workstation. 🎮"
-        echo ""
-    else
-        tetris_error "YADM Bootstrap Pipeline finished with errors."
-        echo ""
-        exit 1
-    fi
-else
-    tetris_error "Bootstrap directory $BOOTSTRAP_DIR not found!"
-    exit 1
 fi
+
+if [ "$any_failed" -eq 0 ]; then
+    fn_success "YADM Bootstrap Pipeline Complete!"
+    echo ""
+    gum style --foreground "$FN_AMBER" --bold "  All systems ready! Enjoy your freshly provisioned workstation."
+    echo ""
+else
+    fn_error "YADM Bootstrap Pipeline finished with errors."
+    echo ""
+fi
+
+exit "$any_failed"
