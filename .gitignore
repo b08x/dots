@@ -305,9 +305,13 @@ plugins/node_modules/
 **/.curator_backups/
 .bundled_manifest
 .hermes/profiles/**/bin/
-.hermes/profiles/**/home/*.
+.hermes/profiles/**/home/*.*
+.hermes/profiles/**/gateway/
 **/hermes-achievements/
 
 **/.hub/*.json
+**/.hub/.ignore
+**/.hub/index-cache
 .curator_state
 
+discord.info
