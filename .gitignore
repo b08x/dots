@@ -300,3 +300,10 @@ plugins/node_modules/
 
 *.tar
 *.gz
+
+.models_dev_cache*
+**/.curator_backups/
+.bundled_manifest
+.hermes/profiles/**/bin/
+.hermes/profiles/**/home/*.
+**/hermes-achievements/
