@@ -65,3 +65,238 @@ _archive/
 **/dist/*
 
 **/__pycache__/*
+# Hermes Agent Profiles - Git Ignore Configuration
+
+# ============================================================================
+# Security & Secrets
+# ============================================================================
+# CRITICAL: Never commit credentials or API keys
+.env
+*.env
+.env.*
+auth.json
+auth.lock
+*.pem
+*.key
+*.crt
+credentials.json
+secrets.yaml
+
+# ============================================================================
+# Runtime State & Process Management
+# ============================================================================
+# SQLite databases - contain session state and should be regenerated
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Process locks and PIDs
+gateway.lock
+gateway.pid
+*.lock
+*.pid
+
+# Gateway state
+gateway_state.json
+channel_directory.json
+
+# ============================================================================
+# Cache Directories
+# ============================================================================
+# Model and provider caches - regenerated automatically
+cache/
+audio_cache/
+image_cache/
+*_cache.json
+models_dev_cache.json
+ollama_cloud_models_cache.json
+provider_models_cache.json
+
+# Skill prompt snapshots
+.skills_prompt_snapshot.json
+
+# ============================================================================
+# Session & Memory Storage
+# ============================================================================
+# Session histories - can be large and contain user-specific data
+sessions/
+.hermes_history
+
+# Long-term memories - may contain personal information
+# UNCOMMENT if you want to version control memories:
+# memories/
+
+# State snapshots
+state-snapshots/
+
+# Spawn trees (multi-agent execution logs)
+spawn-trees/
+
+# ============================================================================
+# Logs
+# ============================================================================
+logs/
+*.log
+*.log.*
+
+# ============================================================================
+# Workspace & Temporary Files
+# ============================================================================
+# Agent working directories
+workspace/
+sandboxes/
+home/tmp/
+home/.cache/
+
+# Cron job state
+cron/
+
+# Pairing sessions
+pairing/
+
+# Plans (may want to version control these - uncomment if so)
+plans/
+
+# ============================================================================
+# System & Editor Files
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor backup files
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+\#*\#
+.\#*
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ============================================================================
+# Language-Specific Dependencies (if profiles contain code)
+# ============================================================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+.ruby-version
+.ruby-gemset
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ============================================================================
+# Profile-Specific Patterns
+# ============================================================================
+# LSP server state (rubyist profile)
+lsp/
+
+# Plugin directories (if locally cached)
+plugins/cache/
+plugins/node_modules/
+
+# Binary assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp3
+*.wav
+*.mp4
+*.avi
+
+# Skins (visual themes - may want to version control)
+# skins/
+
+# Skills (if you want to version control custom skills, uncomment this)
+# skills/
+
+# Hooks (if you want to version control custom hooks, uncomment this)
+# hooks/
+
+# ============================================================================
+# Update & Backup Files
+# ============================================================================
+.update_check
+*.backup
+*.bak
+*.old
+
+# ============================================================================
+# EXCEPTIONS - Files to Always Include
+# ============================================================================
+# Force-include important configuration even if in ignored directories
+!*/config.yaml
+!*/profile.yaml
+!*/SOUL.md
+!*/AGENTS.md
+!*/.gitignore
+
+# Force-include README files
+!README.md
+!*/README.md
+
+
+**/python3.1*/
+
+**/bin/tirith
+**/bin/pyfiglet
+
+**/.npm/*
+
+*.tar
+*.gz
