@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# =============================================================================
+# YADM Master Bootstrap Orchestrator
+# =============================================================================
+export ANSIBLE_HOME="$HOME/.config/yadm"
+
+BOOTSTRAP_DIR="$HOME/.config/yadm/bootstrap.d"
+
+
+echo "============================================================================="
+echo "Starting YADM Bootstrap Pipeline..."
+echo "============================================================================="
+
+if [ -d "$BOOTSTRAP_DIR" ]; then
+    # Run all executable files in bootstrap.d/ in sorted order
+    for script in $(find "$BOOTSTRAP_DIR" -maxdepth 1 -type f -executable | sort); do
+        echo "--> Running: $(basename "$script")"
+        "$script"
+        echo "--> Finished: $(basename "$script")"
+        echo ""
+    done
+else
+    echo "ERROR: Bootstrap directory $BOOTSTRAP_DIR not found!"
+    exit 1
+fi
+
+echo "============================================================================="
+echo "YADM Bootstrap Pipeline Complete!"
+echo "============================================================================="
