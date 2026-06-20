@@ -80,3 +80,7 @@ if [ -d "$HOME/.rvm/bin" ]; then
 fi
 
 export PATH="$PATH:/home/linuxbrew/.linuxbrew/lib/ruby/gems/3.4.0/bin"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/b08x/.local/bin:$PATH"

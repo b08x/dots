@@ -1,34 +1,22 @@
 #!/usr/bin/env bash
+# =============================================================================
+# YADM Bootstrap Step: Install Prerequisites (Ansible & System Core)
+# =============================================================================
 
+echo "============================================================================="
+echo "Bootstrapping prerequisites for Workstation Setup..."
+echo "============================================================================="
 
-#TODO:
+# 1. Update/Install Ansible and dependencies via DNF
+if ! command -v ansible-playbook >/dev/null 2>&1; then
+    echo "Installing Ansible and dependencies..."
+    sudo dnf install -y ansible git python3-pip python3-devel
+else
+    echo "Ansible is already installed."
+fi
 
+# 2. Install community collections if needed
+echo "Verifying Ansible collections..."
+ansible-galaxy collection install community.general ansible.posix --upgrade
 
-#TODO: develop ansible playbook to install deps and setup env
-
-# bootstrap installs yadm, clones repo
-
-# yadm bootstrap; odds and ends an images or ansible provisioning doesn't cover
-
-echo "installing oh-my-zsh"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-sleep 2
-
-echo "install go"
-$ curl https://go.dev/dl/go1.26.3.linux-amd64.tar.gz
-$ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.26.3.linux-amd64.tar.gz
-
-
-
-echo "install cargo"
-curl https://sh.rustup.rs -sSf | sh
-
-
-
-echo "install bun"
-sh -c "$(curl -fsSL https://bun.sh/install)"
-
-sudo dnf install perl-core zoxide ranger ansible
-
-cargo install exa gitui weathr
+echo "Prerequisites bootstrap complete! Ready to run Ansible."

@@ -208,4 +208,13 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export PATH="$HOME/.local/apps/homebrew/bin:$PATH"
 
-export PATH="$HOME/WorkspaceV3/bin:$PATH"
+export PATH="$HOME/WorkspaceV3/bin:$WorkspaceV3/repomix-batch-tui/bin:$PATH"
+export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
+
+
+# Added by Antigravity CLI installer
+export PATH="$HOME/bin:/home/b08x/.local/bin:$PATH"
+
+
+# Added by codebase-memory-mcp install
+export PATH="/home/b08x/.local/bin:$PATH"

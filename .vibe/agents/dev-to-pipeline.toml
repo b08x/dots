@@ -1,0 +1,63 @@
+# Hybrid Pipeline: dev.to Article Drafting
+# Parent orchestrator that delegates to specialized subagents
+
+id = "dev-to-pipeline"
+display_name = "dev.to Pipeline"
+description = "Orchestrates a multi-agent pipeline for dev.to article drafting: correlates knowledge, verifies facts, generates media, writes drafts, and manages outputs"
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-pipeline"
+user_invocable = true
+spawns_subagents = true
+subagent_ids = ["dev-to-correlator", "dev-to-verifier", "dev-to-media-gen", "dev-to-draft-writer", "dev-to-output-mgr"]
+max_recursion_depth = 2
+pass_parent_context = true
+handoff_dir = "./dev-to-pipeline_handoffs/"
+
+enabled_skills = ["qmd", "graphify", "obsidian-*", "notebooklm"]
+
+enabled_tools = [
+    "read_file",
+    "grep",
+    "write_file",
+    "task",
+    "qmd",
+    "graphify",
+    "notebooklm",
+    "bash",
+    "ask_user_question",
+]
+
+disabled_tools = []
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.task]
+permission = "always"
+
+[tools.qmd]
+permission = "ask"
+
+[tools.graphify]
+permission = "ask"
+
+[tools.notebooklm]
+permission = "ask"
+
+[tools.bash]
+permission = "ask"
+
+[tools.ask_user_question]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-pipeline"

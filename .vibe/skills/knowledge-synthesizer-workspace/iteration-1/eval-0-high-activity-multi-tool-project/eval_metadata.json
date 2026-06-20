@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "high-activity-multi-tool-project",
+  "prompt": "I just ran /code-insights extract recent --hours 72. The database shows project 7988f69c3463b2d9 with 104 sessions across 4 different AI tools (crush, gemini-cli, mistral-vibe, opencode). The dominant workflow pattern is \"explore-then-build\" with 25 sessions, followed by \"direct-execution\" (25 sessions) and \"iterative-refinement\" (19 sessions).\n\nCreate an Obsidian dashboard that shows:\n- Timeline of sessions grouped by source tool\n- Workflow pattern distribution\n- Transition points between tools (when did the user switch?)\n- A canvas visualization showing how the workflows evolved\n\nAlso, generate a friction analysis - I see repeated-mistakes patterns appearing multiple times.",
+  "assertions": [
+    {"name": "dashboard_file_exists", "check": "file_exists", "path": "outputs/*.md"},
+    {"name": "canvas_file_exists", "check": "file_exists", "path": "outputs/*.canvas"},
+    {"name": "canvas_valid_json", "check": "json_valid", "path": "outputs/*.canvas"},
+    {"name": "mentions_all_tools", "check": "grep_all", "patterns": ["crush", "gemini-cli", "mistral-vibe", "opencode"]},
+    {"name": "has_timeline_section", "check": "grep", "pattern": "[Tt]imeline"},
+    {"name": "has_workflow_patterns", "check": "grep_all", "patterns": ["explore-then-build", "direct-execution", "iterative-refinement"]},
+    {"name": "has_friction_analysis", "check": "grep", "pattern": "[Ff]riction"},
+    {"name": "mentions_repeated_mistakes", "check": "grep", "pattern": "repeated-mistakes"}
+  ]
+}

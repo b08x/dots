@@ -1,0 +1,43 @@
+# Stateless Subagent: Verifier
+# Phase 2: Deep search verification of correlated content
+
+id = "dev-to-verifier"
+display_name = "dev.to Verifier"
+description = "Stateless subagent: Performs deep search iterations to verify technical accuracy, cross-reference with authoritative sources, and identify knowledge gaps in correlated content"
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-verifier"
+user_invocable = false
+spawns_subagents = false
+
+enabled_skills = ["qmd", "graphify"]
+
+enabled_tools = [
+    "write_file",
+    "read_file",
+    "grep",
+    "qmd",
+    "graphify",
+]
+
+disabled_tools = ["bash", "task", "notebooklm", "ask_user_question"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.qmd]
+permission = "always"
+
+[tools.graphify]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-verifier"
+
+[tools.write_file]
+permission = "always"

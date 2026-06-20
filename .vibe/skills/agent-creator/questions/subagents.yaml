@@ -1,0 +1,55 @@
+# Subagent Questions
+# Loaded only if agent_type = "agent" AND pattern supports subagents
+
+questions:
+  - id: "spawns_subagents"
+    header: "Subagent Delegation"
+    question: "Should this agent spawn subagents?"
+    type: "boolean"
+    required: true
+    default: false
+
+  - id: "subagent_ids"
+    header: "Subagent IDs"
+    question: "Which subagents should this agent spawn? (Comma-separated)"
+    type: "text"
+    required: false
+    condition: "spawns_subagents == true"
+    default: ""
+    placeholder: "e.g., file-reader-subagent, graphify-subagent"
+
+  - id: "max_recursion_depth"
+    header: "Recursion Depth"
+    question: "What is the maximum recursion depth for subagents?"
+    type: "single_choice"
+    required: false
+    condition: "spawns_subagents == true"
+    options:
+      - label: "1 (No sub-subagents)"
+        value: "1"
+      - label: "2 (One level of sub-subagents - RECOMMENDED)"
+        value: "2"
+        default: true
+      - label: "3 (Two levels of sub-subagents)"
+        value: "3"
+      - label: "4 (Deep nesting - use with caution)"
+        value: "4"
+      - label: "5 (Maximum depth)"
+        value: "5"
+
+  - id: "pass_parent_context"
+    header: "Parent Context"
+    question: "Should subagents receive the parent agent's context?"
+    type: "boolean"
+    required: false
+    condition: "spawns_subagents == true"
+    default: true
+
+  - id: "handoff_dir"
+    header: "Handoff Directory"
+    question: "Where should subagent handoffs be stored?"
+    type: "text"
+    required: false
+    condition: "spawns_subagents == true"
+    default: "./{agent_id}_handoffs/"
+    placeholder: "e.g., ./my-agent_handoffs/"

@@ -1,0 +1,36 @@
+# Project Recall Agent
+# Orchestrates recall + code-insights + workstream for comprehensive project retrospectives
+
+active_model = "mistral-medium-3.5"
+system_prompt_id = "project-recall"
+
+# Enable specific skills for this agent
+enabled_skills = ["recall", "code-insights", "workstream", "graphify", "codebase-mapper", "knowledge-synthesizer", "qmd", "json-canvas", "obsidian-bases", "obsidian-cli"]
+
+# Tool permissions for project recall workflow
+[tools.bash]
+permission = "always"  # Need to run recall scripts and code-insights CLI
+
+[tools.read_file]
+permission = "always"  # Need to read session data and analysis results
+
+[tools.write_file]
+permission = "always"  # Need to write retrospective output
+
+[tools.grep]
+permission = "always"
+
+[tools.glob]
+permission = "always"
+
+[tools.trackboi_switch_project]
+permission = "always"
+
+[tools.trackboi_add_track_decision]
+permission = "always"
+
+[tools.trackboi_move_card]
+permission = "always"
+
+[tools.trackboi_get_track]
+permission = "always"

@@ -1,0 +1,36 @@
+# SFL Prompt Engineer Subagent
+# Specialized in Systemic Functional Linguistics (SFL) grounded prompt engineering.
+
+id = "sfl-prompt-engineer"
+name = "SFL Prompt Engineer"
+description = """
+Linguistically-grounded prompt engineering using SFL (Field, Tenor, Mode).
+- Goal Analysis: Decompose intent into SFL dimensions.
+- Textual Synthesis: Generate system prompts from SFL models.
+- Coherence Audit: Diagnose linguistic conflicts and score quality.
+"""
+agent_type = "subagent"
+safety = "safe"
+bypass_tool_permissions = true
+system_prompt_id = "sfl-prompt-engineer"
+user_invocable = false
+
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash"
+]
+
+[tools.bash]
+permission = "always"
+allowlist = ["graphify", "qmd"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "sfl-prompt-engineer"

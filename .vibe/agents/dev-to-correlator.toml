@@ -1,0 +1,43 @@
+# Stateless Subagent: Knowledge Correlator
+# Phase 1: Correlate local notes using qmd and graphify
+
+id = "dev-to-correlator"
+display_name = "dev.to Correlator"
+description = "Stateless subagent: Uses qmd search and graphify query to locate and extract relevant local notes, code snippets, and documentation matching the user's intention"
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-correlator"
+user_invocable = false
+spawns_subagents = false
+
+enabled_skills = ["qmd", "graphify"]
+
+enabled_tools = [
+    "write_file",
+    "read_file",
+    "grep",
+    "qmd",
+    "graphify",
+]
+
+disabled_tools = ["bash", "task", "notebooklm", "ask_user_question"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.qmd]
+permission = "always"
+
+[tools.graphify]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-correlator"
+
+[tools.write_file]
+permission = "always"

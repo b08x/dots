@@ -1,0 +1,84 @@
+{
+  "skill_name": "recall-github-autodiscovery",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run recall for the last 7 days and show me what GitHub repos I've been working on",
+      "expected_output": "Should auto-discover repos with commits in last 7 days, show list of discovered repos, fetch commits from each repo, and include them in the correlation timeline",
+      "files": [],
+      "assertions": [
+        {
+          "name": "auto_discovers_repos",
+          "description": "Verifies that gh search commits was called to discover repos",
+          "type": "command_execution"
+        },
+        {
+          "name": "displays_discovered_repos",
+          "description": "Output shows list of discovered repos (e.g., 'Auto-discovered 3 repos with activity')",
+          "type": "output_contains"
+        },
+        {
+          "name": "fetches_commits_from_all_repos",
+          "description": "Commits are fetched from all discovered repos, not just one",
+          "type": "data_aggregation"
+        },
+        {
+          "name": "includes_commits_in_timeline",
+          "description": "Timeline includes GitHub commits with repo names",
+          "type": "data_presence"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run recall for the last 3 days correlating only the syncopated/robo-synth repo",
+      "expected_output": "Should use manual repo specification (backward compatibility), skip auto-discovery, fetch commits only from specified repo",
+      "files": [],
+      "assertions": [
+        {
+          "name": "skips_autodiscovery",
+          "description": "Auto-discovery is not triggered when --github-repo is specified",
+          "type": "command_not_executed"
+        },
+        {
+          "name": "uses_specified_repo_only",
+          "description": "Commits are fetched only from the specified repo (syncopated/robo-synth)",
+          "type": "data_filtering"
+        },
+        {
+          "name": "backward_compatible",
+          "description": "Behavior matches pre-v1.2.0 when repo is manually specified",
+          "type": "regression_test"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run recall for the last 14 days but skip all GitHub correlation, I only want local sessions",
+      "expected_output": "Should skip GitHub entirely (both auto-discovery and manual), include only local sessions and git activity",
+      "files": [],
+      "assertions": [
+        {
+          "name": "skips_github_entirely",
+          "description": "No gh commands are executed (neither search nor api calls)",
+          "type": "command_not_executed"
+        },
+        {
+          "name": "includes_local_sessions",
+          "description": "Timeline includes sessions from Claude Code, Gemini CLI, etc.",
+          "type": "data_presence"
+        },
+        {
+          "name": "includes_local_git",
+          "description": "Timeline includes local git commits from workspace repos",
+          "type": "data_presence"
+        },
+        {
+          "name": "excludes_github_commits",
+          "description": "Timeline does not include any GitHub API commits",
+          "type": "data_absence"
+        }
+      ]
+    }
+  ]
+}

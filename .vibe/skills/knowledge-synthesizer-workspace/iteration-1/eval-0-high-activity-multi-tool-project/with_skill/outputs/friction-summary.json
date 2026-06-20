@@ -1,0 +1,39 @@
+{
+  "project_id": "7988f69c3463b2d9",
+  "analysis_date": "2026-05-17",
+  "total_sessions": 136,
+  "sessions_with_friction": 119,
+  "friction_rate_percent": 87.5,
+  "total_friction_points": 236,
+  "unique_friction_types": 236,
+  "avg_friction_per_session": 1.98,
+  "top_5_friction_types": [
+    {
+      "type": "{'_reasoning': 'The initial search/replace operation failed due to mismatched search text, requiring manual verification and correction. This was an AI capability issue because the search text did not match the actual file content despite correct intent.', 'category': 'knowledge-gap', 'attribution': 'ai-capability', 'description': \"Search/replace block failed in smith-subagent.md due to line mismatch ('- **Follow instructions exactly**' not found).\", 'severity': 'medium', 'resolution': 'resolved', 'evidence': [\"User#21: '<tool_error>search_replace failed: SEARCH/REPLACE block 1 failed: Search text not found in /home/b08x/.vibe/prompts/smith-subagent.md'\", \"Assistant#20: 'Let me check the exact content again:'\"]}",
+      "count": 1
+    },
+    {
+      "type": "{'_reasoning': \"The config.toml still contained stale agent references after the primary renaming was believed complete. This was a verification gap in the AI's workflow, not an environmental or user issue.\", 'category': 'stale-assumptions', 'attribution': 'ai-capability', 'description': \"Remaining 'bluefin-builder' references found in config.toml's enabled_agents and installed_agents after initial renaming (lines 49 and 62).\", 'severity': 'high', 'resolution': 'resolved', 'evidence': ['User#24: \\'stdout: agents/smith.toml:enabled = [\"bluefin-builder\", \"vibe\"]\\'', 'User#34: \\'matches: 57:    \"bluefin-builder\",\\'']}",
+      "count": 1
+    },
+    {
+      "type": "{'_reasoning': 'The AI initially attempted to locate system prompts using a grep command that failed (User#5), then tried a broader find command that also returned no results (User#6). This was due to incorrect assumptions about file naming conventions and directory structure. The issue was resolved by manually checking the prompts directory (User#9).', 'category': 'knowledge-gap', 'attribution': 'ai-capability', 'description': 'Incorrect file search patterns caused failed attempts to locate system prompts in `/home/b08x/.vibe/prompts/` using `find` and `grep` commands.', 'severity': 'medium', 'resolution': 'resolved'}",
+      "count": 1
+    },
+    {
+      "type": "{'_reasoning': 'The AI assumed the existence of a `smith-subagent` configuration file based on the main Smith configuration (User#2), but the file was not initially found (User#3). This led to unnecessary directory checks before discovering the file existed under a slightly different name (`Smith-subagent.toml`).', 'category': 'stale-assumptions', 'attribution': 'ai-capability', 'description': 'Assumed subagent configuration file naming convention (`smith-subagent`) did not match actual case-sensitive filename (`Smith-subagent.toml`).', 'severity': 'low', 'resolution': 'resolved'}",
+      "count": 1
+    },
+    {
+      "type": "{'_reasoning': \"The skill used relative paths for reference files, causing it to look in the user's current directory instead of its own skill directory. This is a clear knowledge gap in path resolution strategy, attributed to AI capability since the user provided clear requirements but the implementation failed to account for execution context.\", 'category': 'knowledge-gap', 'attribution': 'ai-capability', 'description': 'Relative paths in SKILL.md caused readme-generator to fail when invoked from user project directories, as it searched for references/readme-structure.md in the wrong location.', 'severity': 'high', 'resolution': 'resolved'}",
+      "count": 1
+    }
+  ],
+  "tool_switching_rate": "27% (37 switches / 136 sessions)",
+  "recommendations": [
+    "Create playbooks for top 10 friction types",
+    "Reduce tool-switching overhead by 50%",
+    "Document tool selection decision matrix",
+    "Invest in mastering primary tool (mistral-vibe)"
+  ]
+}

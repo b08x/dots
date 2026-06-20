@@ -1,0 +1,35 @@
+# Stateful Subagent: Output Manager
+# Phase 5: Tracks storage paths, manifests, and manages final output
+
+id = "dev-to-output-mgr"
+display_name = "dev.to Output Manager"
+description = "Stateful subagent: Manages output storage at /home/b08x/Notebook/Areas/dev-to/drafts/ with timestamped subdirectories. Creates manifest JSON files listing all variants, source correlations, and verification checksums. Generates dev.to preview URL-compatible HTML snippets."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-output-mgr"
+user_invocable = false
+spawns_subagents = false
+
+enabled_skills = []
+
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "bash",
+]
+
+disabled_tools = ["grep", "task", "qmd", "graphify", "notebooklm", "ask_user_question"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-output-mgr"

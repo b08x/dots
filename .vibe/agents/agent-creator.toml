@@ -1,0 +1,67 @@
+## File: ~/.vibe/agents/agent-creator.toml
+# Agent Creator
+# Trigger: /agent-creator or /create-agent
+
+id = "agent-creator"
+name = "Agent Creator"
+description = """
+Guided agent creation workflow using Pipeline + Inversion pattern.
+- Phase 0: Discovery (3 questions before anything runs)
+- Step 1: Pattern recommendation
+- Gate 1: Confirm pattern before loading questions
+- Step 2: Configuration (tools, security, subagents, skills — one flow)
+- Gate 2: Confirm full config summary before generating
+- Step 3: Generate TOML + prompt in memory (preview)
+- Gate 3: Review generated files before validation
+- Step 4: Context7 validation against /mistralai/mistral-vibe docs
+- Gate 4: Explicit write confirmation — nothing hits disk without approval
+- Step 5: Write files + summary
+"""
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "agent-creator"
+user_invocable = true
+
+# Issue 1+3 fix: top-level, no [config] wrapper — matches documented format
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "task",
+    "context7_query-docs",
+    "bash",
+    "ask_user_question",
+]
+disabled_tools = ["search_replace"]
+
+[tools.bash]
+permission = "always"
+# allowlist = [
+#     "/home/b08x/.vibe/.venv/bin/python3 skills/agent-creator/agent_creator_workflow.py",
+#     "graphify",
+#     "qmd",
+# ]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.task]
+permission = "always"
+allowlist = ["sfl-prompt-engineer", "explore"]
+
+[tools.context7_query-docs]
+permission = "always"
+
+[project_context]
+timeout_seconds = 10.0
+
+[session_logging]
+enabled = true
+session_prefix = "agent-creator"

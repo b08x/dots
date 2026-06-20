@@ -1,0 +1,36 @@
+# Multi-Agent Debate Pattern Questions
+# Loaded ONLY if pattern = "multi-agent-debate"
+
+questions:
+  - id: "judge_count"
+    header: "Multi-Agent Debate Configuration"
+    question: "How many judge subagents should this agent spawn?"
+    type: "single_choice"
+    required: true
+    default: "3"
+    options:
+      - label: "3 (Recommended: Requirements + Solution + Code Quality)"
+        value: "3"
+      - label: "4 (Add a Security Judge)"
+        value: "4"
+      - label: "Custom number"
+        value: "custom"
+
+  - id: "judge_names"
+    header: "Judge Naming"
+    question: "What should the judge subagents be named? (comma-separated)"
+    type: "text"
+    required: true
+    default: "{{agent_id}}__requirements-validator,{{agent_id}}__solution-architect,{{agent_id}}__code-quality-reviewer"
+    placeholder: "e.g., critique__requirements-validator, critique__solution-architect"
+
+  - id: "execution_mode"
+    header: "Execution Mode"
+    question: "Should judges run in parallel or sequentially?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Parallel (Faster, requires more resources)"
+        value: "parallel"
+      - label: "Sequential (Controlled, easier to debug)"
+        value: "sequential"

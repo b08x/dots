@@ -1,0 +1,35 @@
+# Stateless Subagent: Media Generator
+# Phase 3: Generate diagrams and visual assets via notebooklm
+
+id = "dev-to-media-gen"
+display_name = "dev.to Media Generator"
+description = "Stateless subagent: Uses notebooklm to create diagrams, flowcharts, and illustrative media from validated correlated knowledge. Ensures dev.to compatibility."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-media-gen"
+user_invocable = false
+spawns_subagents = false
+
+enabled_skills = ["notebooklm"]
+
+enabled_tools = [
+    "read_file",
+    "notebooklm",
+    "write_file",
+]
+
+disabled_tools = ["grep", "bash", "task", "qmd", "graphify", "ask_user_question"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.notebooklm]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-media-gen"

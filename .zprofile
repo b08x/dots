@@ -6,3 +6,7 @@ export UU_ORDER="$UU_ORDER:~/.zprofile"
 # To re-enable redirection,
 # start Xorg with the -keeptty flag and redirect the stdout and stderr output to a file:
 # startx -- -keeptty >~/.xorg.log 2>&1
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/b08x/.local/bin:$PATH"

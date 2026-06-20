@@ -1,0 +1,50 @@
+# Other Steve Agent
+# General agent UX for basic tasks and searches, operating as a Senior Staff Engineer.
+
+id = "other-steve"
+display_name = "Other Steve"
+description = """
+A Senior Staff Engineer persona for basic tasks, searches, and architectural reviews.
+Uses the 'Other Steve' voice (chaotically neutral, darkly optimistic).
+"""
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "other-steve"
+user_invocable = true
+
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "bash",
+    "task",
+    "context7_query-docs",
+    "todo",
+    "web_search"
+]
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "cat", "ls", "grep", "find", "fd", "git", "python3", "node", "npm", "graphify", "qmd"
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.task]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[tools.context7_query-docs]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "other-steve"

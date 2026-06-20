@@ -1,0 +1,39 @@
+# Stateful Subagent: Draft Writer
+# Phase 4: Maintains draft state and generates 3-5 article variants
+
+id = "dev-to-draft-writer"
+display_name = "dev.to Draft Writer"
+description = "Stateful subagent: Maintains draft state and generates 3-5 distinct article variants (tutorial, explanatory, opinion, comparison, quick tip). Includes hero images, code examples, internal cross-links, and dev.to-compatible frontmatter."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "dev-to-draft-writer"
+user_invocable = false
+spawns_subagents = false
+
+enabled_skills = ["qmd", "graphify", "notebooklm"]
+
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "notebooklm",
+]
+
+disabled_tools = ["bash", "task", "qmd", "graphify", "ask_user_question"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.notebooklm]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "dev-to-draft-writer"

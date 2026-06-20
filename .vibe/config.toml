@@ -5,7 +5,6 @@ autocopy_to_clipboard = true
 displayed_workdir = ""
 auto_compact_threshold = 500000
 context_warnings = true
-auto_approve = false
 system_prompt_id = "cli"
 include_commit_signature = true
 include_model_info = true
@@ -15,21 +14,52 @@ enable_update_checks = true
 enable_auto_update = true
 api_timeout = 1800.0
 voice_mode_enabled = true
+agent_paths = [
+    "~/.vibe/agents",
+]
+disabled_agents = []
+installed_agents = [
+    "lean",
+    "agent-creator",
+    "other-steve",
+    "project-recall",
+]
+skill_paths = [
+    "~/.vibe/skills",
+    "~/.syncopated/skills",
+    ".agents/skills/",
+]
+disabled_skills = [
+    "workflows",
+]
+theme = "flexoki"
+applied_migrations = [
+    "bash_read_only_defaults_v1",
+]
+connectors = [
+    { name = "deepwiki", disabled = true },
+    { name = "github_app", disabled = false },
+]
 
-[config.tools.read_file]
-permission = "always"
-
-[config.tools.grep]
-permission = "always"
+[[mcp_servers]]
+name = "trackboi"
+transport = "stdio"
+command = "trackboi"
+args = [
+    "mcp",
+]
 
 [[mcp_servers]]
 transport = "http"
 name = "context7"
 url = "https://mcp.context7.com/mcp"
+startup_timeout_sec = 30.0
+
+[mcp_servers.auth]
+type = "static"
 api_key_env = "CONTEXT7_API_KEY"
 api_key_header = "X-API-Key"
 api_key_format = "{token}"
-startup_timeout_sec = 30.0
 
 [[mcp_servers]]
 transport = "http"
@@ -38,48 +68,10 @@ url = "https://mcp.deepwiki.com/mcp"
 startup_timeout_sec = 30.0
 
 [[mcp_servers]]
-transport = "stdio"
-name = "playwright"
-command = "npx"
-args = [
-    "@playwright/mcp@latest",
-]
+transport = "http"
+name = "qmd"
+url = "http://localhost:8181/mcp"
 startup_timeout_sec = 30.0
-sampling_enabled = false
-agent_paths = [
-    "~/.vibe/agents",
-]
-enabled_agents = [
-    "osbuild",
-    "osbuild-subagent",
-    "file-reader-subagent",
-    "gir",
-    "critique-agent",
-    "critique__requirements-validator",
-    "critique__solution-architect",
-    "critique__code-quality-reviewer",
-]
-disabled_agents = []
-installed_agents = [
-    "lean",
-    "osbuild",
-    "osbuild-subagent",
-]
-skill_paths = [
-    "~/.vibe/skills",
-    "~/.vibe/skills/github",
-]
-enabled_skills = [
-    "analyse",
-    "refactor",
-    "bluefin-builder",
-    "github-auth",
-    "github-repo-management",
-    "critique",
-    "readme-generator",
-    "graphify",
-]
-disabled_skills = []
 
 [[providers]]
 name = "mistral"
@@ -97,9 +89,9 @@ api_style = "openai"
 reasoning_field_name = "reasoning_content"
 
 [[models]]
-name = "tencent/hy3-preview"
+name = "minimax/minimax-m2.7"
 provider = "openrouter"
-alias = "hy3-preview"
+alias = "minimax-m2.7"
 temperature = 0.3
 input_price = 0.0
 output_price = 0.0
@@ -109,9 +101,10 @@ name = "mistral-vibe-cli-latest"
 provider = "mistral"
 alias = "mistral-medium-3.5"
 temperature = 0.2
-thinking = "high"
+thinking = "medium"
 input_price = 1.5
 output_price = 7.5
+supports_images = true
 
 [[models]]
 name = "mistral-small-latest"
@@ -129,18 +122,11 @@ temperature = 0.2
 thinking = "high"
 
 [project_context]
-max_chars = 300000
 default_commit_count = 30
-max_doc_bytes = 262144
-truncation_buffer = 8000
-max_depth = 15
-max_files = 10000
-max_dirs_per_level = 100
 timeout_seconds = 30.0
 
 [session_logging]
 save_dir = "~/.vibe/logs/session"
-session_prefix = "accuracy-session"
 enabled = true
 
 [tools.ask_user_question]
@@ -149,40 +135,66 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "awk",
+    "basename",
+    "cargo",
     "cat",
+    "cd",
+    "choose",
+    "comm",
+    "cut",
+    "date",
+    "diff",
+    "dirname",
+    "du",
     "echo",
+    "fd",
     "file",
     "find",
+    "fmt",
+    "fold",
     "git",
     "git diff",
     "git log",
     "git status",
+    "go",
+    "grep",
     "head",
+    "javac",
+    "join",
+    "less",
     "ls",
+    "md5sum",
+    "mkdir",
+    "more",
+    "mvn",
+    "nl",
+    "node",
+    "npm",
+    "od",
+    "paste",
     "pwd",
+    "python3",
+    "readlink",
+    "rga",
+    "rustc",
+    "sd",
+    "sha1sum",
+    "sha256sum",
+    "shasum",
+    "sort",
     "stat",
+    "sum",
+    "tac",
     "tail",
+    "tr",
     "tree",
     "uname",
+    "uniq",
     "wc",
     "which",
     "whoami",
-    "python3",
-    "node",
-    "npm",
     "yarn",
-    "cargo",
-    "go",
-    "rustc",
-    "javac",
-    "mvn",
-    "grep",
-    "awk",
-    "sed",
-    "sort",
-    "uniq",
-    "cut",
-    "tr",
 ]
 denylist = [
     "rm",
@@ -213,31 +225,15 @@ denylist = [
     "> /dev/sd*",
     "mv /",
     "cp -r /",
+    "find",
+    "sed",
 ]
 
 [tools.grep]
 permission = "always"
 
-[tools.read_file]
-permission = "always"
-max_read_bytes = 262144
-
-[tools.search_replace]
+[tools.write_file]
 permission = "ask"
-allowlist = [
-    "./**/*",
-    "~/.vibe/skills/*",
-]
-denylist = [
-    "~/.vibe/agents/*",
-    "~/.vibe/config.toml",
-    "~/.ssh/*",
-    "/etc/*",
-    "/usr/*",
-    "/bin/*",
-    "/sbin/*",
-    "/lib/*",
-]
 
 [tools.task]
 permission = "always"
@@ -245,8 +241,28 @@ permission = "always"
 [tools.todo]
 permission = "always"
 
-[tools.write_file]
-permission = "ask"
+[tools.trackboi_switch_project]
+permission = "always"
+
+[tools.trackboi_add_track_decision]
+permission = "always"
+
+[tools.trackboi_move_card]
+permission = "always"
+
+[tools.trackboi_get_track]
+permission = "always"
+
+[tools.read]
+permission = "always"
+max_read_bytes = 262144
+
+[tools.edit]
+permission = "always"
+allowlist = [
+    "~/.vibe/skills/*",
+    "./**/*",
+]
 denylist = [
     "~/.vibe/agents/*",
     "~/.vibe/config.toml",
@@ -256,5 +272,4 @@ denylist = [
     "/bin/*",
     "/sbin/*",
     "/lib/*",
-    "/var/*",
 ]

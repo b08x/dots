@@ -1,0 +1,39 @@
+# Purpose Classification Questions
+# Loaded FIRST (minimal context)
+
+questions:
+  - id: "purpose_classification"
+    header: "Purpose Classification"
+    question: "What is your agent's PRIMARY purpose?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Analyze/Review"
+        value: "analyze-review"
+        pattern: "multi-agent-debate"
+        description: "Evaluate existing work (e.g., code review, requirements validation)"
+
+      - label: "Generate/Create"
+        value: "generate-create"
+        pattern: "single-agent"
+        description: "Produce new artifacts (e.g., docs, configs, templates)"
+
+      - label: "Orchestrate/Coordinate"
+        value: "orchestrate"
+        pattern: "subagent-delegation"
+        description: "Manage workflows, agents, or multi-step processes"
+
+      - label: "Interact/Respond"
+        value: "interact"
+        pattern: "stateful-agent"
+        description: "Chat, Q&A, or conversational agents"
+
+      - label: "Transform/Process"
+        value: "transform"
+        pattern: "cove"
+        description: "Modify or process data (e.g., pipelines, conversions)"
+
+      - label: "Custom/Other"
+        value: "custom"
+        pattern: "hybrid-pipeline"
+        description: "Doesn't fit the above categories"

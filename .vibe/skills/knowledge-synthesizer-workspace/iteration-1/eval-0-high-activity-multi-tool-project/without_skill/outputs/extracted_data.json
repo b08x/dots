@@ -1,0 +1,1210 @@
+{
+  "project_info": {
+    "name": ".vibe",
+    "path": "/home/b08x/.vibe"
+  },
+  "sessions_by_tool": [
+    {
+      "source": "mistral-vibe",
+      "count": 93,
+      "earliest": "2026-04-27T16:29:55.382Z",
+      "latest": "2026-05-16T14:02:08.639Z"
+    },
+    {
+      "source": "gemini-cli",
+      "count": 7,
+      "earliest": "2026-04-30T22:53:46.527Z",
+      "latest": "2026-05-16T12:57:00.964Z"
+    },
+    {
+      "source": "crush",
+      "count": 14,
+      "earliest": "2026-04-30T23:12:33.000Z",
+      "latest": "2026-05-16T14:12:09.000Z"
+    },
+    {
+      "source": "opencode",
+      "count": 22,
+      "earliest": "2026-05-03T05:37:12.895Z",
+      "latest": "2026-05-15T03:21:46.985Z"
+    }
+  ],
+  "workflow_patterns": [
+    {
+      "pattern": "direct-execution",
+      "count": 35
+    },
+    {
+      "pattern": "explore-then-build",
+      "count": 30
+    },
+    {
+      "pattern": "iterative-refinement",
+      "count": 25
+    },
+    {
+      "pattern": "debug-fix-verify",
+      "count": 16
+    },
+    {
+      "pattern": "plan-then-implement",
+      "count": 9
+    },
+    {
+      "pattern": "plan-do-check-act",
+      "count": 2
+    },
+    {
+      "pattern": null,
+      "count": 2
+    }
+  ],
+  "all_sessions": [
+    {
+      "timestamp": "2026-04-27T16:29:55.382Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 77,
+      "duration": 28.91
+    },
+    {
+      "timestamp": "2026-04-27T17:00:59.337Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-then-implement",
+      "messages": 66,
+      "duration": 5.39
+    },
+    {
+      "timestamp": "2026-04-30T22:32:42.717Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 128,
+      "duration": 28.53
+    },
+    {
+      "timestamp": "2026-04-30T22:53:46.527Z",
+      "source_tool": "gemini-cli",
+      "workflow": "plan-then-implement",
+      "messages": 24,
+      "duration": 1.26
+    },
+    {
+      "timestamp": "2026-04-30T23:02:12.706Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-do-check-act",
+      "messages": 112,
+      "duration": 6.27
+    },
+    {
+      "timestamp": "2026-04-30T23:12:33.000Z",
+      "source_tool": "crush",
+      "workflow": "explore-then-build",
+      "messages": 7,
+      "duration": 0.53
+    },
+    {
+      "timestamp": "2026-05-03T03:30:14.251Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 16,
+      "duration": 38.09
+    },
+    {
+      "timestamp": "2026-05-03T03:56:06.391Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 13,
+      "duration": 2.69
+    },
+    {
+      "timestamp": "2026-05-03T04:46:53.367Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 53,
+      "duration": 8.52
+    },
+    {
+      "timestamp": "2026-05-03T04:50:06.090Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 21,
+      "duration": 5.31
+    },
+    {
+      "timestamp": "2026-05-03T05:01:07.845Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 72,
+      "duration": 21.67
+    },
+    {
+      "timestamp": "2026-05-03T05:24:40.176Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 6,
+      "duration": 1.5
+    },
+    {
+      "timestamp": "2026-05-03T05:26:34.823Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 4,
+      "duration": 0.18
+    },
+    {
+      "timestamp": "2026-05-03T05:27:36.900Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 4,
+      "duration": 0.15
+    },
+    {
+      "timestamp": "2026-05-03T05:30:07.101Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 4,
+      "duration": 0.43
+    },
+    {
+      "timestamp": "2026-05-03T05:37:12.895Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 31,
+      "duration": 16983.88
+    },
+    {
+      "timestamp": "2026-05-03T05:38:10.451Z",
+      "source_tool": "opencode",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 16982.92
+    },
+    {
+      "timestamp": "2026-05-03T05:38:16.492Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 13,
+      "duration": 16982.82
+    },
+    {
+      "timestamp": "2026-05-03T05:38:21.792Z",
+      "source_tool": "opencode",
+      "workflow": "direct-execution",
+      "messages": 7,
+      "duration": 16982.73
+    },
+    {
+      "timestamp": "2026-05-03T05:38:21.803Z",
+      "source_tool": "opencode",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 16982.73
+    },
+    {
+      "timestamp": "2026-05-03T05:47:09.975Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 64,
+      "duration": 16973.93
+    },
+    {
+      "timestamp": "2026-05-03T05:47:58.832Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 5,
+      "duration": 16973.11
+    },
+    {
+      "timestamp": "2026-05-03T06:02:31.477Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 8,
+      "duration": 1.86
+    },
+    {
+      "timestamp": "2026-05-03T06:06:39.397Z",
+      "source_tool": "opencode",
+      "workflow": "iterative-refinement",
+      "messages": 56,
+      "duration": 16954.44
+    },
+    {
+      "timestamp": "2026-05-03T06:07:35.401Z",
+      "source_tool": "opencode",
+      "workflow": "direct-execution",
+      "messages": 3,
+      "duration": 16953.5
+    },
+    {
+      "timestamp": "2026-05-03T06:25:05.485Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 6,
+      "duration": 1.58
+    },
+    {
+      "timestamp": "2026-05-03T06:28:02.351Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 6,
+      "duration": 0.79
+    },
+    {
+      "timestamp": "2026-05-08T04:00:47.199Z",
+      "source_tool": "gemini-cli",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 0.68
+    },
+    {
+      "timestamp": "2026-05-08T04:02:28.478Z",
+      "source_tool": "gemini-cli",
+      "workflow": "iterative-refinement",
+      "messages": 335,
+      "duration": 54.53
+    },
+    {
+      "timestamp": "2026-05-08T09:06:06.855Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 78,
+      "duration": 8.77
+    },
+    {
+      "timestamp": "2026-05-09T08:03:24.907Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 75,
+      "duration": 17.57
+    },
+    {
+      "timestamp": "2026-05-09T08:21:28.369Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 35,
+      "duration": 5.01
+    },
+    {
+      "timestamp": "2026-05-12T02:32:13.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 9,
+      "duration": 0.7
+    },
+    {
+      "timestamp": "2026-05-12T05:24:48.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 0.48
+    },
+    {
+      "timestamp": "2026-05-12T05:29:27.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 1.62
+    },
+    {
+      "timestamp": "2026-05-12T07:07:15.379Z",
+      "source_tool": "gemini-cli",
+      "workflow": "iterative-refinement",
+      "messages": 29,
+      "duration": 1.3
+    },
+    {
+      "timestamp": "2026-05-12T14:39:45.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 11,
+      "duration": 16.63
+    },
+    {
+      "timestamp": "2026-05-12T14:58:31.289Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 58,
+      "duration": 65.09
+    },
+    {
+      "timestamp": "2026-05-12T16:08:19.899Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 4,
+      "duration": 0.38
+    },
+    {
+      "timestamp": "2026-05-12T16:11:00.359Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-then-implement",
+      "messages": 33,
+      "duration": 34.42
+    },
+    {
+      "timestamp": "2026-05-12T16:34:15.004Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 9,
+      "duration": 3.6
+    },
+    {
+      "timestamp": "2026-05-12T16:45:04.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 8,
+      "duration": 0.95
+    },
+    {
+      "timestamp": "2026-05-12T16:47:12.744Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-then-implement",
+      "messages": 19,
+      "duration": 6.15
+    },
+    {
+      "timestamp": "2026-05-12T16:53:29.761Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 7,
+      "duration": 0.74
+    },
+    {
+      "timestamp": "2026-05-12T16:54:49.831Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-then-implement",
+      "messages": 62,
+      "duration": 5.15
+    },
+    {
+      "timestamp": "2026-05-12T16:57:39.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 6,
+      "duration": 0.95
+    },
+    {
+      "timestamp": "2026-05-12T17:04:18.762Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 29,
+      "duration": 4.14
+    },
+    {
+      "timestamp": "2026-05-12T17:05:42.360Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 19,
+      "duration": 1.38
+    },
+    {
+      "timestamp": "2026-05-12T17:22:20.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 0.5
+    },
+    {
+      "timestamp": "2026-05-14T20:30:35.485Z",
+      "source_tool": "gemini-cli",
+      "workflow": "iterative-refinement",
+      "messages": 22,
+      "duration": 1.07
+    },
+    {
+      "timestamp": "2026-05-15T00:54:28.146Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 55,
+      "duration": 21.82
+    },
+    {
+      "timestamp": "2026-05-15T00:55:32.429Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 6,
+      "duration": 1.34
+    },
+    {
+      "timestamp": "2026-05-15T00:55:42.303Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 26,
+      "duration": 3.97
+    },
+    {
+      "timestamp": "2026-05-15T00:55:53.426Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 7,
+      "duration": 0.58
+    },
+    {
+      "timestamp": "2026-05-15T00:55:53.471Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 12,
+      "duration": 2.02
+    },
+    {
+      "timestamp": "2026-05-15T01:26:26.964Z",
+      "source_tool": "gemini-cli",
+      "workflow": "explore-then-build",
+      "messages": 279,
+      "duration": 27.84
+    },
+    {
+      "timestamp": "2026-05-15T02:22:03.351Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 174,
+      "duration": 31.49
+    },
+    {
+      "timestamp": "2026-05-15T02:25:07.263Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 12,
+      "duration": 1.94
+    },
+    {
+      "timestamp": "2026-05-15T02:25:07.393Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 12,
+      "duration": 1.44
+    },
+    {
+      "timestamp": "2026-05-15T02:25:07.600Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 14,
+      "duration": 2.91
+    },
+    {
+      "timestamp": "2026-05-15T02:25:07.807Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 16,
+      "duration": 2.9
+    },
+    {
+      "timestamp": "2026-05-15T02:25:08.003Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 34,
+      "duration": 1.41
+    },
+    {
+      "timestamp": "2026-05-15T02:25:08.372Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 12,
+      "duration": 2.53
+    },
+    {
+      "timestamp": "2026-05-15T02:37:16.175Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 48,
+      "duration": 3.88
+    },
+    {
+      "timestamp": "2026-05-15T02:43:21.627Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 58,
+      "duration": 3.7
+    },
+    {
+      "timestamp": "2026-05-15T02:57:55.283Z",
+      "source_tool": "opencode",
+      "workflow": "iterative-refinement",
+      "messages": 29,
+      "duration": 18.05
+    },
+    {
+      "timestamp": "2026-05-15T02:59:42.895Z",
+      "source_tool": "opencode",
+      "workflow": "direct-execution",
+      "messages": 10,
+      "duration": 2.42
+    },
+    {
+      "timestamp": "2026-05-15T03:02:54.603Z",
+      "source_tool": "opencode",
+      "workflow": "iterative-refinement",
+      "messages": 9,
+      "duration": 1.97
+    },
+    {
+      "timestamp": "2026-05-15T03:05:30.418Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 6,
+      "duration": 0.45
+    },
+    {
+      "timestamp": "2026-05-15T03:06:34.447Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 12,
+      "duration": 2.94
+    },
+    {
+      "timestamp": "2026-05-15T03:10:05.261Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 14,
+      "duration": 1.41
+    },
+    {
+      "timestamp": "2026-05-15T03:12:21.042Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 6,
+      "duration": 1.12
+    },
+    {
+      "timestamp": "2026-05-15T03:21:46.985Z",
+      "source_tool": "opencode",
+      "workflow": "explore-then-build",
+      "messages": 21,
+      "duration": 43.86
+    },
+    {
+      "timestamp": "2026-05-15T06:09:36.043Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 68,
+      "duration": 7.67
+    },
+    {
+      "timestamp": "2026-05-15T06:13:56.580Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 6,
+      "duration": 0.18
+    },
+    {
+      "timestamp": "2026-05-15T06:56:38.000Z",
+      "source_tool": "crush",
+      "workflow": "plan-then-implement",
+      "messages": 9,
+      "duration": 1.55
+    },
+    {
+      "timestamp": "2026-05-15T09:59:44.504Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 42,
+      "duration": 1.44
+    },
+    {
+      "timestamp": "2026-05-15T10:27:38.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 73,
+      "duration": 604.33
+    },
+    {
+      "timestamp": "2026-05-15T12:21:41.145Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 54,
+      "duration": 4.61
+    },
+    {
+      "timestamp": "2026-05-15T13:36:54.620Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 12,
+      "duration": 17.16
+    },
+    {
+      "timestamp": "2026-05-15T13:58:30.859Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 8,
+      "duration": 9.14
+    },
+    {
+      "timestamp": "2026-05-15T14:16:06.447Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 100,
+      "duration": 11.61
+    },
+    {
+      "timestamp": "2026-05-15T14:31:34.440Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 6,
+      "duration": 5.71
+    },
+    {
+      "timestamp": "2026-05-15T14:37:29.714Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 24,
+      "duration": 11.03
+    },
+    {
+      "timestamp": "2026-05-15T14:52:28.065Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 18,
+      "duration": 5.34
+    },
+    {
+      "timestamp": "2026-05-15T15:31:07.114Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 56,
+      "duration": 20.74
+    },
+    {
+      "timestamp": "2026-05-15T17:01:56.045Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 3,
+      "duration": 13.41
+    },
+    {
+      "timestamp": "2026-05-15T17:15:41.131Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 24,
+      "duration": 9.71
+    },
+    {
+      "timestamp": "2026-05-15T18:21:08.169Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 78,
+      "duration": 20.86
+    },
+    {
+      "timestamp": "2026-05-15T19:24:07.428Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 88,
+      "duration": 44.48
+    },
+    {
+      "timestamp": "2026-05-15T19:32:41.479Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 18,
+      "duration": 8.17
+    },
+    {
+      "timestamp": "2026-05-15T19:32:41.664Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 24,
+      "duration": 13.47
+    },
+    {
+      "timestamp": "2026-05-15T19:32:41.941Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 14,
+      "duration": 8.06
+    },
+    {
+      "timestamp": "2026-05-15T19:32:42.197Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 12,
+      "duration": 10.08
+    },
+    {
+      "timestamp": "2026-05-15T19:32:42.589Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 14,
+      "duration": 8.4
+    },
+    {
+      "timestamp": "2026-05-15T19:32:42.949Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 22,
+      "duration": 12.58
+    },
+    {
+      "timestamp": "2026-05-15T20:09:21.743Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 53,
+      "duration": 11.54
+    },
+    {
+      "timestamp": "2026-05-16T03:43:26.156Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 106,
+      "duration": 37.42
+    },
+    {
+      "timestamp": "2026-05-16T03:48:47.054Z",
+      "source_tool": "mistral-vibe",
+      "workflow": null,
+      "messages": 4,
+      "duration": 1.88
+    },
+    {
+      "timestamp": "2026-05-16T04:42:45.000Z",
+      "source_tool": "crush",
+      "workflow": "iterative-refinement",
+      "messages": 65,
+      "duration": 214.8
+    },
+    {
+      "timestamp": "2026-05-16T04:54:12.544Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 56,
+      "duration": 9.0
+    },
+    {
+      "timestamp": "2026-05-16T05:29:19.101Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 3,
+      "duration": 2.63
+    },
+    {
+      "timestamp": "2026-05-16T05:29:43.382Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 21,
+      "duration": 2.23
+    },
+    {
+      "timestamp": "2026-05-16T05:44:58.277Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 62,
+      "duration": 51.37
+    },
+    {
+      "timestamp": "2026-05-16T05:46:19.196Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 28,
+      "duration": 1.66
+    },
+    {
+      "timestamp": "2026-05-16T05:51:47.503Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 15,
+      "duration": 3.93
+    },
+    {
+      "timestamp": "2026-05-16T05:56:18.064Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 26,
+      "duration": 2.91
+    },
+    {
+      "timestamp": "2026-05-16T06:07:51.789Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 24,
+      "duration": 2.12
+    },
+    {
+      "timestamp": "2026-05-16T06:07:51.981Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 20,
+      "duration": 1.25
+    },
+    {
+      "timestamp": "2026-05-16T06:19:01.634Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 54,
+      "duration": 11.1
+    },
+    {
+      "timestamp": "2026-05-16T07:17:57.226Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 73,
+      "duration": 19.78
+    },
+    {
+      "timestamp": "2026-05-16T07:37:35.704Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 20,
+      "duration": 17.51
+    },
+    {
+      "timestamp": "2026-05-16T07:38:42.559Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 50,
+      "duration": 6.25
+    },
+    {
+      "timestamp": "2026-05-16T07:48:14.397Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 78,
+      "duration": 5.83
+    },
+    {
+      "timestamp": "2026-05-16T08:32:27.000Z",
+      "source_tool": "crush",
+      "workflow": "plan-then-implement",
+      "messages": 51,
+      "duration": 295.15
+    },
+    {
+      "timestamp": "2026-05-16T09:41:25.784Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 57,
+      "duration": 15.96
+    },
+    {
+      "timestamp": "2026-05-16T09:54:06.836Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-then-implement",
+      "messages": 76,
+      "duration": 18.5
+    },
+    {
+      "timestamp": "2026-05-16T10:58:49.000Z",
+      "source_tool": "crush",
+      "workflow": "direct-execution",
+      "messages": 19,
+      "duration": 1.82
+    },
+    {
+      "timestamp": "2026-05-16T11:07:06.978Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 118,
+      "duration": 26.54
+    },
+    {
+      "timestamp": "2026-05-16T12:06:59.722Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 42,
+      "duration": 71.81
+    },
+    {
+      "timestamp": "2026-05-16T12:44:00.063Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 9,
+      "duration": 19.16
+    },
+    {
+      "timestamp": "2026-05-16T12:45:18.631Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 48,
+      "duration": 15.27
+    },
+    {
+      "timestamp": "2026-05-16T12:57:00.964Z",
+      "source_tool": "gemini-cli",
+      "workflow": "direct-execution",
+      "messages": 78,
+      "duration": 25.81
+    },
+    {
+      "timestamp": "2026-05-16T13:00:51.983Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 7,
+      "duration": 2.0
+    },
+    {
+      "timestamp": "2026-05-16T13:26:20.136Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 24,
+      "duration": 1.93
+    },
+    {
+      "timestamp": "2026-05-16T13:31:08.847Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 34,
+      "duration": 8.05
+    },
+    {
+      "timestamp": "2026-05-16T13:40:35.073Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "plan-do-check-act",
+      "messages": 55,
+      "duration": 4.47
+    },
+    {
+      "timestamp": "2026-05-16T13:45:42.320Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 51,
+      "duration": 9.43
+    },
+    {
+      "timestamp": "2026-05-16T13:51:01.818Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 13,
+      "duration": 1.67
+    },
+    {
+      "timestamp": "2026-05-16T13:51:01.997Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 65,
+      "duration": 3.01
+    },
+    {
+      "timestamp": "2026-05-16T13:55:17.329Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "debug-fix-verify",
+      "messages": 51,
+      "duration": 0.36
+    },
+    {
+      "timestamp": "2026-05-16T14:00:21.958Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 5,
+      "duration": 9.08
+    },
+    {
+      "timestamp": "2026-05-16T14:01:29.383Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "direct-execution",
+      "messages": 3,
+      "duration": 7.96
+    },
+    {
+      "timestamp": "2026-05-16T14:02:08.505Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "iterative-refinement",
+      "messages": 43,
+      "duration": 5.31
+    },
+    {
+      "timestamp": "2026-05-16T14:02:08.639Z",
+      "source_tool": "mistral-vibe",
+      "workflow": "explore-then-build",
+      "messages": 30,
+      "duration": 4.62
+    },
+    {
+      "timestamp": "2026-05-16T14:12:09.000Z",
+      "source_tool": "crush",
+      "workflow": "plan-then-implement",
+      "messages": 8,
+      "duration": 1.2
+    }
+  ],
+  "friction_patterns": [],
+  "repeated_mistakes": [],
+  "transitions": [
+    {
+      "from": "mistral-vibe",
+      "to": "gemini-cli",
+      "timestamp": "2026-04-30T22:53:46.527Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "mistral-vibe",
+      "timestamp": "2026-04-30T23:02:12.706Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-04-30T23:12:33.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-03T03:30:14.251Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "opencode",
+      "timestamp": "2026-05-03T05:37:12.895Z"
+    },
+    {
+      "from": "opencode",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-03T06:02:31.477Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "opencode",
+      "timestamp": "2026-05-03T06:06:39.397Z"
+    },
+    {
+      "from": "opencode",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-03T06:25:05.485Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "gemini-cli",
+      "timestamp": "2026-05-08T04:00:47.199Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-08T09:06:06.855Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-12T02:32:13.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "gemini-cli",
+      "timestamp": "2026-05-12T07:07:15.379Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "crush",
+      "timestamp": "2026-05-12T14:39:45.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-12T14:58:31.289Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-12T16:45:04.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-12T16:47:12.744Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-12T16:57:39.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-12T17:04:18.762Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-12T17:22:20.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "gemini-cli",
+      "timestamp": "2026-05-14T20:30:35.485Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "opencode",
+      "timestamp": "2026-05-15T00:54:28.146Z"
+    },
+    {
+      "from": "opencode",
+      "to": "gemini-cli",
+      "timestamp": "2026-05-15T01:26:26.964Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-15T02:22:03.351Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "opencode",
+      "timestamp": "2026-05-15T02:57:55.283Z"
+    },
+    {
+      "from": "opencode",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-15T06:09:36.043Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-15T06:56:38.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-15T09:59:44.504Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-15T10:27:38.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-15T12:21:41.145Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-16T04:42:45.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-16T04:54:12.544Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-16T08:32:27.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-16T09:41:25.784Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-16T10:58:49.000Z"
+    },
+    {
+      "from": "crush",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-16T11:07:06.978Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "gemini-cli",
+      "timestamp": "2026-05-16T12:57:00.964Z"
+    },
+    {
+      "from": "gemini-cli",
+      "to": "mistral-vibe",
+      "timestamp": "2026-05-16T13:00:51.983Z"
+    },
+    {
+      "from": "mistral-vibe",
+      "to": "crush",
+      "timestamp": "2026-05-16T14:12:09.000Z"
+    }
+  ]
+}

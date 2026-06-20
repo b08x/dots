@@ -1,0 +1,27 @@
+# Chain-of-Verification (CoVe) Template
+# Variables: {agent_id}, {agent_name}, {description}, {safety_level}, {auto_approve}
+
+id = "{agent_id}"
+display_name = "{agent_name}"
+description = """{description}"""
+agent_type = "agent"
+safety = "{safety_level}"
+auto_approve = {auto_approve}
+system_prompt_id = "{agent_id}"
+user_invocable = true
+
+enabled_tools = ["read_file", "grep", "ask_user_question"]
+disabled_tools = ["write_file", "search_replace", "bash", "task"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true

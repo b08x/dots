@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[PROJECT NAME] Technical Specification & Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-surface: #fcf9f2;
+      --color-surface-dim: #dcdad3;
+      --color-surface-container: #f1eee7;
+      --color-surface-container-high: #ebe8e1;
+      --color-surface-container-highest: #e5e2db;
+      --color-on-surface: #1c1c18;
+      --color-on-surface-variant: #49463f;
+      --color-outline: #7b776e;
+      --color-outline-variant: #cbc6bc;
+      
+      --color-primary: #171611;
+      --color-on-primary: #ffffff;
+      --color-secondary: #a03e3d;     /* Maroon */
+      --color-on-secondary: #ffffff;
+      --color-tertiary: #0f1900;      /* Olive */
+      --color-on-tertiary: #ffffff;
+      --color-error: #ba1a1a;
+      
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-serif: 'Merriweather', serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--font-serif);
+      background-color: var(--color-surface);
+      color: var(--color-on-surface);
+      min-height: 100vh;
+      padding: 3rem 2rem;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .spec-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background-color: var(--color-primary);
+      color: var(--color-surface);
+      padding: 0.25rem 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    h1 {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+    
+    .subtitle {
+      color: var(--color-on-surface-variant);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    
+    .diagram-container {
+      background-color: var(--color-surface-container);
+      border: 1px solid var(--color-primary);
+      padding: 2rem;
+      overflow-x: auto;
+    }
+    
+    svg {
+      width: 100%;
+      min-width: 900px;
+      display: block;
+    }
+    
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .card {
+      background-color: var(--color-surface-container);
+      border: 1px solid var(--color-primary);
+      padding: 1.5rem;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--color-primary);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-primary);
+    }
+    
+    .card-dot.maroon { background-color: var(--color-secondary); }
+    .card-dot.olive { background-color: var(--color-tertiary); }
+    .card-dot.charcoal { background-color: var(--color-primary); }
+    
+    .card h3 {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    
+    .card ul {
+      list-style: none;
+      color: var(--color-on-surface-variant);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+    }
+    
+    .card li {
+      margin-bottom: 0.5rem;
+      position: relative;
+      padding-left: 1rem;
+    }
+    
+    .card li::before {
+      content: "■";
+      position: absolute;
+      left: 0;
+      top: 0.15rem;
+      font-size: 0.6rem;
+      color: var(--color-secondary);
+    }
+    
+    .footer {
+      font-family: var(--font-sans);
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--color-on-surface-variant);
+      font-size: 0.75rem;
+      border-top: 1px solid var(--color-outline-variant);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-row">
+        <div class="header-left">
+          <div class="spec-badge">TECHNICAL SPEC SHEET</div>
+          <h1>[PROJECT NAME] Architecture</h1>
+        </div>
+      </div>
+      <p class="subtitle">[Subtitle description / System overview]</p>
+    </div>
+
+    <!-- Main Diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 680">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#1c1c18" />
+          </marker>
+          <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ba1a1a" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ebe8e1" stroke-width="1"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- =================================================================
+             GRID-BASED COMPONENT SPECIFICATION EXAMPLES
+             ================================================================= -->
+
+        <!-- External/Generic Client (Utilitarian Outlined Card) -->
+        <rect x="30" y="280" width="120" height="60" fill="#fcf9f2" stroke="#1c1c18" stroke-width="1.5" />
+        <text x="90" y="305" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="11" font-weight="700" text-anchor="middle">USERS</text>
+        <text x="90" y="322" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">Browser / Mobile</text>
+
+        <!-- Security / Perimeter Component (Muted Maroon Outline) -->
+        <rect x="30" y="80" width="120" height="60" fill="#fdf2f2" stroke="#a03e3d" stroke-width="1.5" />
+        <text x="90" y="105" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="11" font-weight="700" text-anchor="middle">AUTH PROVIDER</text>
+        <text x="90" y="122" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">OAuth 2.0 / PKCE</text>
+
+        <!-- Region/Cloud Boundary (Amber Boundary, Sharp Corners) -->
+        <rect x="180" y="40" width="800" height="620" fill="none" stroke="#7b776e" stroke-width="1.5" stroke-dasharray="6,4" />
+        <text x="195" y="60" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700">SPECIFICATION ZONE: VPC (US-WEST-2)</text>
+
+        <!-- Cloud Frontend Routing -->
+        <rect x="220" y="280" width="120" height="60" fill="#fcf9f2" stroke="#1c1c18" stroke-width="1.5" />
+        <text x="280" y="305" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="11" font-weight="700" text-anchor="middle">CLOUDFRONT</text>
+        <text x="280" y="322" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">Global CDN</text>
+
+        <!-- Multi-line Storage Component (Flat Tabular List) -->
+        <rect x="220" y="380" width="120" height="110" fill="#fcf9f2" stroke="#1c1c18" stroke-width="1.5" />
+        <!-- Card Header Divider -->
+        <line x1="220" y1="410" x2="340" y2="410" stroke="#1c1c18" stroke-width="1" />
+        <text x="280" y="400" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700" text-anchor="middle">S3 BUCKETS</text>
+        <text x="235" y="430" fill="#49463f" font-family="'Inter'" font-size="8">• assets-bucket</text>
+        <text x="235" y="445" fill="#49463f" font-family="'Inter'" font-size="8">• static-bucket</text>
+        <text x="235" y="460" fill="#49463f" font-family="'Inter'" font-size="8">• media-bucket</text>
+        <text x="280" y="482" fill="#a03e3d" font-family="'JetBrains Mono'" font-size="8" font-weight="600" text-anchor="middle">OAI SECURED</text>
+
+        <!-- Private Network Subnet Boundary (Dashed, Ink Outline) -->
+        <rect x="380" y="180" width="400" height="230" fill="none" stroke="#1c1c18" stroke-width="1" stroke-dasharray="4,4" />
+        <text x="390" y="196" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="8" font-weight="700">PRIVATE SUBNET (10.0.1.0/24)</text>
+        
+        <!-- Application Load Balancer inside Subnet -->
+        <rect x="400" y="280" width="120" height="60" fill="#f1eee7" stroke="#1c1c18" stroke-width="1.5" />
+        <line x1="400" y1="310" x2="520" y2="310" stroke="#1c1c18" stroke-width="1" />
+        <text x="460" y="300" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700" text-anchor="middle">APP GATEWAY</text>
+        <text x="460" y="325" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">HTTPS :443</text>
+
+        <!-- Backend Core Service (Muted Olive Outline for Core Backend API) -->
+        <rect x="580" y="280" width="130" height="60" fill="#f4f8eb" stroke="#0f1900" stroke-width="1.5" />
+        <line x1="580" y1="310" x2="710" y2="310" stroke="#0f1900" stroke-width="1" />
+        <text x="645" y="300" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700" text-anchor="middle">API SERVER</text>
+        <text x="645" y="325" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">FastAPI :8000</text>
+
+        <!-- Database Engine (Flat Tonal Solid Fill with High Contrast Outline) -->
+        <rect x="800" y="280" width="130" height="60" fill="#ebe8e1" stroke="#1c1c18" stroke-width="1.5" />
+        <line x1="800" y1="310" x2="930" y2="310" stroke="#1c1c18" stroke-width="1" />
+        <text x="865" y="300" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700" text-anchor="middle">DATA WORKLOAD</text>
+        <text x="865" y="325" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">PostgreSQL :5432</text>
+
+        <!-- React Frontend Component -->
+        <rect x="380" y="470" width="220" height="110" fill="#fdf2f2" stroke="#a03e3d" stroke-width="1.5" />
+        <line x1="380" y1="500" x2="600" y2="500" stroke="#a03e3d" stroke-width="1" />
+        <text x="490" y="490" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="11" font-weight="700" text-anchor="middle">REACT SPA CLIENT</text>
+        <text x="490" y="522" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">Next.js Single Page App</text>
+        <text x="490" y="538" fill="#49463f" font-family="'Inter'" font-size="9" text-anchor="middle">Tailwind CSS (Paper &amp; Ink Theme)</text>
+        <text x="490" y="562" fill="#a03e3d" font-family="'JetBrains Mono'" font-size="8" font-weight="700" text-anchor="middle">HTTPS / Client-Side Auth</text>
+
+        <!-- =================================================================
+             UTILITY PRINT CONNECTIONS (1px Solid Ink Lines)
+             ================================================================= -->
+
+        <!-- Client to Router -->
+        <line x1="150" y1="310" x2="218" y2="310" stroke="#1c1c18" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="184" y="302" fill="#49463f" font-family="'Inter'" font-size="8" font-weight="600" text-anchor="middle">HTTPS</text>
+        
+        <!-- Router to Gateway -->
+        <line x1="340" y1="310" x2="398" y2="310" stroke="#1c1c18" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        
+        <!-- Gateway to S3 Buckets (Downwards) -->
+        <line x1="280" y1="340" x2="280" y2="378" stroke="#1c1c18" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="295" y="364" fill="#49463f" font-family="'Inter'" font-size="8">static</text>
+        
+        <!-- Gateway to Backend API (Subnet exit) -->
+        <line x1="520" y1="310" x2="578" y2="310" stroke="#1c1c18" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        
+        <!-- Backend API to DB Engine -->
+        <line x1="710" y1="310" x2="798" y2="310" stroke="#1c1c18" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="755" y="302" fill="#49463f" font-family="'Inter'" font-size="8" font-weight="600" text-anchor="middle">SQL</text>
+
+        <!-- Dashed Security/Auth Curve (Maroon Alert flow) -->
+        <path d="M 90 140 L 90 220 Q 90 240 120 240 L 398 240" fill="none" stroke="#ba1a1a" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead-red)"/>
+        <text x="200" y="232" fill="#ba1a1a" font-family="'JetBrains Mono'" font-size="8" font-weight="600">PKCE JWT VALIDATE</text>
+
+        <!-- =================================================================
+             TECHNICAL BLUEPRINT LEGEND BOX
+             ================================================================= -->
+        <rect x="780" y="60" width="180" height="150" fill="#f1eee7" stroke="#1c1c18" stroke-width="1.5" />
+        <line x1="780" y1="85" x2="960" y2="85" stroke="#1c1c18" stroke-width="1" />
+        <text x="870" y="77" fill="#1c1c18" font-family="'JetBrains Mono'" font-size="10" font-weight="700" text-anchor="middle">LEGEND KEY</text>
+        
+        <!-- Frontend -->
+        <rect x="795" y="98" width="16" height="10" fill="#fdf2f2" stroke="#a03e3d" stroke-width="1"/>
+        <text x="820" y="107" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Frontend Zone</text>
+        
+        <!-- Backend -->
+        <rect x="795" y="116" width="16" height="10" fill="#f4f8eb" stroke="#0f1900" stroke-width="1"/>
+        <text x="820" y="125" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Backend Core</text>
+        
+        <!-- Database -->
+        <rect x="795" y="134" width="16" height="10" fill="#ebe8e1" stroke="#1c1c18" stroke-width="1"/>
+        <text x="820" y="143" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Database Engine</text>
+        
+        <!-- General Routing -->
+        <rect x="795" y="152" width="16" height="10" fill="#fcf9f2" stroke="#1c1c18" stroke-width="1"/>
+        <text x="820" y="161" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Generic Service</text>
+        
+        <!-- Security Group -->
+        <rect x="795" y="170" width="16" height="10" fill="none" stroke="#1c1c18" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="820" y="179" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Dashed Boundary</text>
+
+        <!-- Auth flow line -->
+        <line x1="795" y1="193" x2="811" y2="193" stroke="#ba1a1a" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <text x="820" y="196" fill="#1c1c18" font-family="'Inter'" font-size="8" font-weight="500">Secure Auth Path</text>
+      </svg>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot maroon"></div>
+          <h3>System Topology</h3>
+        </div>
+        <ul>
+          <li>Utilitarian Swiss grid layout prioritizing flat structural shapes</li>
+          <li>0px sharp corners on all component outlines and text cells</li>
+          <li>Warm cream paper base surface mimicking high-density physical spec documents</li>
+          <li>Standardized thin 1px horizontal and vertical layout separators</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot olive"></div>
+          <h3>Color Rules</h3>
+        </div>
+        <ul>
+          <li>Base Surface background: Warm unbleached paper (#F4F1EA / #FCF9F2)</li>
+          <li>Primary structure and ink: Rich architectural charcoal (#1C1C18)</li>
+          <li>Frontend system boundary: Accent Muted Maroon (#A03E3D)</li>
+          <li>Backend API core boundary: Muted Olive (#0F1900)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot charcoal"></div>
+          <h3>Typography</h3>
+        </div>
+        <ul>
+          <li>Headers, section cards, data metrics: JetBrains Mono monospace</li>
+          <li>Long descriptions and system narrative paragraphs: Merriweather serif</li>
+          <li>Utilitarian labels, routing annotations, and metadata: Inter sans-serif</li>
+          <li>Strict uppercase capitalization for high-density document styling</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="footer">
+      Printed Document Specification • Paper &amp; Ink Visual Scheme v3.0 • Cocoon Technical Systems
+    </p>
+  </div>
+</body>
+</html>

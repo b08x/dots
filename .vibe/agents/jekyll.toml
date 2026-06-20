@@ -1,0 +1,48 @@
+id = "jekyll"
+name = "Jekyll"
+display_name = "Jekyll"
+description = "Jekyll static site generator — create, build, serve, and manage Jekyll sites and themes. Use when the user wants to create a new Jekyll site, build or serve a local Jekyll project, create or modify a Jekyll gem-based theme, work with Liquid templates/layouts/includes, configure _config.yml, or troubleshoot Jekyll builds. Covers Jekyll commands, directory structure, theme creation, gem packaging, plugins, collections, assets/SASS, and Liquid templating."
+agent_type = "agent"
+safety = "neutral"
+auto_approve = false
+bypass_tool_permissions = false
+system_prompt_id = "jekyll"
+user_invocable = true
+spawns_subagents = false
+
+enabled_skills = ["jekyll"]
+
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "write_file",
+    "edit",
+]
+disabled_tools = []
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "jekyll",
+    "bundle",
+    "gem",
+    "ruby",
+    "git",
+]
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "jekyll"

@@ -1,0 +1,42 @@
+# Tool Orchestrator Template
+# Variables: {agent_id}, {agent_name}, {description}, {bash_allowlist}, {safety_level}
+# NOTE: bash_allowlist must be a TOML array, e.g. ["git", "curl", "jq"]
+# FIX: removed write_file.denylist — not a valid write_file config field
+#      Path restrictions must be enforced via system prompt or by omitting write_file entirely
+
+id = "{agent_id}"
+display_name = "{agent_name}"
+description = """{description}"""
+agent_type = "agent"
+safety = "{safety_level}"
+auto_approve = false
+system_prompt_id = "{agent_id}"
+user_invocable = true
+
+enabled_tools = ["bash", "read_file", "write_file", "ask_user_question"]
+disabled_tools = ["grep", "task"]
+
+[tools.bash]
+permission = "ask"
+allowlist = {bash_allowlist}
+denylist = [
+    "rm", "rm -rf", "curl | bash", "wget | bash", "sudo", "su", "passwd",
+    "useradd", "usermod", "groupadd", "apt", "yum", "dnf", "pacman",
+    "chmod -R", "chown", "chgrp", "dd", "mkfs", "gdb", "pdb", "strace",
+    "tcpdump", "wireshark", "tshark", "nmap", "> /dev/sd*", "mv /", "cp -r /"
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+# write_file has no denylist field — use permission="ask" and system prompt
+# to restrict target paths
+
+[tools.ask_user_question]
+permission = "always"
+
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true

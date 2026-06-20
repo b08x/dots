@@ -1,0 +1,295 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Code-Insights Skill - Main CLI
+# Query and analyze AI coding sessions from code-insights database
+
+require_relative 'lib/session_discovery'
+require_relative 'lib/message_extraction'
+require_relative 'lib/facet_correlation'
+require_relative 'lib/session_exporter'
+require_relative 'lib/integrations'
+require 'optparse'
+require 'json'
+
+module CodeInsights
+  class CLI
+    def self.run(args)
+      command = args.shift
+      case command
+      when 'extract'
+        extract_command(args)
+      when 'sessions'
+        sessions_command(args)
+      when 'patterns'
+        patterns_command(args)
+      when 'insights'
+        insights_command(args)
+      when 'export'
+        export_command(args)
+      when 'correlate'
+        correlate_command(args)
+      when 'stats'
+        stats_command(args)
+      else
+        puts usage
+        exit 1
+      end
+    end
+
+    def self.extract_command(args)
+      options = {}
+      OptionParser.new do |opts|
+        opts.on('--recent', 'Extract recent sessions') { options[:recent] = true }
+        opts.on('--hours N', Integer, 'Time window (hours)') { |v| options[:hours] = v }
+        opts.on('--source TOOL', 'Filter by source tool') { |v| options[:source] = v }
+        opts.on('--limit N', Integer, 'Result limit') { |v| options[:limit] = v }
+      end.parse!(args)
+
+      discovery = SessionDiscovery.new
+
+      sessions = if options[:recent]
+        discovery.recent_sessions(
+          hours: options[:hours] || 6,
+          limit: options[:limit] || 20
+        )
+      elsif options[:source]
+        discovery.find_sessions_by_source(
+          source_tool: options[:source],
+          limit: options[:limit] || 20
+        )
+      else
+        puts "Use --recent or --source. See --help."
+        exit 1
+      end
+
+      discovery.close
+
+      puts "Found #{sessions.length} sessions:"
+      sessions.each do |session|
+        puts "  #{session['id']} - #{session['project_name']} (#{session['message_count']} messages)"
+      end
+    end
+
+    def self.sessions_command(args)
+      options = {}
+      OptionParser.new do |opts|
+        opts.on('--project ID', 'Filter by project') { |v| options[:project] = v }
+        opts.on('--character TYPE', 'Filter by character') { |v| options[:character] = v }
+        opts.on('--since DATE', 'Since date') { |v| options[:since] = v }
+        opts.on('--limit N', Integer, 'Result limit') { |v| options[:limit] = v }
+      end.parse!(args)
+
+      discovery = SessionDiscovery.new
+
+      sessions = if options[:project]
+        discovery.find_sessions_by_project(
+          project_id: options[:project],
+          since: options[:since] || '7 days ago'
+        )
+      elsif options[:character]
+        discovery.find_sessions_by_character(
+          character: options[:character],
+          limit: options[:limit] || 20
+        )
+      else
+        puts "Use --project or --character. See --help."
+        exit 1
+      end
+
+      discovery.close
+      puts JSON.pretty_generate(sessions)
+    end
+
+    def self.patterns_command(args)
+      options = {}
+      OptionParser.new do |opts|
+        opts.on('--category CAT', 'Friction/pattern category') { |v| options[:category] = v }
+        opts.on('--project ID', 'Project ID') { |v| options[:project] = v }
+        opts.on('--since DATE', 'Since date') { |v| options[:since] = v }
+        opts.on('--recurring', 'Show recurring patterns') { options[:recurring] = true }
+        opts.on('--min-occurrences N', Integer, 'Min occurrences') { |v| options[:min] = v }
+      end.parse!(args)
+
+      facets = FacetCorrelation.new
+
+      if options[:recurring]
+        result = facets.recurring_friction_patterns(
+          project_id: options[:project],
+          min_occurrences: options[:min] || 3
+        )
+      elsif options[:category]
+        result = facets.sessions_with_friction(
+          category: options[:category],
+          project_id: options[:project],
+          since: options[:since] || '30 days ago'
+        )
+      else
+        puts "Use --category or --recurring. See --help."
+        exit 1
+      end
+
+      facets.close
+      puts JSON.pretty_generate(result)
+    end
+
+    def self.insights_command(args)
+      options = { confidence: 0.85 }
+      OptionParser.new do |opts|
+        opts.on('--project ID', 'Project ID') { |v| options[:project] = v }
+        opts.on('--confidence N', Float, 'Min confidence') { |v| options[:confidence] = v }
+        opts.on('--limit N', Integer, 'Result limit') { |v| options[:limit] = v }
+      end.parse!(args)
+
+      unless options[:project]
+        puts "Error: --project required"
+        exit 1
+      end
+
+      facets = FacetCorrelation.new
+      insights = facets.high_confidence_insights(
+        project_id: options[:project],
+        confidence: options[:confidence],
+        limit: options[:limit] || 20
+      )
+      facets.close
+
+      puts JSON.pretty_generate(insights)
+    end
+
+    def self.export_command(args)
+      options = { formats: [:json, :markdown, :jsonl] }
+      OptionParser.new do |opts|
+        opts.on('--session ID', 'Export single session') { |v| options[:session] = v }
+        opts.on('--recent HOURS', Integer, 'Export recent sessions') { |v| options[:recent] = v }
+        opts.on('--format FORMAT', 'Format: json, markdown, jsonl') { |v| options[:formats] = [v.to_sym] }
+        opts.on('--graphify', 'Index with graphify after export') { options[:graphify] = true }
+        opts.on('--qmd-index', 'Index with QMD after export') { options[:qmd] = true }
+      end.parse!(args)
+
+      if options[:session]
+        exporter = SessionExporter.new
+        result = exporter.export_session(
+          session_id: options[:session],
+          formats: options[:formats]
+        )
+        exporter.close
+
+        puts JSON.pretty_generate(result)
+
+        # Post-export integration
+        if options[:graphify]
+          puts "\nIndexing with graphify..."
+          graphify_result = Integrations::Graphify.index_session(session_id: options[:session])
+          puts graphify_result[:graphify_output]
+        end
+
+        if options[:qmd]
+          puts "\nIndexing with QMD..."
+          qmd_result = Integrations::QMD.index_session(session_id: options[:session])
+          puts qmd_result[:qmd_output]
+        end
+
+      elsif options[:recent]
+        if options[:graphify]
+          result = Integrations::Graphify.index_recent(hours: options[:recent])
+        elsif options[:qmd]
+          result = Integrations::QMD.index_recent(hours: options[:recent])
+        else
+          puts "Use --graphify or --qmd-index with --recent"
+          exit 1
+        end
+
+        puts JSON.pretty_generate(result)
+      else
+        puts "Use --session or --recent. See --help."
+        exit 1
+      end
+    end
+
+    def self.correlate_command(args)
+      options = {}
+      OptionParser.new do |opts|
+        opts.on('--sessions IDS', 'Comma-separated session IDs') { |v| options[:sessions] = v.split(',') }
+        opts.on('--output TYPE', 'Output: graphify or json') { |v| options[:output] = v }
+      end.parse!(args)
+
+      unless options[:sessions]
+        puts "Error: --sessions required"
+        exit 1
+      end
+
+      if options[:output] == 'graphify'
+        result = Integrations::Graphify.correlate_sessions(session_ids: options[:sessions])
+        puts result[:graphify_output]
+      else
+        facets = FacetCorrelation.new
+        result = facets.correlate_insights(session_ids: options[:sessions])
+        facets.close
+        puts JSON.pretty_generate(result)
+      end
+    end
+
+    def self.stats_command(args)
+      discovery = SessionDiscovery.new
+      stats = discovery.session_character_stats
+
+      puts "\n=== Session Character Distribution (Last 30 Days) ===\n\n"
+      stats.each do |stat|
+        puts "#{stat['session_character'].ljust(15)} " \
+             "Count: #{stat['count'].to_s.rjust(3)}  " \
+             "Avg Messages: #{stat['avg_messages'].round(1).to_s.rjust(5)}  " \
+             "Avg Cost: $#{stat['avg_cost'].round(2)}"
+      end
+
+      discovery.close
+    end
+
+    def self.usage
+      <<~USAGE
+        Code-Insights Skill - Query AI coding sessions
+
+        COMMANDS:
+
+          extract recent --hours 6 --source claude-code
+            Extract recent sessions
+
+          sessions --project <id> --since "last week"
+            List sessions by project
+
+          sessions --character deep_focus --limit 10
+            List sessions by character type
+
+          patterns --category friction --project <id>
+            Find sessions with friction patterns
+
+          patterns --recurring --project <id> --min-occurrences 3
+            Show recurring patterns
+
+          insights --project <id> --confidence 0.9
+            High-confidence insights
+
+          export --session <id> --format json
+            Export session to file
+
+          export --recent 6 --graphify
+            Export recent sessions and index with graphify
+
+          export --session <id> --qmd-index
+            Export and index with QMD
+
+          correlate --sessions <id1>,<id2> --output graphify
+            Correlate multiple sessions
+
+          stats
+            Show session statistics
+
+        OPTIONS:
+          --help    Show this help
+      USAGE
+    end
+  end
+end
+
+# Run CLI
+CodeInsights::CLI.run(ARGV) if __FILE__ == $PROGRAM_NAME
