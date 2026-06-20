@@ -25,6 +25,15 @@
 
   tasks:
     - import_role:
+        name: ~/.config/yadm/roles/zsh
+      vars:
+        ansible_user: "{{ansible_env.USER}}"
+        omz_install_dir: /usr/share/oh-my-zsh
+      environment:
+        ZSH: /usr/share/oh-my-zsh
+      tags: ["zsh"]
+
+    - import_role:
         name: ~/.config/yadm/roles/sway
       vars:
         ansible_user: "{{ansible_env.USER}}"

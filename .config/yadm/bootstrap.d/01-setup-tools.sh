@@ -1,22 +1,70 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # =============================================================================
 # YADM Bootstrap Step: Install Prerequisites (Ansible & System Core)
 # =============================================================================
+source "$HOME/.config/yadm/scripts/gum-helpers.sh"
 
-echo "============================================================================="
-echo "Bootstrapping prerequisites for Workstation Setup..."
-echo "============================================================================="
+# Initialize gum before using it
+gum_init || { echo "Failed to initialize gum"; exit 1; }
+
+# Show Tetris header for this step
+show_tetris_header "Prerequisites Setup"
 
 # 1. Update/Install Ansible and dependencies via DNF
+tetris_step "Installing Ansible and dependencies..."
 if ! command -v ansible-playbook >/dev/null 2>&1; then
-    echo "Installing Ansible and dependencies..."
-    sudo dnf install -y ansible git python3-pip python3-devel
+    tetris_info "Installing Ansible, git, python3-pip, python3-devel..."
+    if sudo dnf install -y ansible git python3-pip python3-devel; then
+        tetris_success "Ansible and dependencies installed successfully!"
+    else
+        tetris_error "Failed to install Ansible dependencies"
+        exit 1
+    fi
 else
-    echo "Ansible is already installed."
+    tetris_success "Ansible is already installed."
 fi
 
-# 2. Install community collections if needed
-echo "Verifying Ansible collections..."
-ansible-galaxy collection install community.general ansible.posix --upgrade
+sleep 1
+clear
+sleep 1
 
-echo "Prerequisites bootstrap complete! Ready to run Ansible."
+declare -A CARGO_CRATES=(
+    ["bottom"]="btm"
+    ["gping"]="gping"
+    ["ripgrep_all"]="rga"
+    ["sd"]="sd"
+    ["choose"]="choose"
+)
+
+for crate in "${!CARGO_CRATES[@]}"; do
+    cmd="${CARGO_CRATES[$crate]}"
+    if ! command -v "$cmd" >/dev/null 2>&1 && [[ ! -x "$HOME/.cargo/bin/$cmd" ]]; then
+        cargo install "$crate" || echo "unable to install $crate"
+    fi
+done
+
+# 2. Install community collections if needed
+tetris_step "Verifying Ansible collections..."
+
+CHOOSE_CMD="choose"
+if ! command -v choose >/dev/null 2>&1 && [[ -x "$HOME/.cargo/bin/choose" ]]; then
+    CHOOSE_CMD="$HOME/.cargo/bin/choose"
+fi
+
+if ansible-galaxy collection list 2>/dev/null | $CHOOSE_CMD 0 2>/dev/null | grep -q "posix" && \
+   ansible-galaxy collection list 2>/dev/null | $CHOOSE_CMD 0 2>/dev/null | grep -q "general"; then
+    tetris_success "Ansible collections are already installed."
+else
+    tetris_info "Installing Ansible collections via DNF..."
+    if sudo dnf install -y ansible-collection-ansible-posix ansible-collection-community-general; then
+        tetris_success "Ansible collections installed/updated via DNF."
+    else
+        tetris_error "Failed to install Ansible collections"
+    fi
+fi
+
+echo ""
+tetris_success "Prerequisites bootstrap complete! Ready to run Ansible."
+echo ""
+
+

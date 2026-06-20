@@ -5,25 +5,51 @@
 export ANSIBLE_HOME="$HOME/.config/yadm"
 
 BOOTSTRAP_DIR="$HOME/.config/yadm/bootstrap.d"
+SCRIPTS_DIR="$HOME/.config/yadm/scripts"
 
+source "$SCRIPTS_DIR/gum-helpers.sh"
 
-echo "============================================================================="
-echo "Starting YADM Bootstrap Pipeline..."
-echo "============================================================================="
+# Initialize gum before using it
+gum_init || { echo "Failed to initialize gum"; exit 1; }
+
+# Show Tetris splash screen
+show_tetris_splash "YADM Bootstrap Pipeline" "Building your workstation..."
 
 if [ -d "$BOOTSTRAP_DIR" ]; then
     # Run all executable files in bootstrap.d/ in sorted order
+    tetris_step "Running bootstrap scripts..."
+    echo ""
+
+    tetris_board_init
+    any_failed=0
+
     for script in $(find "$BOOTSTRAP_DIR" -maxdepth 1 -type f -executable | sort); do
-        echo "--> Running: $(basename "$script")"
-        "$script"
-        echo "--> Finished: $(basename "$script")"
+        tetris_info "Running: $(basename "$script")"
+        if "$script"; then
+            tetris_success "Finished: $(basename "$script")"
+            tetris_board_place success "$(basename "$script")"
+        else
+            tetris_error "Failed: $(basename "$script")"
+            tetris_board_place fail "$(basename "$script")"
+            any_failed=1
+        fi
         echo ""
     done
+
+    tetris_board_summary
+    echo ""
+
+    if [ "$any_failed" -eq 0 ]; then
+        tetris_success "YADM Bootstrap Pipeline Complete!"
+        echo ""
+        gum style --foreground "$TETRIS_CYAN" --bold "  All systems ready! Enjoy your Tetris-themed workstation. 🎮"
+        echo ""
+    else
+        tetris_error "YADM Bootstrap Pipeline finished with errors."
+        echo ""
+        exit 1
+    fi
 else
-    echo "ERROR: Bootstrap directory $BOOTSTRAP_DIR not found!"
+    tetris_error "Bootstrap directory $BOOTSTRAP_DIR not found!"
     exit 1
 fi
-
-echo "============================================================================="
-echo "YADM Bootstrap Pipeline Complete!"
-echo "============================================================================="

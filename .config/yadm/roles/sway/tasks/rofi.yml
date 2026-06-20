@@ -10,7 +10,7 @@
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: "0755"
+    mode: "0750"
   loop:
     - ""
     - "colors"

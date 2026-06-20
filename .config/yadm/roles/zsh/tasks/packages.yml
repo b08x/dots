@@ -5,9 +5,77 @@
     state: present
   become: true
 
-- name: Set Zsh as default shell for user
+# - name: Set Zsh as default shell for user
+#   ansible.builtin.user:
+#     name: "{{ ansible_user_id }}"
+#     shell: /bin/zsh
+#   become: true
+#   when: zsh_change_default_shell
+
+- name: Check if oh-my-zsh is installed
+  ansible.builtin.stat:
+    path: "/usr/share/oh-my-zsh"
+  register: zsh_oh_my_zsh_stat
+
+- name: Oh-my-zsh installation
+  become: true
+  block:
+    - name: Download oh-my-zsh install script
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        dest: "/tmp/oh-my-zsh-install.sh"
+        mode: "0755"
+      register: zsh_oh_my_zsh_install_script
+
+    - name: Install oh-my-zsh
+      ansible.builtin.command:
+        cmd: "/tmp/oh-my-zsh-install.sh --unattended --keep-zshrc"
+      environment:
+        ZSH: "/usr/share/oh-my-zsh"
+      when: zsh_oh_my_zsh_install_script is changed
+      register: zsh_oh_my_zsh_install
+
+    - name: Clean up oh-my-zsh install script
+      ansible.builtin.file:
+        path: "/tmp/oh-my-zsh-install.sh"
+        state: absent
+      when: zsh_oh_my_zsh_install is changed
+
+    - name: Create custom and themes directories
+      ansible.builtin.file:
+        path: "{{ omz_install_dir }}/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - custom
+        - custom/themes
+        - custom/plugins
+
+  when: not zsh_oh_my_zsh_stat.stat.exists
+  tags: ["oh-my-zsh"]
+
+- name: Get Zsh binary path
+  ansible.builtin.command: which zsh
+  register: zsh_path
+  changed_when: false
+
+- name: Set Zsh as default shell for current user
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
-    shell: /bin/zsh
+    shell: "{{ zsh_path.stdout }}"
   become: true
-  when: zsh_change_default_shell
+
+- name: Set Zsh as default shell for root
+  ansible.builtin.user:
+    name: root
+    shell: "{{ zsh_path.stdout }}"
+  become: true
+
+- name: Verify Oh My Zsh installation
+  ansible.builtin.stat:
+    path: "{{ omz_install_dir }}/oh-my-zsh.sh"
+  register: omz_check
+
+- name: Report Oh My Zsh status
+  ansible.builtin.debug:
+    msg: "Oh My Zsh {{ 'installed' if omz_check.stat.exists else 'MISSING' }} at {{ omz_install_dir }}"
