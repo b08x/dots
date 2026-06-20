@@ -200,7 +200,7 @@ if [ -f "$HOME/.config/claude/local/claude" ]; then
 fi
 
 # bun completions
-[ -s "/home/b08x/.bun/_bun" ] && source "/home/b08x/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -213,8 +213,8 @@ export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
 
 
 # Added by Antigravity CLI installer
-export PATH="$HOME/bin:/home/b08x/.local/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 
 # Added by codebase-memory-mcp install
-export PATH="/home/b08x/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
