@@ -14,7 +14,7 @@ toolsets:
 - file
 - terminal
 - todo
-max_concurrent_sessions: null
+max_concurrent_sessions: 0
 agent:
   max_turns: 90
   gateway_timeout: 1800
@@ -87,7 +87,7 @@ checkpoints:
   retention_days: 7
   delete_orphans: true
   min_interval_hours: 24
-context_file_max_chars: null
+context_file_max_chars: {}
 file_read_max_chars: 100000
 mcp_discovery_timeout: 1.5
 tool_output:
@@ -115,18 +115,18 @@ compression:
   abort_on_summary_failure: false
   codex_gpt55_autoraise: true
 kanban:
-  default_workdir: ~/WorkspaceV3
   dispatch_in_gateway: true
   dispatch_interval_seconds: 60
   failure_limit: 2
   worker_log_rotate_bytes: 2097152
   worker_log_backup_count: 1
-  orchestrator_profile: ''
-  default_assignee: ''
-  max_in_progress_per_profile: null
+  orchestrator_profile: default
+  default_assignee: systems-engineer
+  max_in_progress_per_profile: 1
   auto_decompose: true
   auto_decompose_per_tick: 3
   dispatch_stale_timeout_seconds: 14400
+  default_workdir: ~/WorkspaceV3
 prompt_caching:
   cache_ttl: 5m
 openrouter:
@@ -371,14 +371,11 @@ memory:
   provider: ''
 delegation:
   model: mistral-medium-latest
-  provider: custom
-  base_url: ''
-  api_key: ''
-  api_mode: ''
+  provider: Api.mistral.ai
   inherit_mcp_toolsets: true
   max_iterations: 50
   child_timeout_seconds: 600
-  reasoning_effort: ''
+  reasoning_effort: medium
   max_concurrent_children: 3
   max_async_children: 3
   max_spawn_depth: 3
@@ -398,7 +395,6 @@ skills:
   write_approval: false
   disabled:
   - ansible-automation
-  - ansible-best-practices-roles-modules
   - book-to-skill
   - dspy-rb-lm-provider
   - evans-polished-ruby
@@ -520,7 +516,7 @@ cron:
     expected_audience: ''
     nas_jwks_url: ''
   wrap_response: true
-  max_parallel_jobs: null
+  max_parallel_jobs: {}
 code_execution:
   mode: project
 tools:
@@ -563,6 +559,7 @@ sessions:
 onboarding:
   seen:
     openclaw_residue_cleanup: true
+    tool_progress_prompt: true
   profile_build: ask
 updates:
   pre_update_backup: false
@@ -590,7 +587,7 @@ secrets:
 paste_collapse_threshold: 5
 paste_collapse_threshold_fallback: 5
 paste_collapse_char_threshold: 2000
-_config_version: 29
+_config_version: 30
 mcp_servers:
   context7:
     url: https://mcp.context7.com/mcp
@@ -618,3 +615,11 @@ custom_providers:
 fallback_model:
   provider: Api.mistral.ai
   model: mistral-medium-latest
+
+# Desktop app API server (auto-configured)
+platforms:
+  api_server:
+    enabled: true
+    extra:
+      port: 8641
+      host: "127.0.0.1"

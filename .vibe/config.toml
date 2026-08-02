@@ -39,6 +39,7 @@ applied_migrations = [
 connectors = [
     { name = "deepwiki", disabled = true },
     { name = "github_app", disabled = false },
+    { name = "google_drive", disabled = false },
 ]
 
 [[mcp_servers]]
@@ -48,6 +49,11 @@ command = "trackboi"
 args = [
     "mcp",
 ]
+
+[[mcp_servers]]
+name = "codebase-memory-mcp"
+transport = "stdio"
+command = "/home/b08x/.local/bin/codebase-memory-mcp"
 
 [[mcp_servers]]
 transport = "http"
@@ -135,8 +141,11 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "/tmp/*",
+    "ansible-lint",
     "awk",
     "basename",
+    "bundle",
     "cargo",
     "cat",
     "cd",
@@ -153,6 +162,9 @@ allowlist = [
     "find",
     "fmt",
     "fold",
+    "gh auth status",
+    "gh repo create",
+    "gh repo view",
     "git",
     "git diff",
     "git log",
@@ -175,6 +187,7 @@ allowlist = [
     "paste",
     "pwd",
     "python3",
+    "read",
     "readlink",
     "rga",
     "rustc",
@@ -187,6 +200,7 @@ allowlist = [
     "sum",
     "tac",
     "tail",
+    "timeout",
     "tr",
     "tree",
     "uname",
@@ -194,6 +208,9 @@ allowlist = [
     "wc",
     "which",
     "whoami",
+    "xargs",
+    "yadm",
+    "yamllint",
     "yarn",
 ]
 denylist = [
@@ -233,7 +250,7 @@ denylist = [
 permission = "always"
 
 [tools.write_file]
-permission = "ask"
+permission = "always"
 
 [tools.task]
 permission = "always"
@@ -253,10 +270,6 @@ permission = "always"
 [tools.trackboi_get_track]
 permission = "always"
 
-[tools.read]
-permission = "always"
-max_read_bytes = 262144
-
 [tools.edit]
 permission = "always"
 allowlist = [
@@ -273,3 +286,16 @@ denylist = [
     "/sbin/*",
     "/lib/*",
 ]
+
+[tools.read_file]
+permission = "always"
+max_read_bytes = 262144
+
+[tools.codebase-memory-mcp_manage_adr]
+permission = "always"
+
+[tools.connector_github_app_create_repository]
+permission = "always"
+
+[tools.connector_github_app_get_me]
+permission = "always"
