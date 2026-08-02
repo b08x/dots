@@ -218,3 +218,9 @@ export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 # Added by codebase-memory-mcp install
 export PATH="$HOME/.local/bin:$PATH"
+
+# Added by codebase-memory-mcp install
+export PATH="/home/b08x/.local/bin:$PATH"
+
+export ASDF_DATA_DIR="/opt/asdf"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
