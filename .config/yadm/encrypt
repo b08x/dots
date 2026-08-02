@@ -4,3 +4,10 @@
 .gpg/private/*.asc
 .gpg/public/*.asc
 .gpg/recipes.kdbx
+.claude.json
+.codex/auth.json
+.hermes/profiles/*/auth.json
+.hermes/profiles/*/.env
+.hermes/profiles/*/config.yaml
+.hermes/config.yaml
+.config/tooling/secrets.env
