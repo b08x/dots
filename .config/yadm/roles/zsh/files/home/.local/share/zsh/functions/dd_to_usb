@@ -1,9 +1,0 @@
-dd_to_usb() {
-
-ISO=$1
-USB=$2
-
-sudo dd if=$ISO of=$USB bs=512K oflag=direct status=progress && sync
-
-
-}

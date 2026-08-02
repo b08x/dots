@@ -1,6 +1,0 @@
-cmd        "exo-open"
-oc-cmd     "qpdfview;icon:qpdfview"
-oc-cmd     "darktable;icon:darktable"
-depth      2
-
-open-parent-as-self

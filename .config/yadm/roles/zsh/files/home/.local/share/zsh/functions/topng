@@ -1,7 +1,0 @@
-topng() {
-
-  FILE=$1
-
-  /usr/bin/mogrify -format png $1
-
-}
