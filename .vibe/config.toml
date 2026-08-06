@@ -74,9 +74,12 @@ url = "https://mcp.deepwiki.com/mcp"
 startup_timeout_sec = 30.0
 
 [[mcp_servers]]
-transport = "http"
+transport = "stdio"
 name = "qmd"
-url = "http://localhost:8181/mcp"
+command = "qmd"
+args = [
+    "mcp",
+]
 startup_timeout_sec = 30.0
 
 [[providers]]
@@ -141,6 +144,7 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "/home/b08x/*",
     "/tmp/*",
     "ansible-lint",
     "awk",
@@ -187,6 +191,7 @@ allowlist = [
     "paste",
     "pwd",
     "python3",
+    "qmd",
     "read",
     "readlink",
     "rga",
@@ -290,6 +295,9 @@ denylist = [
 [tools.read_file]
 permission = "always"
 max_read_bytes = 262144
+allowlist = [
+    "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
+]
 
 [tools.codebase-memory-mcp_manage_adr]
 permission = "always"
