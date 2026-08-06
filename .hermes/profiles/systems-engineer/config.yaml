@@ -1,19 +1,17 @@
 model:
-  default: stepfun/step-3.7-flash:free
-  provider: nous
-  base_url: https://inference-api.nousresearch.com/v1
+  default: xiaomi/mimo-v2.5-pro
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
   api_mode: chat_completions
-providers: {}
 fallback_providers: []
-credential_pool_strategies: {}
 toolsets:
-- hermes-cli
-- delegation
-- web-search
-- kanban
-- file
-- terminal
-- todo
+  - hermes-cli
+  - delegation
+  - web-search
+  - kanban
+  - file
+  - terminal
+  - todo
 max_concurrent_sessions: 0
 agent:
   max_turns: 90
@@ -44,7 +42,6 @@ terminal:
   auto_source_bashrc: true
   docker_image: nikolaik/python-nodejs:python3.11-nodejs20
   docker_forward_env: []
-  docker_env: {}
   singularity_image: docker://nikolaik/python-nodejs:python3.11-nodejs20
   modal_image: nikolaik/python-nodejs:python3.11-nodejs20
   daytona_image: nikolaik/python-nodejs:python3.11-nodejs20
@@ -85,8 +82,8 @@ checkpoints:
   max_file_size_mb: 10
   auto_prune: true
   retention_days: 7
-  delete_orphans: true
   min_interval_hours: 24
+  delete_orphans: true
 context_file_max_chars: {}
 file_read_max_chars: 100000
 mcp_discovery_timeout: 1.5
@@ -114,19 +111,6 @@ compression:
   protect_first_n: 3
   abort_on_summary_failure: false
   codex_gpt55_autoraise: true
-kanban:
-  dispatch_in_gateway: true
-  dispatch_interval_seconds: 60
-  failure_limit: 2
-  worker_log_rotate_bytes: 2097152
-  worker_log_backup_count: 1
-  orchestrator_profile: default
-  default_assignee: systems-engineer
-  max_in_progress_per_profile: 1
-  auto_decompose: true
-  auto_decompose_per_tick: 3
-  dispatch_stale_timeout_seconds: 14400
-  default_workdir: ~/WorkspaceV3
 prompt_caching:
   cache_ttl: 5m
 openrouter:
@@ -151,7 +135,6 @@ auxiliary:
     base_url: ''
     api_key: ''
     timeout: 120
-    extra_body: {}
     download_timeout: 30
   web_extract:
     provider: auto
@@ -159,84 +142,72 @@ auxiliary:
     base_url: ''
     api_key: ''
     timeout: 360
-    extra_body: {}
   compression:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 120
-    extra_body: {}
   skills_hub:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
-    extra_body: {}
   approval:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
-    extra_body: {}
   mcp:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
-    extra_body: {}
   title_generation:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
-    extra_body: {}
   tts_audio_tags:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 30
-    extra_body: {}
   triage_specifier:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 120
-    extra_body: {}
   kanban_decomposer:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 180
-    extra_body: {}
   profile_describer:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 60
-    extra_body: {}
   curator:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 600
-    extra_body: {}
   monitor:
     provider: auto
     model: ''
     base_url: ''
     api_key: ''
     timeout: 60
-    extra_body: {}
 display:
   compact: true
   personality: ''
@@ -273,7 +244,6 @@ display:
     last_lines: 2
   interim_assistant_messages: true
   tool_progress_command: false
-  tool_progress_overrides: {}
   tool_preview_length: 0
   tool_progress_grouping: accumulate
   ephemeral_system_ttl: 0
@@ -285,10 +255,11 @@ display:
   runtime_footer:
     enabled: true
     fields:
-    - model
-    - context_pct
-    - cwd
+      - model
+      - context_pct
+      - cwd
   copy_shortcut: auto
+  tool_progress_overrides: {}
 dashboard:
   theme: default
   show_token_analytics: false
@@ -377,50 +348,37 @@ delegation:
   child_timeout_seconds: 600
   reasoning_effort: medium
   max_concurrent_children: 3
-  max_async_children: 3
   max_spawn_depth: 3
   orchestrator_enabled: true
   subagent_auto_approve: false
+  max_async_children: 3
 prefill_messages_file: ''
 goals:
   max_turns: 20
 skills:
   external_dirs:
-  - ~/.syncopated/skills
-  - ~/.agents/skills
+    - ~/.syncopated/skills
+    - ~/.agents/skills
   template_vars: true
   inline_shell: false
   inline_shell_timeout: 10
   guard_agent_created: false
   write_approval: false
   disabled:
-  - ansible-automation
-  - book-to-skill
-  - dspy-rb-lm-provider
-  - evans-polished-ruby
-  - find-skills
-  - hofstadter-ai-loops
-  - hofstadter-geb
-  - hofstadter-geb-ai-ruby
-  - jekyll
-  - jekyll-vitepress
-  - metz-poodr
-  - repomix-explorer
-  - ruby-analyse
-  - ruby-context
-  - ruby-data-engineer
-  - ruby-genai
-  - ruby-refactor
-  - ruby-scaffold
-  - ruby-sfl-nlp-pipeline
-  - ruby-sift
-  - ruby-tui
-  - ruby-yardoc
-  - rubyist
-  - sfl-agent-persona-workflow-design
-  - tty-components-cheatsheet
-  - whys-poignant-guide-to-ruby
-  - writing-for-software-developers
+    - book-to-skill
+    - dspy-rb-lm-provider
+    - evans-polished-ruby
+    - find-skills
+    - hofstadter-ai-loops
+    - hofstadter-geb
+    - hofstadter-geb-ai-ruby
+    - jekyll
+    - jekyll-vitepress
+    - metz-poodr
+    - repomix-explorer
+    - ruby-sfl-nlp-pipeline
+    - tty-components-cheatsheet
+    - whys-poignant-guide-to-ruby
 curator:
   enabled: true
   interval_hours: 168
@@ -432,13 +390,11 @@ curator:
   backup:
     enabled: true
     keep: 5
-honcho: {}
 timezone: ''
 slack:
   require_mention: true
   free_response_channels: ''
   allowed_channels: ''
-  channel_prompts: {}
 discord:
   require_mention: true
   free_response_channels: ''
@@ -448,7 +404,6 @@ discord:
   history_backfill: true
   history_backfill_limit: 50
   reactions: true
-  channel_prompts: {}
   dm_role_auth_guild: ''
   server_actions: ''
   allow_any_attachment: false
@@ -462,15 +417,13 @@ discord:
     speech_gain: 1
     ack_enabled: true
     ack_phrases:
-    - Let me look into that.
-    - One moment.
-    - Checking on that now.
-    - Give me a sec.
-    - On it.
-whatsapp: {}
+      - Let me look into that.
+      - One moment.
+      - Checking on that now.
+      - Give me a sec.
+      - On it.
 telegram:
   reactions: false
-  channel_prompts: {}
   allowed_chats: ''
   extra:
     rich_messages: true
@@ -478,7 +431,6 @@ mattermost:
   require_mention: true
   free_response_channels: ''
   allowed_channels: ''
-  channel_prompts: {}
 matrix:
   require_mention: true
   free_response_rooms: ''
@@ -490,11 +442,7 @@ approvals:
   mcp_reload_confirm: true
   destructive_slash_confirm: true
 command_allowlist: []
-quick_commands: {}
-platform_hints: {}
-hooks: {}
 hooks_auto_accept: false
-personalities: {}
 security:
   allow_private_urls: false
   redact_secrets: true
@@ -517,6 +465,19 @@ cron:
     nas_jwks_url: ''
   wrap_response: true
   max_parallel_jobs: {}
+kanban:
+  dispatch_in_gateway: true
+  dispatch_interval_seconds: 60
+  failure_limit: 2
+  worker_log_rotate_bytes: 2097152
+  worker_log_backup_count: 1
+  orchestrator_profile: default
+  default_assignee: systems-engineer
+  max_in_progress_per_profile: 1
+  auto_decompose: true
+  auto_decompose_per_tick: 3
+  dispatch_stale_timeout_seconds: 14400
+  default_workdir: ~/WorkspaceV3
 code_execution:
   mode: project
 tools:
@@ -533,7 +494,6 @@ model_catalog:
   enabled: true
   url: https://hermes-agent.nousresearch.com/docs/api/model-catalog.json
   ttl_hours: 1
-  providers: {}
 network:
   force_ipv4: false
 gateway:
@@ -548,7 +508,7 @@ streaming:
   transport: auto
   edit_interval: 0.8
   buffer_threshold: 24
-  cursor: " \u2589"
+  cursor: ' ▉'
   fresh_final_after_seconds: 60
 sessions:
   auto_prune: false
@@ -570,7 +530,6 @@ lsp:
   wait_mode: document
   wait_timeout: 5
   install_strategy: auto
-  servers: {}
 x_search:
   model: grok-4.20-reasoning
   timeout_seconds: 180
@@ -599,27 +558,94 @@ mcp_servers:
   trackboi:
     command: trackboi
     args:
-    - mcp
+      - mcp
   linux-mcp-server:
     command: ~/.local/bin/linux-mcp-server
     env:
       LINUX_MCP_USER: b08x
 custom_providers:
-- name: Api.mistral.ai
-  base_url: https://api.mistral.ai/v1
-  key_env: MISTRAL_API_KEY
-- name: Groq
-  base_url: https://api.groq.com/openai/v1
-  key_env: GROQ_API_KEY
-  model: llama-3.3-70b-versatile
+  - name: Api.mistral.ai
+    base_url: https://api.mistral.ai/v1
+    key_env: MISTRAL_API_KEY
+    models:
+      - mistral-medium-2505
+      - mistral-medium-2508
+      - codestral-2508
+      - codestral-latest
+      - mistral-code-latest
+      - mistral-code-fim-latest
+      - devstral-2512
+      - devstral-medium-latest
+      - devstral-latest
+      - mistral-code-agent-latest
+      - mistral-small-2603
+      - mistral-small-latest
+      - mistral-vibe-cli-fast
+      - magistral-small-latest
+      - voxtral-small-2507
+      - voxtral-small-latest
+      - labs-leanstral-1-5-1
+      - labs-leanstral-1-5
+      - mistral-large-2512
+      - mistral-large-latest
+      - ministral-3b-2512
+      - ministral-3b-latest
+      - ministral-8b-2512
+      - ministral-8b-latest
+      - ministral-14b-2512
+      - ministral-14b-latest
+      - mistral-medium-latest
+      - mistral-medium
+      - mistral-medium-3-5
+      - mistral-medium-3.5
+      - mistral-medium-3
+      - mistral-medium-2604
+      - mistral-vibe-cli-latest
+      - mistral-vibe-cli-with-tools
+      - mistral-embed-2312
+      - mistral-embed
+      - codestral-embed
+      - codestral-embed-2505
+      - mistral-moderation-2603
+      - mistral-ocr-2512
+      - mistral-ocr-3-0
+      - mistral-ocr-3
+      - mistral-ocr-latest
+      - mistral-ocr-4-0
+      - mistral-ocr-4
+      - voxtral-mini-2602
+      - voxtral-mini-latest
+      - voxtral-mini-transcribe-realtime-2602
+      - voxtral-mini-realtime-2602
+      - voxtral-mini-realtime-latest
+      - voxtral-mini-tts-2603
+      - voxtral-mini-tts-latest
+  - name: Groq
+    base_url: https://api.groq.com/openai/v1
+    key_env: GROQ_API_KEY
+    model: llama-3.3-70b-versatile
+    models:
+      - allam-2-7b
+      - canopylabs/orpheus-arabic-saudi
+      - meta-llama/llama-prompt-guard-2-22m
+      - openai/gpt-oss-safeguard-20b
+      - openai/gpt-oss-120b
+      - canopylabs/orpheus-v1-english
+      - whisper-large-v3-turbo
+      - llama-3.1-8b-instant
+      - llama-3.3-70b-versatile
+      - openai/gpt-oss-20b
+      - whisper-large-v3
+      - meta-llama/llama-prompt-guard-2-86m
+      - qwen/qwen3.6-27b
+      - groq/compound
+      - groq/compound-mini
 fallback_model:
   provider: Api.mistral.ai
   model: mistral-medium-latest
-
-# Desktop app API server (auto-configured)
 platforms:
   api_server:
     enabled: true
     extra:
       port: 8641
-      host: "127.0.0.1"
+      host: 127.0.0.1
