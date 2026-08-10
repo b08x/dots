@@ -1,0 +1,17 @@
+[agent]
+id = "technical-writer"
+name = "technical-writer"
+description = "The Technical Writer. Use for generating or improving YARD documentation on Ruby files - @param, @return, @example, @raise tags with AST-informed type inference."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/technical-writer"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["yardoc"]

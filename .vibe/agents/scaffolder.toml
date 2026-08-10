@@ -1,0 +1,17 @@
+[agent]
+id = "scaffolder"
+name = "scaffolder"
+description = "The Project Scaffolder. Use for starting new Ruby projects or gems - rubysmith/gemsmith scaffolding with archetype flag presets and convention hardening. Trigger on 'start project', 'create gem', 'scaffold', 'new ruby application'."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/scaffolder"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["scaffold"]

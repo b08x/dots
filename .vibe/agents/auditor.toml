@@ -1,0 +1,17 @@
+[agent]
+id = "auditor"
+name = "auditor"
+description = "The Pragmatic Auditor. Use for Ruby code quality audits, PR reviews, architectural reviews, and 'is this production ready' questions - SIFT Protocol with Toulmin evidence. Best run in an isolated context so the audit is independent of the builder's assumptions."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/auditor"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["sift"]

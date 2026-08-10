@@ -1,531 +1,426 @@
 ---
 name: analyse
-description: Auto-selects best Kaizen method (Gemba Walk, Value Stream, or Muda) for target
-argument-hint: Optional target description (e.g., code, workflow, or inefficiencies)
+description: "Use when debugging Ruby code, investigating root causes, identifying waste (dead code, over-engineering), or understanding unfamiliar codebases. Applies four diagnostic methods (Gemba Walk, Muda Analysis, Root-Cause Tracing, Five Whys) based on problem type."
+user-invocable: true
 ---
 
-# Smart Analysis
+# RubyDev Analyse — Diagnostic Framework
 
-Intelligently select and apply the most appropriate Kaizen analysis technique based on what you're analyzing.
+## Overview
 
-## Description
+This skill provides **structured diagnostic analysis** for Ruby codebases using four Kaizen-derived methods. It produces keyed findings that can be handed off to [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md) for remediation. This skill embodies "The Stealth Debugger" persona: inquisitive, paranoid, and methodical.
 
-Analyzes context and chooses best method: Gemba Walk (code exploration), Value Stream Mapping (workflow/process), or Muda Analysis (waste identification). Guides you through the selected technique.
+**Core Mandate**: Understand before acting. Never refactor without diagnosis.
 
-## Usage
+**References**:
+- Logging patterns: `~/.vibe/skills/ruby-dev/~/.vibe/skills/analyse/references/logging-patterns.md`
+- Environment setup: `~/.vibe/skills/ruby-dev/~/.vibe/skills/analyse/references/environment-variables.md`
+- Type safety: `~/.vibe/skills/ruby-dev/~/.vibe/skills/analyse/references/dry-rb-patterns.md`
+- OO design principles (naming design smells precisely): `~/.vibe/skills/ruby-dev/~/.vibe/skills/analyse/references/ood-principles.md`
 
-`/analyse [target_description]`
+---
+
+## Required Gems
+
+| Gem | Purpose | Context7 Library ID | Status |
+|:----|:--------|:-------------------|:-------|
+| `dry-struct` | Type-safe findings | `/dry-rb/dry-struct` | ✅ Verified |
+| `dry-types` | Type system | `/dry-rb/dry-types` | ✅ Verified |
+| `journald-logger` | Structured logging | `/theforeman/journald-logger` | ✅ Verified |
+| `zeitwerk` | Autoload verification | `/fxn/zeitwerk` | ✅ Verified |
+| `pry` | REPL exploration | `/websites/rdoc_info_github_pry_pry_master` | ✅ Verified |
+
+---
+
+## Project Setup
+
+### Gemfile
+
+```ruby
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+# Type Safety
+gem "dry-struct"
+gem "dry-types"
+
+# Logging
+gem "journald-logger"
+
+# Autoloading
+gem "zeitwerk"
+
+group :development, :test do
+  gem "pry"
+  gem "pry-byebug"
+  gem "rubocop"
+end
+```
+
+### Analysis Types (dry-struct)
+
+Each diagnostic method produces a type-safe finding (`GembaFinding`, `MudaFinding`, `RootCauseFinding`, `FiveWhysFinding`) collected in an `AnalysisSession`. See [~/.vibe/skills/analyse/references/analysis-types.md](~/.vibe/skills/analyse/~/.vibe/skills/analyse/references/analysis-types.md)) for the complete definitions.
+
+## When to Use
+
+- **Zeitwerk errors**: `NameError: uninitialized constant MyApp::Data::Processor`
+- **Performance issues**: "This feels slow but I don't know why"
+- **Code bloat**: "Half the methods seem unused"
+- **Unfamiliar codebase**: Before refactoring inherited or third-party code
+- **Recurring bugs**: Same issue keeps resurfacing after fixes
+- **Dead code detection**: Finding unused classes, methods, gems
+
+**Don't use for:**
+- Quality assessment (use [sift/SKILL.md](~/.vibe/skills/sift/SKILL.md) instead)
+- Making diagnosed-slow code faster (hand off to [perf/SKILL.md](~/.vibe/skills/perf/SKILL.md) with the suspected hotspot)
+- Direct code generation (use the [ruby-dev orchestrator](~/.vibe/skills/ruby-dev/SKILL.md))
+- Refactoring without diagnosis (always diagnose first)
+- Convention fixes (use [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md) after diagnosis)
+
+## Diagnostic Methods
+
+### Method 1: Gemba Walk
+
+**Trigger**: Unfamiliar codebase, before refactoring, "I don't understand this code"
+
+**Purpose**: Understand the **actual state** of the code as it exists, not as documented or assumed.
+
+**Process**:
+1. **Survey the landscape**: Map directory structure, file naming patterns, dependencies
+2. **Trace execution paths**: Follow primary workflows from entry point to output
+3. **Identify patterns**: Recurring idioms, design patterns, architectural layers
+4. **Document assumptions**: What the code *claims* to do vs. what it *actually* does
+5. **Note surprises**: Deviations from Ruby conventions or stated architecture
+
+**Output Format**:
+```markdown
+## Gemba Walk: <Target>
+
+### Landscape
+- **Entry points**: <list>
+- **Core abstractions**: <list>
+- **External dependencies**: <list>
+
+### Execution Paths
+1. <Primary workflow>
+2. <Secondary workflow>
+
+### Patterns Observed
+- <Pattern 1>
+- <Pattern 2>
+
+### Assumptions vs. Reality
+| Documented | Actual |
+|:-----------|:-------|
+| <claim 1>  | <reality 1> |
+
+### Surprises
+- <Unexpected behavior>
+
+### Handoff Keys
+- `pattern:<name>` → References in refactor-patterns.md
+- `gap:<description>` → Missing functionality
+```
+
+### Method 2: Muda Analysis
+
+**Trigger**: "Code feels bloated", performance issues, unused gems in Gemfile
+
+**Purpose**: Identify **seven types of Ruby waste** (muda):
+
+| Waste Type | Examples |
+|:-----------|:---------|
+| **Transportation** | Data copied between layers unnecessarily |
+| **Inventory** | Unused gems in Gemfile, dead code, commented-out methods |
+| **Motion** | Excessive indirection (wrapper classes with no logic) |
+| **Waiting** | Synchronous I/O without Async, blocking on external APIs |
+| **Overprocessing** | Parsing full documents when only metadata needed |
+| **Overproduction** | Generating reports no one reads, logs no one monitors |
+| **Defects** | Known bugs lingering unfixed, failing tests skipped |
+
+**Process**:
+1. **Inventory scan**: Find unused gems (`bundle-audit unused`), dead methods (RuboCop's `Lint/UselessMethodDefinition`)
+2. **I/O analysis**: Identify blocking calls without `Async {}` or circuit breakers
+3. **Wrapper audit**: Check for classes that only delegate without adding logic
+4. **Data flow tracing**: Find unnecessary serialization/deserialization cycles
+5. **Log analysis**: Check for debug logs in production, unmonitored metrics
+
+**Output Format**:
+```markdown
+## Muda Analysis: <Target>
+
+### Inventory Waste
+- [ ] Gem: <name> — unused (bundler-audit confirms)
+- [ ] Method: <Class#method> — dead code (no callers found)
+
+### Motion Waste
+- [ ] Class: <name> — wrapper with no logic (consider inlining)
+
+### Waiting Waste
+- [ ] File: <path> — blocking I/O without Async
+
+### Overprocessing Waste
+- [ ] Feature: <name> — parsing full file when metadata suffices
+
+### Quantified Impact
+- **Gem removal potential**: <count> gems, <MB> size reduction
+- **Method removal potential**: <count> methods, <LOC> reduction
+- **I/O optimization potential**: <count> blocking calls
+
+### Handoff Keys
+- `muda:inventory` → Dead code for removal
+- `muda:waiting` → I/O for async conversion
+- `muda:motion` → Wrappers for inlining
+```
+
+### Method 3: Root-Cause Tracing
+
+**Trigger**: Specific error (NameError, NoMethodError, TypeError), failing test, bug report
+
+**Purpose**: Trace error back to **original cause**, not just the symptom.
+
+**Process**:
+1. **Error manifestation**: Where the error surfaced (stack trace top)
+2. **Immediate cause**: The line that raised the error
+3. **Propagation path**: How the bad state reached that line
+4. **Introduction point**: Where the bad state originated (root cause)
+5. **Zeitwerk-specific**: For `NameError: uninitialized constant`:
+   - Check file path → constant name mapping (`MyApp::Data::Processor` → `my_app/data/processor.rb`)
+   - Verify autoload paths in config
+   - Check for `require` statements in Zeitwerk-managed files (forbidden)
+
+**Output Format**:
+```markdown
+## Root-Cause Trace: <Error>
+
+### Error Manifestation
+```ruby
+# Location: <file>:<line>
+# Stack trace:
+<top 5 frames>
+```
+
+### Immediate Cause
+<What line raised the error>
+
+### Propagation Path
+1. <Step 1: where bad state entered>
+2. <Step 2: how it moved through the system>
+3. <Step 3: arrived at error location>
+
+### Root Cause
+<The original source of the problem>
+
+### Fix Strategy
+<How to address at the root, not the symptom>
+
+### Handoff Keys
+- `root-cause:zeitwerk` → Constant naming mismatch
+- `root-cause:nil-propagation` → Nil check missing upstream
+- `root-cause:type-mismatch` → Type coercion needed
+```
+
+### Method 4: Five Whys
+
+**Trigger**: Recurring bugs, systemic issues, "We keep hitting this problem"
+
+**Purpose**: Drill down from **symptom to systemic root cause** through iterative questioning.
+
+**Process**:
+1. **State the problem**: The observable symptom
+2. **Why 1**: Immediate cause
+3. **Why 2**: Cause of the immediate cause
+4. **Why 3**: Deeper layer
+5. **Why 4**: Organizational/architectural layer
+6. **Why 5**: Systemic root (process, tooling, or architectural decision)
+7. **Actionable remediation**: Address the systemic root, not just the symptom
+
+**Output Format**:
+```markdown
+## Five Whys: <Problem>
+
+### Problem Statement
+<Observable symptom>
+
+### Why 1: <Immediate cause>
+<Explanation>
+
+### Why 2: <Cause of Why 1>
+<Explanation>
+
+### Why 3: <Deeper cause>
+<Explanation>
+
+### Why 4: <Architectural cause>
+<Explanation>
+
+### Why 5: <Systemic root>
+<Explanation>
+
+### Remediation Strategy
+**Symptom fix** (short-term): <Quick patch>
+**Root fix** (long-term): <Systemic change>
+
+### Handoff Keys
+- `five-whys:systemic` → Architectural change needed
+- `five-whys:process` → Development workflow issue
+- `five-whys:tooling` → Linter/CI gap
+```
+
+## Method Selection Matrix
+
+Use this table to choose the right diagnostic method:
+
+| Situation | Method | Reason |
+|:----------|:-------|:-------|
+| "I don't understand this codebase" | **Gemba Walk** | Need holistic understanding before changes |
+| "This file seems bloated" | **Muda Analysis** | Identify specific waste types for removal |
+| NameError, NoMethodError, TypeError | **Root-Cause Tracing** | Follow error back to introduction point |
+| "We fixed this twice already" | **Five Whys** | Recurring issue suggests systemic problem |
+| Before any refactoring | **Gemba Walk** | Understand current state first |
+| Performance is slow | **Muda Analysis** (Waiting) | Find blocking I/O and overprocessing |
+
+---
+
+## Implementation Examples
+
+See [~/.vibe/skills/analyse/references/implementation-examples.md](~/.vibe/skills/analyse/~/.vibe/skills/analyse/references/implementation-examples.md)) for a Muda waste analyzer and a Zeitwerk root-cause tracer, both built on the AnalysisSession types.
+
+## Handoff Pattern
+
+Diagnosis findings use **keyed patterns** for downstream handoff:
+
+```
+Key Format: <method>:<category>
 
 Examples:
-
-- `/analyse authentication implementation`
-- `/analyse deployment workflow`
-- `/analyse codebase for inefficiencies`
-
-## Variables
-
-- TARGET: What to analyze (default: prompt for input)
-- METHOD: Override auto-selection (gemba, vsm, muda)
-
-## Method Selection Logic
-
-**Gemba Walk** → When analyzing:
-
-- Code implementation (how feature actually works)
-- Gap between documentation and reality
-- Understanding unfamiliar codebase areas
-- Actual vs. assumed architecture
-
-**Value Stream Mapping** → When analyzing:
-
-- Workflows and processes (CI/CD, deployment, development)
-- Bottlenecks in multi-stage pipelines
-- Handoffs between teams/systems
-- Time spent in each process stage
-
-**Muda (Waste Analysis)** → When analyzing:
-
-- Code quality and efficiency
-- Technical debt
-- Over-engineering or duplication
-- Resource utilization
-
-## Steps
-
-1. Understand what's being analyzed
-2. Determine best method (or use specified method)
-3. Explain why this method fits
-4. Guide through the analysis
-5. Present findings with actionable insights
-
----
-
-## Method 1: Gemba Walk
-
-"Go and see" the actual code to understand reality vs. assumptions.
-
-### When to Use
-
-- Understanding how feature actually works
-- Code archaeology (legacy systems)
-- Finding gaps between docs and implementation
-- Exploring unfamiliar areas before changes
-
-### Process
-
-1. **Define scope**: What code area to explore
-2. **State assumptions**: What you think it does
-3. **Observe reality**: Read actual code
-4. **Document findings**:
-   - Entry points
-   - Actual data flow
-   - Surprises (differs from assumptions)
-   - Hidden dependencies
-   - Undocumented behavior
-5. **Identify gaps**: Documentation vs. reality
-6. **Recommend**: Update docs, refactor, or accept
-
-### Example: Authentication System Gemba Walk
-
-```
-SCOPE: User authentication flow
-
-ASSUMPTIONS (Before):
-• JWT tokens stored in localStorage
-• Single sign-on via OAuth only
-• Session expires after 1 hour
-• Password reset via email link
-
-GEMBA OBSERVATIONS (Actual Code):
-
-Entry Point: /api/auth/login (routes/auth.ts:45)
-├─> AuthService.authenticate() (services/auth.ts:120)
-├─> UserRepository.findByEmail() (db/users.ts:67)
-├─> bcrypt.compare() (services/auth.ts:145)
-└─> TokenService.generate() (services/token.ts:34)
-
-Actual Flow:
-1. Login credentials → POST /api/auth/login
-2. Password hashed with bcrypt (10 rounds)
-3. JWT generated with 24hr expiry (NOT 1 hour!)
-4. Token stored in httpOnly cookie (NOT localStorage)
-5. Refresh token in separate cookie (15 days)
-6. Session data in Redis (30 days TTL)
-
-SURPRISES:
-✗ OAuth not implemented (commented out code found)
-✗ Password reset is manual (admin intervention)
-✗ Three different session storage mechanisms:
-  - Redis for session data
-  - Database for "remember me"
-  - Cookies for tokens
-✗ Legacy endpoint /auth/legacy still active (no auth!)
-✗ Admin users bypass rate limiting (security issue)
-
-GAPS:
-• Documentation says OAuth, code doesn't have it
-• Session expiry inconsistent (docs: 1hr, code: 24hr)
-• Legacy endpoint not documented (security risk)
-• No mention of "remember me" in docs
-
-RECOMMENDATIONS:
-1. HIGH: Secure or remove /auth/legacy endpoint
-2. HIGH: Document actual session expiry (24hr)
-3. MEDIUM: Clean up or implement OAuth
-4. MEDIUM: Consolidate session storage (choose one)
-5. LOW: Add rate limiting for admin users
+- pattern:wrapper → Links to refactor-patterns.md entry
+- muda:inventory → Dead code list for removal
+- root-cause:zeitwerk → Naming convention fix needed
+- five-whys:systemic → Architectural change ticket
 ```
 
-### Example: CI/CD Pipeline Gemba Walk
-
+**Handoff to [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md)**:
 ```
-SCOPE: Build and deployment pipeline
-
-ASSUMPTIONS:
-• Automated tests run on every commit
-• Deploy to staging automatic
-• Production deploy requires approval
-
-GEMBA OBSERVATIONS:
-
-Actual Pipeline (.github/workflows/main.yml):
-1. On push to main:
-   ├─> Lint (2 min)
-   ├─> Unit tests (5 min) [SKIPPED if "[skip-tests]" in commit]
-   ├─> Build Docker image (15 min)
-   └─> Deploy to staging (3 min)
-
-2. Manual trigger for production:
-   ├─> Run integration tests (20 min) [ONLY for production!]
-   ├─> Security scan (10 min)
-   └─> Deploy to production (5 min)
-
-SURPRISES:
-✗ Unit tests can be skipped with commit message flag
-✗ Integration tests ONLY run for production deploy
-✗ Staging deployed without integration tests
-✗ No rollback mechanism (manual kubectl commands)
-✗ Secrets loaded from .env file (not secrets manager)
-✗ Old "hotfix" branch bypasses all checks
-
-GAPS:
-• Staging and production have different test coverage
-• Documentation doesn't mention test skip flag
-• Rollback process not documented or automated
-• Security scan results not enforced (warning only)
-
-RECOMMENDATIONS:
-1. CRITICAL: Remove test skip flag capability
-2. CRITICAL: Migrate secrets to secrets manager
-3. HIGH: Run integration tests on staging too
-4. HIGH: Delete or secure hotfix branch
-5. MEDIUM: Add automated rollback capability
-6. MEDIUM: Make security scan blocking
+# After diagnosis
+Refactor lib/my_app/processor.rb --findings=analysis-2024-03-29.md
 ```
 
----
+The refactor skill reads the keyed findings and applies targeted fixes.
 
-## Method 2: Value Stream Mapping
+## Integration with Other Skills
 
-Map workflow stages, measure time/waste, identify bottlenecks.
+### With the diagnostic workflow
+- `analyse` provides the diagnosis step of a broader debug-fix-verify workflow
+- That workflow orchestrates: analyse → resolution → verification
+- Run the full workflow for an end-to-end fix, or `analyse` alone for diagnosis only
 
-### When to Use
+### With [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md)
+- `analyse` produces findings → `refactor` applies fixes
+- Never refactor without running `analyse` first
 
-- Process optimization (CI/CD, deployment, code review)
-- Understanding multi-stage workflows
-- Finding delays and handoffs
-- Improving cycle time
+### With the `ruby-dev` Orchestrator
 
-### Process
+The [ruby-dev orchestrator](~/.vibe/skills/ruby-dev/SKILL.md) drives the full pipeline:
+1. **Semantic Survey (L1)**: Determines Field-Tenor-Mode
+2. **Convention Detection (L2)**: Scans environment
+3. **Verification (L3)**: Queries Context7/DeepWiki inline for any non-stdlib gems encountered during analysis
+4. **Dispatch (L4)**: Routes to builders
+5. **Audit Gate (L5)**: Runs [sift/SKILL.md](~/.vibe/skills/sift/SKILL.md) and quality checks
 
-1. **Identify start and end**: Where process begins and ends
-2. **Map all steps**: Including waiting/handoff time
-3. **Measure each step**:
-   - Processing time (work happening)
-   - Waiting time (idle, blocked)
-   - Who/what performs step
-4. **Calculate metrics**:
-   - Total lead time
-   - Value-add time vs. waste time
-   - % efficiency (value-add / total time)
-5. **Identify bottlenecks**: Longest steps, most waiting
-6. **Design future state**: Optimized flow
-7. **Plan improvements**: How to achieve future state
+`analyse` feeds into Layer 1 (Semantic Survey) by diagnosing existing code health before generation begins.
 
-### Example: Feature Development Value Stream Map
+## One-Shot Recipes
 
+### Recipe 1: Zeitwerk NameError
+
+**User Request**: "I keep getting `NameError: uninitialized constant MyApp::Data::Processor`"
+
+**Analysis**:
 ```
-CURRENT STATE: Feature request → Production
-
-Step 1: Requirements Gathering
-├─ Processing: 2 days (meetings, writing spec)
-├─ Waiting: 3 days (stakeholder review)
-└─ Owner: Product Manager
-
-Step 2: Design
-├─ Processing: 1 day (mockups, architecture)
-├─ Waiting: 2 days (design review, feedback)
-└─ Owner: Designer + Architect
-
-Step 3: Development
-├─ Processing: 5 days (coding)
-├─ Waiting: 2 days (PR review queue)
-└─ Owner: Developer
-
-Step 4: Code Review
-├─ Processing: 0.5 days (review)
-├─ Waiting: 1 day (back-and-forth changes)
-└─ Owner: Senior Developer
-
-Step 5: QA Testing
-├─ Processing: 2 days (manual testing)
-├─ Waiting: 1 day (bug fixes, retest)
-└─ Owner: QA Engineer
-
-Step 6: Staging Deployment
-├─ Processing: 0.5 days (deploy, smoke test)
-├─ Waiting: 2 days (stakeholder UAT)
-└─ Owner: DevOps
-
-Step 7: Production Deployment
-├─ Processing: 0.5 days (deploy, monitor)
-├─ Waiting: 0 days
-└─ Owner: DevOps
-
-───────────────────────────────────────
-METRICS:
-Total Lead Time: 22.5 days
-Value-Add Time: 11.5 days (work)
-Waste Time: 11 days (waiting)
-Efficiency: 51%
-
-BOTTLENECKS:
-1. Requirements review wait (3 days)
-2. Development time (5 days)
-3. Stakeholder UAT wait (2 days)
-4. PR review queue (2 days)
-
-WASTE ANALYSIS:
-• Waiting for reviews/approvals: 9 days (82% of waste)
-• Rework due to unclear requirements: ~1 day
-• Manual testing time: 2 days
-
-FUTURE STATE DESIGN:
-
-Changes:
-1. Async requirements approval (stakeholders have 24hr SLA)
-2. Split large features into smaller increments
-3. Automated testing replaces manual QA
-4. PR review SLA: 4 hours max
-5. Continuous deployment to staging (no approval)
-6. Feature flags for production rollout (no wait)
-
-Projected Future State:
-Total Lead Time: 9 days (60% reduction)
-Value-Add Time: 8 days
-Waste Time: 1 day
-Efficiency: 89%
-
-IMPLEMENTATION PLAN:
-Week 1: Set review SLAs, add feature flags
-Week 2: Automate test suite
-Week 3: Enable continuous staging deployment
-Week 4: Train team on incremental delivery
+Diagnose NameError: uninitialized constant MyApp::Data::Processor
 ```
 
-### Example: Incident Response Value Stream Map
+**Method**: Root-Cause Tracing
 
+**Steps**:
+1. Check constant name → expected file path: `MyApp::Data::Processor` → `my_app/data/processor.rb`
+2. Verify actual file path: `lib/my_app/data_processor.rb` (MISMATCH!)
+3. Root cause: File named with underscore instead of nested directory
+4. Fix: Rename `lib/my_app/data_processor.rb` → `lib/my_app/data/processor.rb`
+
+### Recipe 2: Performance Investigation
+
+**User Request**: "This data pipeline is slow but I don't know why"
+
+**Analysis**:
 ```
-CURRENT STATE: Incident detected → Resolution
-
-Step 1: Detection
-├─ Processing: 0 min (automated alert)
-├─ Waiting: 15 min (until someone sees alert)
-└─ System: Monitoring tool
-
-Step 2: Triage
-├─ Processing: 10 min (assess severity)
-├─ Waiting: 20 min (find right person)
-└─ Owner: On-call engineer
-
-Step 3: Investigation
-├─ Processing: 45 min (logs, debugging)
-├─ Waiting: 30 min (access to production, gather context)
-└─ Owner: Engineer + SRE
-
-Step 4: Fix Development
-├─ Processing: 60 min (write fix)
-├─ Waiting: 15 min (code review)
-└─ Owner: Engineer
-
-Step 5: Deployment
-├─ Processing: 10 min (hotfix deploy)
-├─ Waiting: 5 min (verification)
-└─ Owner: SRE
-
-Step 6: Post-Incident
-├─ Processing: 20 min (update status, notify)
-├─ Waiting: 0 min
-└─ Owner: Engineer
-
-───────────────────────────────────────
-METRICS:
-Total Lead Time: 230 min (3h 50min)
-Value-Add Time: 145 min
-Waste Time: 85 min (37%)
-
-BOTTLENECKS:
-1. Finding right person (20 min)
-2. Gaining production access (30 min)
-3. Investigation time (45 min)
-
-IMPROVEMENTS:
-1. Slack integration for alerts (reduce detection wait)
-2. Auto-assign by service owner (no hunt for person)
-3. Pre-approved prod access for on-call (reduce wait)
-4. Runbooks for common incidents (faster investigation)
-5. Automated rollback for deployment incidents
-
-Projected improvement: 230min → 120min (48% faster)
+Diagnose lib/my_app/pipeline.rb
 ```
 
----
+**Method**: Muda Analysis (Waiting + Overprocessing)
 
-## Method 3: Muda (Waste Analysis)
+**Steps**:
+1. Scan for blocking I/O: Found 12 `HTTParty.get` calls without `Async {}`
+2. Check data processing: Parsing full JSON files when only metadata needed
+3. Quantify impact: 12 blocking calls × ~200ms = 2.4s latency
+4. Recommendations:
+   - Wrap HTTP calls in `Async {}`
+   - Use `JSON.load(file, symbolize_names: true)` with `slice(:id, :created_at)` for metadata-only needs
 
-Identify seven types of waste in code and development processes.
+### Recipe 3: Dead Code Cleanup
 
-### When to Use
+**User Request**: "This codebase feels bloated, lots of unused code"
 
-- Code quality audits
-- Technical debt assessment
-- Process efficiency improvements
-- Identifying over-engineering
-
-### The 7 Types of Waste (Applied to Software)
-
-**1. Overproduction**: Building more than needed
-
-- Features no one uses
-- Overly complex solutions
-- Premature optimization
-- Unnecessary abstractions
-
-**2. Waiting**: Idle time
-
-- Build/test/deploy time
-- Code review delays
-- Waiting for dependencies
-- Blocked by other teams
-
-**3. Transportation**: Moving things around
-
-- Unnecessary data transformations
-- API layers with no value add
-- Copying data between systems
-- Repeated serialization/deserialization
-
-**4. Over-processing**: Doing more than necessary
-
-- Excessive logging
-- Redundant validations
-- Over-normalized databases
-- Unnecessary computation
-
-**5. Inventory**: Work in progress
-
-- Unmerged branches
-- Half-finished features
-- Untriaged bugs
-- Undeployed code
-
-**6. Motion**: Unnecessary movement
-
-- Context switching
-- Meetings without purpose
-- Manual deployments
-- Repetitive tasks
-
-**7. Defects**: Rework and bugs
-
-- Production bugs
-- Technical debt
-- Flaky tests
-- Incomplete features
-
-### Process
-
-1. **Define scope**: Codebase area or process
-2. **Examine for each waste type**
-3. **Quantify impact** (time, complexity, cost)
-4. **Prioritize by impact**
-5. **Propose elimination strategies**
-
-### Example: API Codebase Waste Analysis
-
+**Analysis**:
 ```
-SCOPE: REST API backend (50K LOC)
-
-1. OVERPRODUCTION
-   Found:
-   • 15 API endpoints with zero usage (last 90 days)
-   • Generic "framework" built for "future flexibility" (unused)
-   • Premature microservices split (2 services, could be 1)
-   • Feature flags for 12 features (10 fully rolled out, flags kept)
-   
-   Impact: 8K LOC maintained for no reason
-   Recommendation: Delete unused endpoints, remove stale flags
-
-2. WAITING
-   Found:
-   • CI pipeline: 45 min (slow Docker builds)
-   • PR review time: avg 2 days
-   • Deployment to staging: manual, takes 1 hour
-   
-   Impact: 2.5 days wasted per feature
-   Recommendation: Cache Docker layers, PR review SLA, automate staging
-
-3. TRANSPORTATION
-   Found:
-   • Data transformed 4 times between DB and API response:
-     DB → ORM → Service → DTO → Serializer
-   • Request/response logged 3 times (middleware, handler, service)
-   • Files uploaded → S3 → CloudFront → Local cache (unnecessary)
-   
-   Impact: 200ms avg response time overhead
-   Recommendation: Reduce transformation layers, consolidate logging
-
-4. OVER-PROCESSING
-   Found:
-   • Every request validates auth token (even cached)
-   • Database queries fetch all columns (SELECT *)
-   • JSON responses include full object graphs (nested 5 levels)
-   • Logs every database query in production (verbose)
-   
-   Impact: 40% higher database load, 3x log storage
-   Recommendation: Cache auth checks, selective fields, trim responses
-
-5. INVENTORY
-   Found:
-   • 23 open PRs (8 abandoned, 6+ months old)
-   • 5 feature branches unmerged (completed but not deployed)
-   • 147 open bugs (42 duplicates, 60 not reproducible)
-   • 12 hotfix commits not backported to main
-   
-   Impact: Context overhead, merge conflicts, lost work
-   Recommendation: Close stale PRs, bug triage, deploy pending features
-
-6. MOTION
-   Found:
-   • Developers switch between 4 tools for one deployment
-   • Manual database migrations (error-prone, slow)
-   • Environment config spread across 6 files
-   • Copy-paste secrets to .env files
-   
-   Impact: 30min per deployment, frequent mistakes
-   Recommendation: Unified deployment tool, automate migrations
-
-7. DEFECTS
-   Found:
-   • 12 production bugs per month
-   • 15% flaky test rate (wasted retry time)
-   • Technical debt in auth module (refactor needed)
-   • Incomplete error handling (crashes instead of graceful)
-   
-   Impact: Customer complaints, rework, downtime
-   Recommendation: Stabilize tests, refactor auth, add error boundaries
-
-───────────────────────────────────────
-SUMMARY
-
-Total Waste Identified:
-• Code: 8K LOC doing nothing
-• Time: 2.5 days per feature
-• Performance: 200ms overhead per request
-• Effort: 30min per deployment
-
-Priority Fixes (by impact):
-1. HIGH: Automate deployments (reduces Motion + Waiting)
-2. HIGH: Fix flaky tests (reduces Defects)
-3. MEDIUM: Remove unused code (reduces Overproduction)
-4. MEDIUM: Optimize data transformations (reduces Transportation)
-5. LOW: Triage bug backlog (reduces Inventory)
-
-Estimated Recovery:
-• 20% faster feature delivery
-• 50% fewer production issues
-• 30% less operational overhead
+Diagnose lib/my_app/ --scope=inventory
 ```
 
----
+**Method**: Muda Analysis (Inventory)
 
-## Notes
+**Steps**:
+1. Run `bundle-audit unused`: Found 8 gems not imported anywhere
+2. Run RuboCop `Lint/UselessMethodDefinition`: Found 23 empty wrapper methods
+3. Grep for `TODO` and `FIXME`: Found 47 instances, 12 >1 year old
+4. Output: Prioritized removal list with impact estimates
 
-- Method selection is contextual—choose what fits best
-- Can combine methods (Gemba Walk → Muda Analysis)
-- Start with Gemba Walk when unfamiliar with area
-- Use VSM for process optimization
-- Use Muda for efficiency and cleanup
-- All methods should lead to actionable improvements
-- Document findings for organizational learning
-- Consider using `/analyse-problem` (A3) for comprehensive documentation of findings
+## Failover
+
+| Dependency | If Unavailable | Fallback |
+|------------|---------------|----------|
+| [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md) | Not loaded or missing | Output findings as structured YAML in the response instead of dispatching to refactor. Each finding includes: `handoff_key`, `description`, `fix_strategy`, and `file_path`. The human or the ruby-dev orchestrator can apply fixes from this output. |
+| Diagnostic workflow | Parent workflow not available | Run all 4 diagnostic methods (Gemba, Muda, Root-Cause, Five Whys) independently instead of relying on the workflow for ordering. Present results as a flat diagnostic report. |
+| [sift/SKILL.md](~/.vibe/skills/sift/SKILL.md) | Holistic assessment not available | Surface the `handoff_key` findings directly. The orchestrator can pass them to sift manually. |
+
+## Common Pitfalls
+
+1. **Starting without a clear problem statement.** A vague "something is slow" leads to aimless analysis. Always pin down a specific symptom.
+
+2. **Using the wrong method.** Root-Cause Tracing for general code bloat is overkill. Match the method to the problem type.
+
+3. **Stopping at the symptom.** If Five Whys lands on "the developer forgot", dig deeper — why was forgetting possible? (Tooling gap)
+
+4. **Not keying findings for handoff.** Unstructured findings can't be consumed by [refactor/SKILL.md](~/.vibe/skills/refactor/SKILL.md).
+
+5. **Analyzing without quantifying.** Muda Analysis without impact estimates ("this could save ~200ms per request") lacks urgency.
+
+6. **Assuming documentation is accurate.** Gemba Walk reveals the truth; documentation reveals intentions. They often diverge.
+
+7. **Refactoring before diagnosis.** The Sovereign's mandate: "Understand before acting."
+
+8. **Ignoring Zeitwerk naming rules.** Ruby 3.x+ projects default to Zeitwerk. Misnamed files cause `NameError` at runtime, not load time.
+
+## Verification Checklist
+
+- [ ] Correct diagnostic method selected based on problem type
+- [ ] Gemba Walk performed if codebase is unfamiliar
+- [ ] Findings are keyed with `<method>:<category>` format
+- [ ] Quantitative impact estimates provided (LOC, latency, size)
+- [ ] Handoff keys reference known patterns in `refactor-patterns.md`
+- [ ] Root cause identified (not just symptom)
+- [ ] For Five Whys: reached systemic layer (not stopped at "developer error")
+- [ ] Output format matches method template
+- [ ] Findings are actionable (specific file:line references)
+- [ ] For Zeitwerk errors: constant-to-path mapping verified

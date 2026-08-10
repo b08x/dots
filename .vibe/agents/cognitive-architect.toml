@@ -1,0 +1,17 @@
+[agent]
+id = "cognitive-architect"
+name = "cognitive-architect"
+description = "The Cognitive Architect. Use for AI/NLP components in Ruby - RAG pipelines, LLM agents, pgvector integration, dspy.rb workflows, MCP servers, embeddings, hybrid retrieval."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/cognitive-architect"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["genai"]

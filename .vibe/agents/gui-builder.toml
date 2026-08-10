@@ -1,0 +1,17 @@
+[agent]
+id = "gui-builder"
+name = "gui-builder"
+description = "The GUI Builder. Use for native desktop GUI applications in Ruby with glimmer-dsl-libui - windows, forms, data-bound tables, area canvas graphics, and custom controls. Trigger on 'desktop app', 'GUI', 'native window', 'glimmer', or 'libui'."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/gui-builder"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["gui"]

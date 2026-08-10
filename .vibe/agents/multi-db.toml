@@ -1,0 +1,17 @@
+[agent]
+id = "multi-db"
+name = "multi-db"
+description = "The Data Modeler. Use for Ruby multi-database work - Ohm (Redis) and Sequel (PostgreSQL/pgvector) model design, picking between them, porting a model between ORMs, and dual-database storage/retrieval patterns (payload-separated tables, hybrid RRF retrieval, scalar filters). Trigger on 'Ohm model', 'Sequel model', 'Redis model', 'pgvector store', 'multi-database', 'dual-database', 'ORM pattern', 'clause store', 'hybrid retrieval filters'."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/multi-db"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["multi-db"]

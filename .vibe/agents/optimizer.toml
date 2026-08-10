@@ -1,0 +1,17 @@
+[agent]
+id = "optimizer"
+name = "optimizer"
+description = "The Optimizer. Use for Ruby performance work - profiling slow code with stackprof, benchmarking with benchmark-ips, reducing allocations, hoisting lookups. Trigger on 'slow', 'optimize', 'performance', 'profile', 'benchmark', 'memory bloat'. Requires a measured hotspot or a workload to profile; never optimizes on intuition."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/optimizer"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["perf"]

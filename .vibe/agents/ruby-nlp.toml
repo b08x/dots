@@ -1,0 +1,17 @@
+[agent]
+id = "ruby-nlp"
+name = "ruby-nlp"
+description = "The Linguist. Use for Ruby classical NLP and text-linguistics tasks - sentence/word tokenization, POS tagging, dependency parsing, WordNet lexical lookup, fuzzy/string similarity, TF-IDF/BM25 ranking, topic modeling, and local or hosted transformer inference. Trigger on 'tokenize', 'sentence segmentation', 'POS tagging', 'dependency parsing', 'WordNet', 'fuzzy match', 'TF-IDF', 'BM25', 'topic modeling', 'spaCy', 'transformer inference'."
+bypass_tool_permissions = true
+model = "mistral-large-latest"
+user_invocation_phrase = "/ruby-nlp"
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.core]
+max_iterations = 10
+temperature = 0.7
+
+[agent.skills]
+enabled = ["ruby-nlp"]

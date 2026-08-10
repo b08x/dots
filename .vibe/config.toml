@@ -173,6 +173,7 @@ allowlist = [
     "git diff",
     "git log",
     "git status",
+    "git-cliff",
     "go",
     "grep",
     "head",
