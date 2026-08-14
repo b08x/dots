@@ -19,6 +19,8 @@ import glob
 import os
 import re
 import subprocess
+import shutil
+import uuid
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -28,33 +30,26 @@ from typing import Dict, List, Optional, Any
 class MultiPlatformExtractor:
     """Extract sessions from multiple AI platforms with correlation."""
 
-    # Decision thresholds for ck-search indexing
+    # Decision thresholds for qmd indexing
     SESSION_SIZE_ESTIMATE_KB = 2  # Avg session size estimate
     LARGE_SESSION_COUNT = 50       # Above this → auto-index
     LONG_DATE_RANGE_DAYS = 7       # Above this → auto-index
     TOPIC_SEARCH_THRESHOLD = 3     # Below this many words, treat as topic
 
     def __init__(self):
-        self.platforms = ['claude', 'hermes', 'gemini', 'opencode', 'obsidian', 'workspace']
-        # Use CWD instead of home to avoid sandbox /tmp trap
-        self.default_index_dir = Path.cwd() / '.recall-index'
+        self.platforms = ['claude', 'hermes', 'antigravity', 'opencode', 'codeinsights']
+        self.default_index_dir = Path.home() / '.recall-index'
 
     def extract_sessions(self, platforms: List[str], date_range: Dict,
                         topic: Optional[str] = None) -> Dict[str, List[Dict]]:
-        """Extract sessions and notes from specified platforms."""
+        """Extract sessions from specified platforms."""
         results = {}
 
         for platform in platforms:
             try:
-                if platform == 'workspace':
-                    # Special case for local workspace git activity
-                    commits = self._extract_workspace_commits(date_range)
-                    results['workspace'] = commits
-                    print(f"✓ {platform}: {len(commits)} commits")
-                else:
-                    sessions = self._extract_platform_sessions(platform, date_range, topic)
-                    results[platform] = sessions
-                    print(f"✓ {platform}: {len(sessions)} sessions/notes")
+                sessions = self._extract_platform_sessions(platform, date_range, topic)
+                results[platform] = sessions
+                print(f"✓ {platform}: {len(sessions)} sessions")
             except Exception as e:
                 print(f"✗ {platform}: {str(e)}")
                 results[platform] = []
@@ -67,97 +62,22 @@ class MultiPlatformExtractor:
         extractors = {
             'claude': self._extract_claude_sessions,
             'hermes': self._extract_hermes_sessions,
-            'gemini': self._extract_gemini_sessions,
+            'antigravity': self._extract_antigravity_sessions,
             'opencode': self._extract_opencode_sessions,
-            'obsidian': self._extract_obsidian_notes
+            'codeinsights': self._extract_codeinsights_sessions
         }
 
         if platform not in extractors:
             raise ValueError(f"Unsupported platform: {platform}")
 
-        sessions = extractors[platform](date_range)
+        sessions = extractors[platform](date_range, topic)
 
-        if topic:
+        if topic and platform != 'codeinsights':
             sessions = self._filter_by_topic(sessions, topic)
 
         return sessions
 
-    def _extract_obsidian_notes(self, date_range: Dict) -> List[Dict]:
-        """Extract notes from Obsidian notebook."""
-        notebook_path = Path("~/Notebook").expanduser()
-        if not notebook_path.exists():
-            return []
-            
-        notes = []
-        for md_file in notebook_path.rglob("*.md"):
-            if any(part.startswith(".") for part in md_file.parts):
-                continue
-                
-            mtime = datetime.fromtimestamp(md_file.stat().st_mtime, tz=timezone.utc)
-            if date_range['start'] <= mtime <= date_range['end']:
-                try:
-                    content = md_file.read_text()
-                    notes.append({
-                        'platform': 'obsidian',
-                        'session_id': str(md_file.relative_to(notebook_path)),
-                        'title': md_file.stem,
-                        'content': content,
-                        'timestamp': mtime.isoformat(),
-                        'file_path': str(md_file)
-                    })
-                except Exception:
-                    continue
-        return notes
-
-    def _extract_workspace_commits(self, date_range: Dict) -> List[Dict]:
-        """Extract git commits from all repositories in ~/Workspace."""
-        workspace_path = Path("~/Workspace").expanduser()
-        if not workspace_path.exists():
-            return []
-            
-        since = date_range['start'].strftime('%Y-%m-%d %H:%M:%S')
-        all_commits = []
-        
-        # Look for .git directories up to 2 levels deep
-        repos = []
-        for entry in workspace_path.iterdir():
-            if entry.is_dir():
-                if (entry / ".git").exists():
-                    repos.append(entry)
-                else:
-                    try:
-                        for subentry in entry.iterdir():
-                            if subentry.is_dir() and (subentry / ".git").exists():
-                                repos.append(subentry)
-                    except PermissionError:
-                        continue
-        
-        for repo_path in repos:
-            cmd = [
-                "git", "-C", str(repo_path), "log", 
-                f"--since={since}", 
-                "--pretty=format:{\"sha\":\"%h\",\"message\":\"%s\",\"date\":\"%ad\",\"author\":\"%an\"}", 
-                "--date=iso"
-            ]
-            try:
-                result = subprocess.run(cmd, capture_output=True, text=True)
-                if result.returncode == 0:
-                    for line in result.stdout.strip().split('\n'):
-                        if line:
-                            try:
-                                commit = json.loads(line)
-                                commit['platform'] = 'git'
-                                commit['repo'] = repo_path.name
-                                commit['session_id'] = f"git-{repo_path.name}-{commit['sha']}"
-                                commit['timestamp'] = commit['date']
-                                all_commits.append(commit)
-                            except json.JSONDecodeError:
-                                continue
-            except Exception:
-                continue
-        return all_commits
-
-    def _extract_claude_sessions(self, date_range: Dict) -> List[Dict]:
+    def _extract_claude_sessions(self, date_range: Dict, topic: Optional[str] = None) -> List[Dict]:
         """Extract Claude Code sessions using existing script."""
         script_path = Path(__file__).parent / "extract-sessions.py"
         days = (date_range['end'] - date_range['start']).days + 1
@@ -181,7 +101,7 @@ class MultiPlatformExtractor:
 
         return sessions
 
-    def _extract_hermes_sessions(self, date_range: Dict) -> List[Dict]:
+    def _extract_hermes_sessions(self, date_range: Dict, topic: Optional[str] = None) -> List[Dict]:
         """Extract Hermes sessions via CLI export."""
         # Hermes export writes JSONL to stdout when output is "-"
         # No --format or --days flags exist on hermes sessions export
@@ -203,53 +123,65 @@ class MultiPlatformExtractor:
 
         return self._filter_by_date_range(sessions, date_range)
 
-    def _extract_gemini_sessions(self, date_range: Dict) -> List[Dict]:
-        """Extract Gemini CLI sessions from antigravity/conversations directory."""
-        # Primary: ~/.gemini/antigravity/conversations (actual session storage)
-        session_dir = os.path.expanduser("~/.gemini/antigravity/conversations")
+    def _parse_antigravity_transcript(self, transcript_path: str, file_time: datetime, session_id: str) -> List[Dict]:
+        """Parse an Antigravity transcript.jsonl file."""
+        import json
+        messages = []
+        try:
+            with open(transcript_path, 'r') as f:
+                for line in f:
+                    if not line.strip(): continue
+                    try:
+                        step = json.loads(line)
+                        role = 'user' if step.get('type') == 'USER_INPUT' else 'assistant' if step.get('type') == 'PLANNER_RESPONSE' else step.get('type', 'system').lower()
+                        messages.append({
+                            'role': role,
+                            'content': step.get('content', '')
+                        })
+                    except json.JSONDecodeError:
+                        continue
+        except IOError:
+            pass
+
+        if not messages:
+            return []
+
+        session = {
+            'platform': 'antigravity',
+            'session_id': session_id,
+            'messages': messages,
+            'file_path': transcript_path,
+            'timestamp': file_time.isoformat()
+        }
+        return [session]
+    def _extract_antigravity_sessions(self, date_range: Dict, topic: Optional[str] = None) -> List[Dict]:
+        """Extract Antigravity sessions from ~/.gemini/antigravity-cli/brain/*/."""
+        import os
+        import glob
+        from datetime import datetime, timezone
+        
+        brain_dir = os.path.expanduser("~/.gemini/antigravity-cli/brain")
         sessions = []
 
-        if not os.path.exists(session_dir):
-            # Fallback: ~/.gemini/tmp
-            session_dir = os.path.expanduser("~/.gemini/tmp")
-            if not os.path.exists(session_dir):
-                return sessions
+        if not os.path.exists(brain_dir):
+            return sessions
 
-        # Search for conversation JSON files
-        for file_path in glob.glob(os.path.join(session_dir, "*.json")):
-            file_time = datetime.fromtimestamp(os.path.getmtime(file_path), tz=timezone.utc)
+        for session_dir in glob.glob(os.path.join(brain_dir, "*")):
+            if not os.path.isdir(session_dir):
+                continue
+            
+            transcript_path = os.path.join(session_dir, ".system_generated", "logs", "transcript.jsonl")
+            if not os.path.exists(transcript_path):
+                continue
+
+            session_id = os.path.basename(session_dir)
+            file_time = datetime.fromtimestamp(os.path.getmtime(transcript_path), tz=timezone.utc)
+            
             if self._is_in_date_range(file_time, date_range):
-                try:
-                    with open(file_path, 'r') as f:
-                        content = f.read()
-                        # Try JSONL first (one JSON object per line)
-                        lines = content.strip().split('\n')
-                        if all(self._is_json(l) for l in lines if l.strip()):
-                            for i, line in enumerate(lines):
-                                if line.strip():
-                                    try:
-                                        session = json.loads(line)
-                                        session['platform'] = 'gemini'
-                                        session['file_path'] = file_path
-                                        session['session_id'] = session.get('id', f"{Path(file_path).stem}_{i}")
-                                        sessions.append(session)
-                                    except json.JSONDecodeError:
-                                        continue
-                        else:
-                            # Single JSON object - wrap in messages structure
-                            obj = json.loads(content)
-                            session = {
-                                'platform': 'gemini',
-                                'session_id': Path(file_path).stem,
-                                'messages': obj.get('messages', [obj]),
-                                'file_path': file_path,
-                                'timestamp': obj.get('timestamp', obj.get('created_at', file_time.isoformat()))
-                            }
-                            sessions.append(session)
-                except (json.JSONDecodeError, IOError):
-                    continue
+                sessions.extend(self._parse_antigravity_transcript(transcript_path, file_time, session_id))
 
         return sessions
+
 
     def _is_json(self, s: str) -> bool:
         """Check if string is valid JSON."""
@@ -259,7 +191,7 @@ class MultiPlatformExtractor:
         except (json.JSONDecodeError, TypeError):
             return False
 
-    def _extract_opencode_sessions(self, date_range: Dict) -> List[Dict]:
+    def _extract_opencode_sessions(self, date_range: Dict, topic: Optional[str] = None) -> List[Dict]:
         """Extract OpenCode sessions from SQLite database."""
         db_path = os.path.expanduser("~/.local/share/opencode/opencode.db")
         sessions = []
@@ -351,6 +283,153 @@ class MultiPlatformExtractor:
             print(f"   OpenCode SQLite error: {e}")
 
         return sessions
+
+
+    def _get_codeinsights_embedding(self, text: str) -> Optional[List[float]]:
+        import urllib.request
+        config_path = Path.home() / ".code-insights" / "config.json"
+        if not config_path.exists():
+            return None
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+            emb_cfg = config.get("dashboard", {}).get("embedding", {})
+            if emb_cfg.get("provider") != "ollama":
+                return None
+            base_url = emb_cfg.get("baseUrl", "http://localhost:11434").rstrip("/")
+            model = emb_cfg.get("model", "nomic-embed-text")
+            req = urllib.request.Request(
+                f"{base_url}/api/embeddings",
+                data=json.dumps({"model": model, "prompt": text}).encode('utf-8'),
+                headers={'Content-Type': 'application/json'}
+            )
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                return data.get("embedding")
+        except Exception:
+            return None
+
+    def _extract_codeinsights_sessions(self, date_range: Dict, topic: Optional[str] = None) -> List[Dict]:
+        """Extract code-insights sessions using Hybrid RAG search if topic is provided."""
+        db_path = Path.home() / ".code-insights" / "data.db"
+        if not db_path.exists():
+            return []
+
+        try:
+            import sqlite3
+            import struct
+            
+            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+            conn.row_factory = sqlite3.Row
+            
+            # Load sqlite-vec for vector search
+            try:
+                import sqlite_vec
+                conn.enable_load_extension(True)
+                sqlite_vec.load(conn)
+                conn.enable_load_extension(False)
+            except Exception as e:
+                print(f"Warning: sqlite-vec failed to load for code-insights ({e}). Hybrid search may degrade to FTS.")
+            
+            since = date_range['start'].isoformat()
+            until = date_range['end'].isoformat()
+            
+            sessions = []
+            
+            if topic:
+                emb = self._get_codeinsights_embedding(topic)
+                if emb:
+                    emb_bytes = struct.pack(f"{len(emb)}f", *emb)
+                    cur = conn.execute(f"""
+                        WITH fts_matches AS (
+                            SELECT m.session_id, bm25(messages_fts) as rank
+                            FROM messages_fts 
+                            JOIN messages m ON m.rowid = messages_fts.rowid
+                            WHERE messages_fts MATCH ?
+                            ORDER BY rank LIMIT 50
+                        ),
+                        vec_matches AS (
+                            SELECT m.session_id, v.distance
+                            FROM vec_messages v
+                            JOIN messages m ON m.id = v.id
+                            WHERE v.embedding MATCH ? 
+                              AND k = 50
+                        )
+                        SELECT DISTINCT s.id as session_id, s.project_name, s.summary, s.started_at, s.ended_at,
+                               COALESCE(s.custom_title, s.generated_title, 'Untitled') AS title, s.source_tool
+                        FROM sessions s
+                        WHERE s.id IN (SELECT session_id FROM fts_matches UNION SELECT session_id FROM vec_matches)
+                          AND s.started_at >= ? AND s.started_at <= ?
+                        ORDER BY s.started_at DESC
+                    """, (topic, emb_bytes, since, until))
+                else:
+                    # Fallback to FTS only
+                    cur = conn.execute(f"""
+                        WITH fts_matches AS (
+                            SELECT m.session_id, bm25(messages_fts) as rank
+                            FROM messages_fts 
+                            JOIN messages m ON m.rowid = messages_fts.rowid
+                            WHERE messages_fts MATCH ?
+                            ORDER BY rank LIMIT 50
+                        )
+                        SELECT DISTINCT s.id as session_id, s.project_name, s.summary, s.started_at, s.ended_at,
+                               COALESCE(s.custom_title, s.generated_title, 'Untitled') AS title, s.source_tool
+                        FROM sessions s
+                        JOIN fts_matches ON s.id = fts_matches.session_id
+                        WHERE s.started_at >= ? AND s.started_at <= ?
+                        ORDER BY s.started_at DESC
+                    """, (topic, since, until))
+            else:
+                # No topic, just fetch by date
+                cur = conn.execute(f"""
+                    SELECT id as session_id, project_name, summary, started_at, ended_at,
+                           COALESCE(custom_title, generated_title, 'Untitled') AS title, source_tool
+                    FROM sessions
+                    WHERE started_at >= ? AND started_at <= ?
+                    ORDER BY started_at DESC
+                """, (since, until))
+                
+            session_rows = cur.fetchall()
+            
+            for row in session_rows:
+                session_id = row['session_id']
+                
+                # Fetch messages
+                msg_cur = conn.execute("""
+                    SELECT id, type, content, timestamp
+                    FROM messages
+                    WHERE session_id = ?
+                    ORDER BY timestamp ASC
+                """, (session_id,))
+                
+                messages = []
+                for msg_row in msg_cur.fetchall():
+                    messages.append({
+                        '_msg_id': msg_row['id'],
+                        'role': msg_row['type'],
+                        'content': msg_row['content'],
+                        'timestamp': msg_row['timestamp']
+                    })
+                
+                session = {
+                    'platform': row['source_tool'] if row['source_tool'] else 'codeinsights',
+                    'session_id': session_id,
+                    'project_id': row['project_name'],
+                    'slug': row['project_name'],
+                    'title': row['title'],
+                    'summary': row['summary'],
+                    'messages': messages,
+                    'timestamp': row['started_at'],
+                    'file_path': str(db_path)
+                }
+                sessions.append(session)
+
+            conn.close()
+            return sessions
+
+        except Exception as e:
+            print(f"Code-insights extraction failed: {e}")
+            return []
 
     def _parse_claude_jsonl(self, file_path: str, date_range: Dict) -> List[Dict]:
         """Parse Claude Code JSONL session file."""
@@ -653,6 +732,7 @@ class MultiPlatformExtractor:
                 filtered.append(session)
         return filtered
 
+
     def _filter_by_date_range(self, sessions: List[Dict], date_range: Dict) -> List[Dict]:
         """Filter sessions by date range."""
         filtered = []
@@ -695,10 +775,7 @@ class MultiPlatformExtractor:
         return None
 
     def _get_session_content(self, session: Dict) -> str:
-        """Extract text content from session or note."""
-        if 'content' in session and isinstance(session['content'], str):
-            return session['content']
-            
+        """Extract text content from session."""
         content = []
         messages = session.get('messages', [])
 
@@ -713,9 +790,9 @@ class MultiPlatformExtractor:
     def write_sessions_to_index(self, sessions: Dict[str, List[Dict]],
                                 index_dir: Path,
                                 date_range: Dict) -> Path:
-        """Write sessions as text files for ck indexing.
+        """Write sessions as text files for qmd indexing.
         
-        Creates a directory structure suitable for ck-search indexing:
+        Creates a directory structure suitable for qmd indexing:
         index_dir/
           sessions/
             platform_timestamp_sessionid.txt
@@ -728,17 +805,48 @@ class MultiPlatformExtractor:
         sessions_dir = index_dir / "sessions"
         sessions_dir.mkdir(parents=True, exist_ok=True)
         
-        # Write each session as a separate file
-        total_written = 0
-        for platform, platform_sessions in sessions.items():
-            for session in platform_sessions:
-                session_id = session.get('session_id', str(uuid.uuid4())[:8])
-                timestamp = self._parse_session_timestamp(session)
-                ts_str = timestamp.strftime('%Y%m%d_%H%M%S') if timestamp else 'unknown'
+        # Ensure unique filenames in index
+        for session in sessions:
+            platform = session.get('platform', 'unknown')
+            # Create a safe filename
+            timestamp_str = session.get('timestamp', '').replace(':', '').replace('-', '')
+            if 'T' in timestamp_str:
+                timestamp_str = timestamp_str.split('T')[0] + '_' + timestamp_str.split('T')[1][:6]
                 
-                filename = f"{platform}_{ts_str}_{session_id}.txt"
-                filepath = sessions_dir / filename
-                
+            session_id = session.get('session_id', str(uuid.uuid4())[:8])
+            # Clean session_id for filename
+            session_id = re.sub(r'[^a-zA-Z0-9_]', '_', str(session_id))
+            
+            filename = f"{platform}_{timestamp_str}_{session_id}.txt"
+            filepath = sessions_dir / filename
+            
+            # Write session content as markdown text
+            try:
+                # Extract text content from messages
+                lines = []
+                messages = session.get('messages', [])
+                if isinstance(messages, str):
+                    # Handle opencode which might just have raw text
+                    lines.append(messages)
+                elif isinstance(messages, list):
+                    for msg in messages:
+                        if isinstance(msg, dict):
+                            role = msg.get('role', 'unknown').upper()
+                            lines.append(f"\n[{role}]")
+                            
+                            msg_content = msg.get('content', '')
+                            if isinstance(msg_content, str):
+                                lines.append(msg_content)
+                            elif isinstance(msg_content, list):
+                                # Handle complex Claude blocks
+                                text_parts = []
+                                for block in msg_content:
+                                    if isinstance(block, dict) and 'text' in block:
+                                        text_parts.append(block['text'])
+                                    else:
+                                        text_parts.append(str(block))
+                                msg_content = '\n'.join(text_parts)
+                                lines.append(msg_content)   
                 # Build text content for indexing
                 lines = [
                     f"# Session: {session_id}",
@@ -748,20 +856,31 @@ class MultiPlatformExtractor:
                     "",
                 ]
                 
-                # Add content or messages
-                if 'content' in session:
-                    lines.append(session['content'])
-                else:
-                    messages = session.get('messages', [])
-                    for msg in messages:
-                        role = msg.get('role', 'unknown') if isinstance(msg, dict) else 'unknown'
-                        msg_content = msg.get('content', msg) if isinstance(msg, dict) else str(msg)
-                        lines.append(f"[{role.upper()}]")
-                        lines.append(msg_content)
-                        lines.append("")
+                # Add messages
+                messages = session.get('messages', [])
+                for msg in messages:
+                    role = msg.get('role', 'unknown') if isinstance(msg, dict) else 'unknown'
+                    msg_content = msg.get('content', msg) if isinstance(msg, dict) else msg
+                    
+                    if isinstance(msg_content, list):
+                        text_parts = []
+                        for block in msg_content:
+                            if isinstance(block, dict) and 'text' in block:
+                                text_parts.append(block['text'])
+                            else:
+                                text_parts.append(str(block))
+                        msg_content = '\\n'.join(text_parts)
+                    elif not isinstance(msg_content, str):
+                        msg_content = str(msg_content)
+                        
+                    lines.append(f"[{role.upper()}]")
+                    lines.append(msg_content)
+                    lines.append("")
                 
                 filepath.write_text('\n'.join(lines))
                 total_written += 1
+            except Exception as e:
+                print(f"Warning: Failed to write session {session_id} to {filepath}: {e}")
         
         # Write summary metadata
         summary = {
@@ -780,37 +899,45 @@ class MultiPlatformExtractor:
         print(f"✓ Wrote {total_written} sessions to {sessions_dir}")
         return sessions_dir.parent
 
-    def index_with_ck(self, index_dir: Path) -> bool:
-        """Index the session directory with ck-search.
+    def index_with_qmd(self, index_dir: Path) -> bool:
+        """Index the session directory with qmd.
         
         Returns True if indexing succeeded, False otherwise.
         """
         try:
-            # Check if ck is available
-            result = subprocess.run(['ck', '--version'], capture_output=True)
-            if result.returncode != 0:
-                print("✗ ck-search not found in PATH")
+            # Check if qmd is available
+            if shutil.which('qmd') is None:
+                print("✗ qmd not found in PATH")
                 return False
             
-            # Build the index
-            cmd = ['ck', '--index', str(index_dir)]
+            index_name = index_dir.name
+            sessions_dir = index_dir / 'sessions'
+            
+            # Create the collection
+            add_result = subprocess.run(['qmd', '--index', index_name, 'collection', 'add', str(sessions_dir)], capture_output=True)
+            if add_result.returncode != 0:
+                print(f"✗ qmd collection add failed: {add_result.stderr.decode('utf-8', 'ignore')}")
+                return False
+            
+            # Update the index
+            cmd = ['qmd', '--index', index_name, 'update']
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.returncode != 0:
-                print(f"✗ ck indexing failed: {result.stderr}")
+                print(f"✗ qmd indexing failed: {result.stderr}")
                 return False
             
-            print(f"✓ ck index built at {index_dir}/.ck/")
+            print(f"✓ qmd index built at ~/.cache/qmd/{index_name}.sqlite")
             return True
             
         except Exception as e:
-            print(f"✗ ck indexing error: {e}")
+            print(f"✗ qmd indexing error: {e}")
             return False
 
     def search_indexed_sessions(self, index_dir: Path, query: str,
                                search_type: str = 'sem',
                                topk: int = 10) -> List[Dict]:
-        """Search indexed sessions using ck.
+        """Search indexed sessions using qmd.
         
         Args:
             index_dir: Path to the indexed session directory
@@ -820,47 +947,53 @@ class MultiPlatformExtractor:
         
         Returns list of search results with file, score, and preview.
         """
-        import subprocess
-        
         try:
-            # Map search type to ck flag
-            search_flags = {
-                'sem': ['--sem'],
-                'lex': ['--lex'],
-                'hybrid': ['--hybrid'],
-                'regex': [],  # default grep-style
-            }
+            index_name = index_dir.name
+            collection_name = 'sessions'
+            uri_prefix = f"qmd://{collection_name}/"
             
-            flag_map = {
-                'sem': '--sem',
-                'lex': '--lex', 
-                'hybrid': '--hybrid',
-            }
+            cmd = ['qmd', '--index', index_name]
             
-            cmd = ['ck', '--jsonl']
-            if search_type in flag_map:
-                cmd.append(flag_map[search_type])
-            cmd.extend(['--topk', str(topk), query, str(index_dir / 'sessions')])
+            if search_type == 'lex':
+                cmd.extend(['search'])
+            elif search_type in ('sem', 'hybrid'):
+                cmd.extend(['query'])
+            else:
+                cmd.extend(['search'])
+                
+            cmd.extend(['--json', '-n', str(topk), query])
             
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.returncode != 0:
-                print(f"✗ ck search failed: {result.stderr}")
+                print(f"✗ qmd search failed: {result.stderr}")
                 return []
             
-            # Parse JSONL output
+            # Parse JSON output
             results = []
-            for line in result.stdout.strip().split('\n'):
-                if line:
-                    try:
-                        results.append(json.loads(line))
-                    except json.JSONDecodeError:
-                        continue
+            try:
+                qmd_results = json.loads(result.stdout.strip())
+                for r in qmd_results:
+                    file_uri = r.get('file', '')
+                    uri_path = file_uri.split('?')[0]
+                    if uri_path.startswith(uri_prefix):
+                        filename = uri_path[len(uri_prefix):]
+                        filepath = str(index_dir / collection_name / filename)
+                    else:
+                        filepath = file_uri
+                        
+                    results.append({
+                        'file': filepath,
+                        'score': r.get('score', 0),
+                        'content': r.get('snippet', '')
+                    })
+            except json.JSONDecodeError:
+                pass
             
             return results
             
         except Exception as e:
-            print(f"✗ ck search error: {e}")
+            print(f"✗ qmd search error: {e}")
             return []
 
     def _extract_files_mentioned_in_session(self, session: Dict) -> List[str]:
@@ -880,9 +1013,9 @@ class MultiPlatformExtractor:
         return list(set(files))
 
     # =============================================================================
-    # CK-SEARCH DECISION TREE
+    # QMD DECISION TREE
     # =============================================================================
-    # Determines when to use ck-search indexing vs. direct extraction
+    # Determines when to use qmd indexing vs. direct extraction
     # to avoid loading everything into context
 
     def decide_extraction_mode(self, date_range: Dict, topic: Optional[str],
@@ -906,12 +1039,12 @@ class MultiPlatformExtractor:
         # Decision nodes
         decisions = []
 
-        # Node 1: Topic search → use ck-search (semantic lookup)
+        # Node 1: Topic search → use qmd (semantic lookup)
         if has_topic:
             decisions.append({
                 'node': 'topic_search',
                 'mode': 'index-then-search',
-                'reasoning': f"Topic query '{topic}' → semantic search via ck"
+                'reasoning': f"Topic query '{topic}' → semantic search via qmd"
             })
 
         # Node 2: Long date range → index (avoid massive extraction)
@@ -995,7 +1128,7 @@ class MultiPlatformExtractor:
         estimates = {
             'claude': 8,    # ~8 sessions/day typical
             'hermes': 5,    # ~5 sessions/day
-            'gemini': 2,    # ~2 sessions/day
+            'antigravity': 2,    # ~2 sessions/day
             'opencode': 1,  # ~1 session/day
         }
         total = sum(estimates.get(p, 2) for p in platforms) * days
@@ -1008,9 +1141,9 @@ class MultiPlatformExtractor:
     def _get_existing_index_info(self, index_dir: Path) -> Optional[Dict]:
         """Check if a valid index exists."""
         summary_path = index_dir / 'summary.json'
-        ck_dir = index_dir / '.ck'
+        sqlite_path = Path.home() / '.cache' / 'qmd' / f"{index_dir.name}.sqlite"
 
-        if not summary_path.exists() or not ck_dir.exists():
+        if not summary_path.exists() or not sqlite_path.exists():
             return None
 
         try:
@@ -1051,97 +1184,76 @@ class MultiPlatformExtractor:
         if 'estimated_sessions' in decision:
             print(f"   Est. sessions: {decision['estimated_sessions']}, span: {decision['date_span_days']}d")
 
-        # MODE: direct (fast path - no indexing)
+        sessions_to_correlate = []
+        github_data = []
+        search_results = []
+        matched_sessions = []
+        index_used = None
+        final_mode = mode
+
         if mode == 'direct':
-            sessions = self.extract_sessions(platforms, date_range, topic)
+            sessions_to_correlate = self.extract_sessions(platforms, date_range, topic)
             github_data = self._fetch_github_if_needed(github_repo, date_range)
-            timeline = self.correlate_timeline(sessions, github_data, [])
-            one_thing = self.generate_one_thing(timeline)
-
-            return {
-                'mode': 'direct',
-                'sessions': sessions,
-                'timeline': timeline,
-                'one_thing': one_thing,
-                'index_used': None
-            }
-
-        # MODE: index-then-search (topic queries, multi-platform)
+            
         elif mode == 'index-then-search':
-            # Check if we have a fresh index
             existing = self._get_existing_index_info(index_dir)
-
             if existing and existing.get('date_range') == self._date_range_key(date_range):
                 print(f"\n📦 Using existing index: {existing['total_sessions']} sessions")
+                index_used = str(index_dir)
             else:
                 print(f"\n📦 Building new index at {index_dir}...")
-                sessions = self.extract_sessions(platforms, date_range, None)
-                index_dir = self.write_sessions_to_index(sessions, index_dir, date_range)
-                if not self.index_with_ck(index_dir):
-                    # Fallback to direct if indexing fails
-                    print("   ⚠ ck indexing failed, falling back to direct extraction")
-                    timeline = self.correlate_timeline(sessions, {}, [])
-                    one_thing = self.generate_one_thing(timeline)
-                    return {'mode': 'direct-fallback', 'sessions': sessions,
-                            'timeline': timeline, 'one_thing': one_thing}
+                extracted = self.extract_sessions(platforms, date_range, None)
+                index_dir = self.write_sessions_to_index(extracted, index_dir, date_range)
+                if not self.index_with_qmd(index_dir):
+                    print("   ⚠ qmd indexing failed, falling back to direct extraction")
+                    final_mode = 'direct-fallback'
+                    sessions_to_correlate = extracted
+                else:
+                    index_used = str(index_dir)
 
-            # Perform semantic search if topic provided
-            if topic:
-                print(f"\n🔍 Semantic search: '{topic}'")
-                results = self.search_indexed_sessions(index_dir, topic, 'sem', topk=10)
-
-                # Load matched sessions
-                matched_sessions = self._load_matched_sessions_from_results(results)
-                timeline = self.correlate_timeline(matched_sessions, {}, [])
-                one_thing = self.generate_one_thing(timeline)
-
-                return {
-                    'mode': 'index-then-search',
-                    'search_results': results,
-                    'matched_sessions': matched_sessions,
-                    'timeline': timeline,
-                    'one_thing': one_thing,
-                    'index_used': str(index_dir)
-                }
-            else:
-                # No topic, return indexed sessions for correlation
-                sessions = self.extract_sessions(platforms, date_range, None)
-                github_data = self._fetch_github_if_needed(github_repo, date_range)
-                timeline = self.correlate_timeline(sessions, github_data, [])
-                one_thing = self.generate_one_thing(timeline)
-
-                return {
-                    'mode': 'index-ready',
-                    'sessions': sessions,
-                    'timeline': timeline,
-                    'one_thing': one_thing,
-                    'index_used': str(index_dir)
-                }
-
-        # MODE: index-only (long range, large count)
+            if final_mode != 'direct-fallback':
+                if topic:
+                    print(f"\n🔍 Semantic search: '{topic}'")
+                    search_results = self.search_indexed_sessions(index_dir, topic, 'sem', topk=10)
+                    matched_sessions = self._load_matched_sessions_from_results(search_results)
+                    sessions_to_correlate = matched_sessions
+                else:
+                    final_mode = 'index-ready'
+                    sessions_to_correlate = self.extract_sessions(platforms, date_range, None)
+                    github_data = self._fetch_github_if_needed(github_repo, date_range)
+                    
         else:  # index-only
             print(f"\n📦 Building index at {index_dir}...")
-            sessions = self.extract_sessions(platforms, date_range, None)
-            index_dir = self.write_sessions_to_index(sessions, index_dir, date_range)
+            extracted = self.extract_sessions(platforms, date_range, None)
+            index_dir = self.write_sessions_to_index(extracted, index_dir, date_range)
+            
+            if not self.index_with_qmd(index_dir):
+                print("   ⚠ qmd indexing failed, falling back to direct extraction")
+                final_mode = 'direct-fallback'
+                sessions_to_correlate = extracted
+            else:
+                index_used = str(index_dir)
+                sessions_to_correlate = extracted
+                github_data = self._fetch_github_if_needed(github_repo, date_range)
 
-            if not self.index_with_ck(index_dir):
-                print("   ⚠ ck indexing failed")
-                timeline = self.correlate_timeline(sessions, {}, [])
-                one_thing = self.generate_one_thing(timeline)
-                return {'mode': 'direct-fallback', 'sessions': sessions,
-                        'timeline': timeline, 'one_thing': one_thing}
+        # Unified correlation and return block
+        timeline = self.correlate_timeline(sessions_to_correlate, github_data, [])
+        one_thing = self.generate_one_thing(timeline)
 
-            github_data = self._fetch_github_if_needed(github_repo, date_range)
-            timeline = self.correlate_timeline(sessions, github_data, [])
-            one_thing = self.generate_one_thing(timeline)
-
-            return {
-                'mode': 'index-only',
-                'sessions': sessions,
-                'timeline': timeline,
-                'one_thing': one_thing,
-                'index_used': str(index_dir)
-            }
+        result = {
+            'mode': final_mode,
+            'timeline': timeline,
+            'one_thing': one_thing,
+            'index_used': index_used
+        }
+        
+        if final_mode == 'index-then-search':
+            result['search_results'] = search_results
+            result['matched_sessions'] = matched_sessions
+        else:
+            result['sessions'] = sessions_to_correlate
+            
+        return result
 
     def _fetch_github_if_needed(self, repo: Optional[str],
                                 date_range: Dict) -> Dict:
@@ -1155,9 +1267,9 @@ class MultiPlatformExtractor:
             return {}
 
     def _load_matched_sessions_from_results(self, results: List[Dict]) -> Dict[str, List]:
-        """Re-extract full sessions from ck search results for correlation."""
+        """Re-extract full sessions from qmd search results for correlation."""
         # Group results by platform
-        by_platform = {'claude': [], 'hermes': [], 'gemini': [], 'opencode': []}
+        by_platform = {'claude': [], 'hermes': [], 'antigravity': [], 'opencode': []}
 
         for r in results:
             filepath = r.get('file', r.get('path', ''))
@@ -1221,7 +1333,7 @@ def parse_date_range(date_arg: str) -> Dict[str, datetime]:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Multi-platform session recall with intelligent ck-search routing',
+        description='Multi-platform session recall with intelligent qmd routing',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
@@ -1240,7 +1352,7 @@ Examples:
 '''
     )
     parser.add_argument('query', nargs='*', help='Date range (yesterday/today/last week/YYYY-MM-DD) or topic keywords')
-    parser.add_argument('--platform', action='append', help='Specific platform(s): claude/hermes/gemini/opencode')
+    parser.add_argument('--platform', action='append', help='Specific platform(s): claude/hermes/antigravity/opencode')
     parser.add_argument('--github', help='GitHub repo for commit correlation (owner/repo)')
     parser.add_argument('--backup', help='Backup path for restic diff analysis')
     parser.add_argument('--output', help='Output file (default: stdout)')
@@ -1250,14 +1362,14 @@ Examples:
                        default='auto',
                        help='Extraction mode: auto (decision tree), direct (skip indexing), index (force), search (query index)')
 
-    # Legacy ck-search RAG options (still supported)
+    # Legacy qmd RAG options (still supported)
     parser.add_argument('--index', metavar='DIR',
-                       help='[LEGACY] Write sessions to DIR and index with ck-search')
+                       help='[LEGACY] Write sessions to DIR and index with qmd')
     parser.add_argument('--search', metavar='QUERY',
-                       help='[LEGACY] Search indexed sessions using ck')
+                       help='[LEGACY] Search indexed sessions using qmd')
     parser.add_argument('--search-type', choices=['sem', 'lex', 'hybrid', 'regex'],
                        default='sem',
-                       help='ck search type (default: sem)')
+                       help='qmd search type (default: sem)')
     parser.add_argument('--topk', type=int, default=10,
                        help='Number of search results (default: 10)')
 
@@ -1315,7 +1427,7 @@ Examples:
         if result.get('index_used'):
             print(f"📦 Index: {result['index_used']}")
         if result.get('search_results'):
-            print(f"\n🔍 Top ck-search results:")
+            print(f"\n🔍 Top qmd results:")
             for i, r in enumerate(result['search_results'][:5], 1):
                 print(f"   {i}. {r.get('file', 'unknown')}: {r.get('preview', '')[:80]}...")
 
@@ -1354,7 +1466,7 @@ def _handle_legacy_mode(extractor, args, date_range, topic, platforms):
     # Legacy: index only mode
     if args.index:
         index_path = Path(args.index).expanduser().resolve()
-        print(f"\n📦 Writing sessions to {index_path} for ck-search indexing...")
+        print(f"\n📦 Writing sessions to {index_path} for qmd indexing...")
 
         sessions = extractor.extract_sessions(platforms, date_range, topic)
         total_sessions = sum(len(s) for s in sessions.values())
@@ -1362,8 +1474,8 @@ def _handle_legacy_mode(extractor, args, date_range, topic, platforms):
 
         index_dir = extractor.write_sessions_to_index(sessions, index_path, date_range)
 
-        print(f"\n🔧 Building ck-search index...")
-        if extractor.index_with_ck(index_dir):
+        print(f"\n🔧 Building qmd index...")
+        if extractor.index_with_qmd(index_dir):
             print(f"\n✅ Index ready at: {index_dir}")
             print(f"   Search with: python3 multi-platform-extract.py --search \"query\" --index {index_path}")
         return

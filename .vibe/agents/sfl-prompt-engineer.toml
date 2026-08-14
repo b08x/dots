@@ -13,7 +13,8 @@ agent_type = "subagent"
 safety = "safe"
 bypass_tool_permissions = true
 system_prompt_id = "sfl-prompt-engineer"
-user_invocable = false
+user_invocable = true
+user_invocation_phrase = "/sfl-prompt-engineer"
 
 enabled_tools = [
     "read_file",

@@ -1,4 +1,4 @@
-active_model = "mistral-medium-3.5"
+active_model = ""
 vim_keybindings = true
 disable_welcome_banner_animation = true
 autocopy_to_clipboard = true
@@ -144,80 +144,21 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
-    "/home/b08x/*",
-    "/tmp/*",
-    "ansible-lint",
-    "awk",
-    "basename",
-    "bundle",
-    "cargo",
     "cat",
     "cd",
-    "choose",
-    "comm",
-    "cut",
-    "date",
-    "diff",
-    "dirname",
-    "du",
     "echo",
     "fd",
-    "file",
     "find",
-    "fmt",
-    "fold",
-    "gh auth status",
-    "gh repo create",
-    "gh repo view",
     "git",
-    "git diff",
-    "git log",
-    "git status",
-    "git-cliff",
-    "go",
+    "graphify",
     "grep",
     "head",
-    "javac",
-    "join",
-    "less",
     "ls",
-    "md5sum",
-    "mkdir",
-    "more",
-    "mvn",
-    "nl",
     "node",
     "npm",
-    "od",
-    "paste",
-    "pwd",
     "python3",
     "qmd",
-    "read",
-    "readlink",
-    "rga",
-    "rustc",
-    "sd",
-    "sha1sum",
-    "sha256sum",
-    "shasum",
-    "sort",
-    "stat",
-    "sum",
-    "tac",
     "tail",
-    "timeout",
-    "tr",
-    "tree",
-    "uname",
-    "uniq",
-    "wc",
-    "which",
-    "whoami",
-    "xargs",
-    "yadm",
-    "yamllint",
-    "yarn",
 ]
 denylist = [
     "rm",
@@ -248,7 +189,6 @@ denylist = [
     "> /dev/sd*",
     "mv /",
     "cp -r /",
-    "find",
     "sed",
 ]
 
@@ -297,7 +237,14 @@ denylist = [
 permission = "always"
 max_read_bytes = 262144
 allowlist = [
+    "/home/b08x/.syncopated/skills/scaffold/*",
+    "/home/b08x/.vibe/skills/github-commit/*",
+    "/home/b08x/.vibe/skills/refactor/*",
+    "/home/b08x/.vibe/skills/skill-creator/*",
+    "/home/b08x/.vibe/skills/skill-manager/*",
+    "/home/b08x/.vibe/skills/yadm-commit/*",
     "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
+    "/home/b08x/Notebook/PromptLibrary/*",
 ]
 
 [tools.codebase-memory-mcp_manage_adr]

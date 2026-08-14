@@ -1,46 +1,5 @@
 # Multi-Platform Recall Workflow
 
-## Architecture
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│ AI Harness      │     │ AI Harness       │     │ AI Harness      │
-│ (Claude Code)   │     │ (Gemini CLI)     │     │ (Hermes)        │
-│ JSONL files     │     │ JSON files       │     │ SQLite DB       │
-└────────┬────────┘     └────────┬─────────┘     └────────┬────────┘
-         │                       │                         │
-         └───────────────────────┼─────────────────────────┘
-                                 ▼
-                    ┌───────────────────────┐
-                    │  Normalization Layer  │
-                    │  normalized_sessions  │
-                    │  (ParsedSession)      │
-                    └───────────┬───────────┘
-                                ▼
-                    ┌───────────────────────┐
-                    │   DSPy Correlation    │
-                    │   + Heuristic Fallback│
-                    └───────────┬───────────┘
-                                ▼
-                    ┌───────────────────────┐
-                    │   GitHub + Restic      │
-                    │   Multi-Context        │
-                    └───────────────────────┘
-```
-
-## Primary Entry Point
-
-**Script:** `scripts/recall_workflow.py`
-
-This orchestrates the complete 4-stage pipeline:
-
-```
-STAGE 1: EXTRACTION     → Multi-provider normalized extraction
-STAGE 2: CORRELATION    → GitHub + restic integration, timeline build
-STAGE 3: SEARCH         → Optional topic search across combined data
-STAGE 4: ONE THING      → DSPy synthesis of highest-leverage action
-```
-
 ## Routing Logic
 
 ```dot
@@ -115,60 +74,72 @@ def parse_recall_args(args):
 
     # Default to all platforms if none specified
     if not parsed['platforms']:
-        parsed['platforms'] = ['claude', 'hermes', 'gemini', 'opencode']
+        parsed['platforms'] = ['claude', 'hermes', 'antigravity', 'opencode']
 
     return parsed
 ```
 
-### 2. Workflow Orchestration
+### 2. Platform Session Extraction
 
 ```python
-# Using the new workflow script
-python3 scripts/recall_workflow.py --days 7
-
-# With GitHub integration
-python3 scripts/recall_workflow.py --days 14 --github-repo owner/repo
-
-# With topic search
-python3 scripts/recall_workflow.py --search "authentication" --days 30
-
-# Platform filtering
-python3 scripts/recall_workflow.py --platforms claude,hermes --days 7
-```
-
-### 3. Normalized Extraction
-
-```python
-# Direct access to extraction layer
-python3 scripts/normalized_sessions.py extract --days 7 --platforms all
-
-# Output: Unified ParsedSession schema
-{
-  "ai_harness_claude": [
-    {
-      "id": "session_abc123",
-      "project_path": "/home/user/project",
-      "project_name": "project",
-      "summary": "Authentication refactor work",
-      "generated_title": "OAuth implementation",
-      "started_at": "2025-03-25T09:30:00",
-      "ended_at": "2025-03-25T11:45:00",
-      "message_count": 45,
-      "user_message_count": 12,
-      "assistant_message_count": 33,
-      "tool_call_count": 28,
-      "source_tool": "ai_harness_claude",
-      "usage": {"input_tokens": 15000, "output_tokens": 8000},
-      "messages": [...]
+def extract_platform_sessions(platform, date_range, topic):
+    """Extract sessions from specific platform."""
+    extractors = {
+        'claude': extract_claude_sessions,
+        'hermes': extract_hermes_sessions,
+        'antigravity': extract_antigravity_sessions,
+        'opencode': extract_opencode_sessions
     }
-  ],
-  "ai_harness_hermes": [...],
-  "ai_harness_gemini": [...],
-  "ai_harness_opencode": [...]
-}
+
+    if platform not in extractors:
+        raise ValueError(f"Unsupported platform: {platform}")
+
+    sessions = extractors[platform](date_range)
+
+    if topic:
+        sessions = filter_by_topic(sessions, topic)
+
+    return sessions
+
+def extract_claude_sessions(date_range):
+    """Extract Claude Code sessions using existing script."""
+    cmd = f"python3 scripts/extract-sessions.py --days {date_range['days']}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    # Parse JSONL output
+    return parse_sessions_jsonl(result.stdout)
+
+def extract_hermes_sessions(date_range):
+    """Extract Hermes sessions via CLI export."""
+    cmd = "hermes sessions export -"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return parse_sessions_jsonl(result.stdout)
+
+def extract_antigravity_sessions(date_range):
+    """Extract Antigravity sessions from brain directory."""
+    session_dir = os.path.expanduser("~/.gemini/antigravity-cli/brain/")
+    sessions = []
+
+    for transcript_path in glob.glob(f"{session_dir}/*/.system_generated/logs/transcript.jsonl"):
+        file_time = os.path.getmtime(transcript_path)
+        if is_in_date_range(file_time, date_range):
+            sessions.append({'platform': 'antigravity', 'file_path': transcript_path})
+
+    return sessions
+
+def extract_opencode_sessions(date_range):
+    """Extract OpenCode sessions from log files."""
+    log_dir = os.path.expanduser("~/.config/opencode/logs/")
+    sessions = []
+
+    # Find recent log files
+    for file_path in glob.glob(f"{log_dir}/*.log"):
+        if is_file_in_date_range(file_path, date_range):
+            sessions.extend(parse_opencode_logs(file_path))
+
+    return sessions
 ```
 
-### 4. GitHub Integration
+### 3. GitHub Integration
 
 ```python
 def fetch_github_data(repo, date_range):
@@ -182,7 +153,7 @@ def fetch_github_data(repo, date_range):
       --method GET \\
       --field since="{since}" \\
       --field until="{until}" \\
-      --jq '.[] | {{sha: .sha, message: .commit.message, date: .commit.author.date}}'
+      --jq '.[] | {{sha: .sha, message: .commit.message, date: .commit.author.date, author: .commit.author.name}}'
     """
 
     commits_result = subprocess.run(commits_cmd, shell=True, capture_output=True, text=True)
@@ -204,7 +175,7 @@ def fetch_github_data(repo, date_range):
     }
 ```
 
-### 5. Backup Diff Analysis
+### 4. Backup Diff Analysis
 
 ```python
 def analyze_backup_diffs(backup_path, date_range):
@@ -241,98 +212,93 @@ def analyze_backup_diffs(backup_path, date_range):
     return filter_backup_changes(diffs, backup_path)
 ```
 
-### 6. DSPy Correlation
+### 5. Timeline Correlation
 
 ```python
-class TimelineSynthesizer(dspy.Signature):
-    """Synthesize coherent narrative from multiple data sources."""
-    sessions: List[Dict] = dspy.InputField(desc="List of session data")
-    commits: List[Dict] = dspy.InputField(desc="List of git commits")
-    file_changes: List[Dict] = dspy.InputField(desc="List of file changes from backup")
-    narrative: str = dspy.OutputField(desc="Coherent narrative of activities")
-    workstreams: List[str] = dspy.OutputField(desc="Distinct workstreams identified")
-    next_actions: List[str] = dspy.OutputField(desc="Suggested next actions")
+def correlate_timeline(sessions, github_data, backup_diffs):
+    """Correlate sessions with commits and file changes."""
+    timeline = []
 
-def correlate_with_dspy(self, timeline: List[Dict]) -> Dict:
-    """Use DSPy to correlate and synthesize."""
-    if not DSPY_AVAILABLE:
-        return self._heuristic_correlation(timeline)
-    
-    # Extract sessions and commits from timeline
-    sessions = [e for e in timeline if e['type'] == 'session']
-    commits = [e for e in timeline if e['type'] == 'commit']
-    file_changes = [e for e in timeline if e['type'] == 'backup']
-    
-    # Configure DSPy with LM
-    lm = dspy.LM("openai/gpt-4o-mini", api_key=os.environ.get("OPENAI_API_KEY"))
-    dspy.configure(lm=lm)
-    
-    # Run synthesis
-    synthesizer = dspy.ChainOfThought(TimelineSynthesizer)
-    result = synthesizer(
-        sessions=sessions,
-        commits=commits,
-        file_changes=file_changes
-    )
-    
-    return {
-        'narrative': result.narrative,
-        'workstreams': result.workstreams,
-        'next_actions': result.next_actions
-    }
+    for session in sessions:
+        session_time = parse_session_timestamp(session)
+
+        # Find commits within 30 minutes of session
+        nearby_commits = []
+        for commit in github_data['commits']:
+            commit_time = datetime.fromisoformat(commit['date'].replace('Z', '+00:00'))
+            time_diff = abs((session_time - commit_time).total_seconds())
+            if time_diff < 1800:  # 30 minutes
+                nearby_commits.append(commit)
+
+        # Find file changes that might relate to session
+        related_changes = []
+        session_files = extract_files_mentioned_in_session(session)
+        for diff in backup_diffs:
+            diff_time = datetime.fromisoformat(diff['timestamp'].replace('Z', '+00:00'))
+            time_diff = abs((session_time - diff_time).total_seconds())
+
+            # Check if session mentions files that changed
+            changed_files = [f['path'] for f in diff['changes'] if f['type'] in ['added', 'modified']]
+            file_overlap = any(f in ' '.join(session['messages']) for f in changed_files)
+
+            if time_diff < 3600 and file_overlap:  # 1 hour window + file relevance
+                related_changes.append(diff)
+
+        timeline.append({
+            'session': session,
+            'platform': session.get('platform', 'unknown'),
+            'timestamp': session_time,
+            'commits': nearby_commits,
+            'file_changes': related_changes
+        })
+
+    return sorted(timeline, key=lambda x: x['timestamp'])
 ```
 
-### 7. One Thing Generation
+### 6. One Thing Synthesis
 
 ```python
-class OneThingGenerator(dspy.Signature):
+def generate_one_thing(timeline):
     """Generate the single highest-leverage next action."""
-    recent_activity: str = dspy.InputField(desc="Summary of recent work across platforms")
-    open_questions: List[str] = dspy.InputField(desc="Unresolved questions or blockers")
-    one_thing: str = dspy.OutputField(desc="Single most important next action")
-    reasoning: str = dspy.OutputField(desc="Why this action is highest leverage")
 
-def generate_one_thing(timeline, correlation):
-    """Generate the single highest-leverage next action."""
-    
     # Analyze patterns across timeline
     patterns = analyze_cross_platform_patterns(timeline)
     momentum = calculate_momentum_by_topic(timeline)
     blockers = identify_blockers(timeline)
-    
+
     # Calculate leverage scores
     leverage_scores = {}
-    
+
     for topic, events in patterns.items():
         score = 0
-        
+
         # High momentum topics get priority
         if momentum.get(topic, 0) > 0.5:
             score += 3
-        
+
         # Topics with recent commits get priority
         recent_commits = any(len(e['commits']) > 0 for e in events[-3:])
         if recent_commits:
             score += 2
-        
+
         # Unblocked topics get priority
         if topic not in blockers:
             score += 1
-        
-        # Topics spanning multiple platforms get priority
+
+        # Topics spanning multiple platforms get priority (cross-pollination)
         platforms = set(e['platform'] for e in events)
         if len(platforms) > 1:
             score += 2
-        
+
         leverage_scores[topic] = score
-    
+
     # Find highest leverage topic
     top_topic = max(leverage_scores.items(), key=lambda x: x[1])
-    
-    # Generate specific next action
+
+    # Generate specific next action for that topic
     latest_events = [e for e in timeline if top_topic[0] in extract_topic(e)][-3:]
     next_action = synthesize_action_from_events(latest_events)
-    
+
     return {
         'topic': top_topic[0],
         'leverage_score': top_topic[1],
@@ -344,84 +310,24 @@ def generate_one_thing(timeline, correlation):
 ## Output Format
 
 ### Summary Table
-
 | Platform | Sessions | Time Range | Key Topics |
 |----------|----------|------------|------------|
-| AI Harness (Claude Code) | 5 | 2025-03-25 to 2025-03-30 | auth refactor, session recall |
-| AI Harness (Hermes) | 2 | 2025-03-27 to 2025-03-28 | debugging, API integration |
-| AI Harness (Gemini CLI) | 1 | 2025-03-29 | code review |
+| Claude Code | 5 | 2025-03-25 to 2025-03-30 | auth refactor, session recall |
+| Hermes | 2 | 2025-03-27 to 2025-03-28 | debugging, API integration |
+| Antigravity | 1 | 2025-03-29 | code review |
 
 ### Timeline Correlation
-
 ```
-2025-03-25 09:30 [AI Harness (Claude)] Started auth refactor discussion
+2025-03-25 09:30 [Claude] Started auth refactor discussion
 2025-03-25 09:45 [GitHub] Commit: "WIP: authentication middleware"
 2025-03-25 10:15 [Restic] Modified: src/auth.py, tests/auth_test.py
 
-2025-03-27 14:20 [AI Harness (Hermes)] Debugging session timeout issues
+2025-03-27 14:20 [Hermes] Debugging session timeout issues
 2025-03-27 14:35 [GitHub] PR created: "Fix session timeout handling"
 2025-03-27 15:00 [Restic] Modified: lib/session_manager.py
 ```
 
 ### One Thing
-
 **Topic**: Authentication refactor (leverage score: 8/10)
-
-**Action**: Complete the session timeout fix from your AI harness debugging session by merging PR #23 and updating the auth middleware tests based on your session insights.
-
+**Action**: Complete the session timeout fix from your Hermes debugging session by merging PR #23 and updating the auth middleware tests based on your Claude Code session insights.
 **Reasoning**: Highest momentum topic spanning 3 platforms with recent GitHub activity and unblocked path to completion.
-
-## Script Reference
-
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| `scripts/recall_workflow.py` | Main orchestration | `python3 scripts/recall_workflow.py --days 7` |
-| `scripts/normalized_sessions.py` | Extraction + correlation | `python3 scripts/normalized_sessions.py extract --days 7` |
-| `scripts/multi-platform-extract.py` | Legacy (deprecated) | Use `normalized_sessions.py` instead |
-
-## Platform-Specific Access
-
-### Claude Code
-
-```bash
-# Session files location
-~/.claude/projects/<encoded_project_path>/*.jsonl
-
-# Direct parsing
-python3 scripts/normalized_sessions.py extract --platforms claude --days 7
-```
-
-### Hermes
-
-```bash
-# SQLite database location
-~/.hermes/state.db
-
-# Direct read-only access (no CLI dependency)
-sqlite3 ~/.hermes/state.db "SELECT * FROM sessions WHERE started_at >= datetime('now', '-7 days')"
-
-# Via normalized script
-python3 scripts/normalized_sessions.py extract --platforms hermes --days 7
-```
-
-### Gemini CLI
-
-```bash
-# Session files location (CRITICAL: correct path)
-~/.gemini/tmp/<project_hash>/chats/*.json
-
-# NOT: ~/.gemini/antigravity/conversations/ (deprecated)
-
-# Via normalized script
-python3 scripts/normalized_sessions.py extract --platforms gemini --days 7
-```
-
-### OpenCode
-
-```bash
-# SQLite database location
-~/.local/share/opencode/opencode.db
-
-# Via normalized script
-python3 scripts/normalized_sessions.py extract --platforms opencode --days 7
-```

@@ -1,17 +1,21 @@
-# Other Steve Agent
-# General agent UX for basic tasks and searches, operating as a Senior Staff Engineer.
-
+[agent]
 id = "other-steve"
 display_name = "Other Steve"
 description = """
-A Senior Staff Engineer persona for basic tasks, searches, and architectural reviews.
+A Senior Staff Engineer persona for prompt architecture and SFL-compliant prompt rewriting.
+Diagnoses and rewrites ambiguous prompts into highly structured, constraint-driven instruction sets.
 Uses the 'Other Steve' voice (chaotically neutral, darkly optimistic).
 """
 agent_type = "agent"
 safety = "neutral"
 bypass_tool_permissions = false
-system_prompt_id = "other-steve"
 user_invocable = true
+
+[agent.skill_retrieval]
+enabled = true
+
+[agent.skills]
+enabled = ["other-steve"]
 
 enabled_tools = [
     "read_file",

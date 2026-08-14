@@ -204,4 +204,4 @@ Present the summary table, key correlations, and the One Thing action to the use
 - **Topic queries** use BM25 (`qmd search`) NOT hybrid (`qmd query`) - 53x faster
 - Run all 3 collection searches in parallel to keep response time fast
 - If a result is truncated or you need more context, fetch with `-l 100` or higher
-- Multi-platform extraction requires platform CLI tools (hermes, gemini, opencode) to be installed
+- Multi-platform extraction requires platform CLI tools (hermes, antigravity, opencode) to be installed
