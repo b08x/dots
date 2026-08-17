@@ -31,7 +31,7 @@ enabled_tools = [
 [tools.bash]
 permission = "ask"
 allowlist = [
-    "cat", "ls", "grep", "find", "fd", "git", "python3", "node", "npm", "graphify", "qmd"
+    "cat", "ls", "grep", "fd", "git", "python3", "node", "npm", "graphify", "qmd"
 ]
 
 [tools.read_file]
