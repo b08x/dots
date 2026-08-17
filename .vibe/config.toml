@@ -186,6 +186,7 @@ allowlist = [
     "wc",
     "which",
     "xargs",
+    "yadm",
 ]
 denylist = [
     "find",
