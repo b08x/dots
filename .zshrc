@@ -164,8 +164,8 @@ useditor() {
 
 if [[ ! -n $EDITOR || $EDITOR != "micro" ]]; then useditor micro; fi
 
-[ -n "$DISPLAY" ] && export TERM="kitty" || export TERM=xterm
-[ -n "$DISPLAY" ] && export TERMINAL="kitty" || export TERMINAL=xterm
+[ -n "$DISPLAY" ] && export TERM="kitty" || export TERM=xterm-256color
+[ -n "$DISPLAY" ] && export TERMINAL="kitty" || export TERMINAL=xterm-256color
 
 TERMCMD="$TERMINAL"
 
