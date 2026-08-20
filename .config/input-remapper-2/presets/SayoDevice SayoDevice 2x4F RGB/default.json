@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard + mouse",
-        "output_symbol": "Control_L + Alt_L + KEY_SPACE",
+        "output_symbol": "XF86LaunchB",
         "mapping_type": "key_macro"
     },
     {
@@ -32,7 +32,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 3",
+        "output_symbol": "Control_L + b",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L",
+        "output_symbol": "Control_L + c",
         "mapping_type": "key_macro"
     },
     {

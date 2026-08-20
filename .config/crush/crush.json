@@ -67,6 +67,13 @@
         "Authorization": "Bearer $GH_PAT"
       }
     },
+    "trackboi": {
+      "type": "stdio",
+      "command": "trackboi",
+      "args": [
+          "mcp"
+      ]
+    },
     "context7": {
       "type": "stdio",
       "command": "npx",
