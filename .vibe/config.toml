@@ -41,6 +41,8 @@ connectors = [
     { name = "github_app", disabled = false },
     { name = "google_drive", disabled = false },
 ]
+show_thinking_nodes = true
+experimental_enable_registry_skills = true
 
 [[mcp_servers]]
 name = "trackboi"
@@ -130,6 +132,10 @@ alias = "devstral-2"
 temperature = 0.2
 thinking = "high"
 
+[[models]]
+thinking = "medium"
+alias = "devstral-small"
+
 [project_context]
 default_commit_count = 30
 timeout_seconds = 30.0
@@ -144,10 +150,16 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "/code-insights",
+    "/home/b08x/.code-insights/*",
+    "/home/b08x/.config/omega13/*",
+    "/home/b08x/.vibe/skills/code-insights/*",
+    "/home/b08x/.vibe/skills/code-insights/code-insights",
     "/home/b08x/.vibe/skills/zread/*",
     "/home/b08x/.zread/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
     "/home/b08x/WorkspaceV3/*",
+    "/home/b08x/WorkspaceV3/graphify/*",
     "/tmp/*",
     "bundle",
     "cat",
@@ -162,6 +174,7 @@ allowlist = [
     "fd -e py -x grep -l \"jinja2\\|Template\\|Environment\"",
     "find",
     "git",
+    "git-cliff",
     "graphify",
     "grep",
     "head",
@@ -175,9 +188,12 @@ allowlist = [
     "pnpm lint",
     "python -c",
     "python -m",
+    "python /tmp/test_transcription_fix.py",
+    "python /tmp/test_transcription_trigger.py",
     "python3",
     "qmd",
     "sort",
+    "sqlite3",
     "tail",
     "timeout",
     "tree",
@@ -227,6 +243,11 @@ permission = "always"
 
 [tools.write_file]
 permission = "always"
+allowlist = [
+    "/home/b08x/WorkspaceV3/graphify/*",
+    "/home/b08x/WorkspaceV3/graphify/graphify/*",
+    "/tmp/*",
+]
 
 [tools.task]
 permission = "always"
@@ -249,8 +270,10 @@ permission = "always"
 [tools.edit]
 permission = "always"
 allowlist = [
-    "~/.vibe/skills/*",
     "./**/*",
+    "/home/b08x/WorkspaceV3/graphify/graphify/*",
+    "/tmp/*",
+    "~/.vibe/skills/*",
 ]
 denylist = [
     "~/.vibe/agents/*",
@@ -267,6 +290,7 @@ denylist = [
 permission = "always"
 max_read_bytes = 262144
 allowlist = [
+    "/home/b08x/.local/lib/python3.14/site-packages/graphify/*",
     "/home/b08x/.syncopated/skills/scaffold/*",
     "/home/b08x/.vibe/skills/github-commit/*",
     "/home/b08x/.vibe/skills/refactor/*",
@@ -278,6 +302,7 @@ allowlist = [
     "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
     "/home/b08x/Notebook/PromptLibrary/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
+    "/home/b08x/WorkspaceV3/graphify/graphify/*",
 ]
 
 [tools.codebase-memory-mcp_manage_adr]
@@ -287,4 +312,7 @@ permission = "always"
 permission = "always"
 
 [tools.connector_github_app_get_me]
+permission = "always"
+
+[tools.codebase-memory-mcp_search_graph]
 permission = "always"
