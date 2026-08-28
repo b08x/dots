@@ -24,7 +24,7 @@ else
 fi
 
 # GUM
-GUM_VERSION="0.17.0"
+GUM_VERSION="2.0.0"
 : "${GUM:=/usr/bin/gum}" # GUM=/usr/bin/gum ./your_script.sh
 
 # COLORS
@@ -217,64 +217,124 @@ gum_init() {
 			log "INFO" "Found gum binary at: $HOME/.local/bin/gum"
 			GUM="$HOME/.local/bin/gum"
 		else
-			# If not found anywhere, download it
-			log "INFO" "Gum not found, downloading version ${GUM_VERSION}..."
-			local gum_url gum_path # Prepare URL with version os and arch
+			# If not found anywhere, try to install via package manager
+			log "INFO" "Gum not found, attempting package manager installation..."
+			
+			# Detect package manager and system architecture
+			local pkg_manager pkg_format pkg_url download_path
 			local os_name arch_name
-
+			
 			os_name=$(uname -s)
 			arch_name=$(uname -m)
-
+			
 			log "INFO" "Detected OS: ${os_name}, Architecture: ${arch_name}"
-
-			# https://github.com/charmbracelet/gum/releases
-			gum_url="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_${os_name}_${arch_name}.tar.gz"
-			log "INFO" "Downloading from: ${gum_url}"
-
-			if ! curl -Lsf "$gum_url" >"${SCRIPT_TMP_DIR}/gum.tar.gz"; then
-				log "ERROR" "Failed to download gum from ${gum_url}"
-				echo "Error downloading ${gum_url}" >&2
-				return 1
+			
+			# Determine package manager and format
+			if command -v apt-get >/dev/null 2>&1; then
+				pkg_manager="apt-get"
+				pkg_format="deb"
+				log "INFO" "Detected package manager: apt (Debian/Ubuntu)"
+			elif command -v dnf >/dev/null 2>&1; then
+				pkg_manager="dnf"
+				pkg_format="rpm"
+				log "INFO" "Detected package manager: dnf (Fedora/RHEL)"
+			elif command -v apk >/dev/null 2>&1; then
+				pkg_manager="apk"
+				pkg_format="apk"
+				log "INFO" "Detected package manager: apk (Alpine)"
+			else
+				log "WARN" "No supported package manager found (apt, dnf, apk), falling back to binary download"
+				pkg_manager=""
 			fi
-
-			log "INFO" "Extracting gum archive"
-			if ! tar -xf "${SCRIPT_TMP_DIR}/gum.tar.gz" --directory "$SCRIPT_TMP_DIR"; then
-				log "ERROR" "Failed to extract ${SCRIPT_TMP_DIR}/gum.tar.gz"
-				echo "Error extracting ${SCRIPT_TMP_DIR}/gum.tar.gz" >&2
-				return 1
+			
+			if [ -n "$pkg_manager" ]; then
+				# Try to install from system repositories first
+				log "INFO" "Attempting to install gum from system repositories using ${pkg_manager}..."
+				case "$pkg_manager" in
+					apt-get)
+						if sudo apt-get update -qq && sudo apt-get install -y -qq gum 2>/dev/null; then
+							log "INFO" "Successfully installed gum via apt"
+							GUM=$(command -v gum 2>/dev/null)
+						else
+							log "WARN" "Failed to install gum from apt repositories, trying direct download"
+							pkg_manager=""
+						fi
+						;;
+					dnf)
+						if sudo dnf install -y -q gum 2>/dev/null; then
+							log "INFO" "Successfully installed gum via dnf"
+							GUM=$(command -v gum 2>/dev/null)
+						else
+							log "WARN" "Failed to install gum from dnf repositories, trying direct download"
+							pkg_manager=""
+						fi
+						;;
+					apk)
+						if sudo apk add --no-cache gum 2>/dev/null; then
+							log "INFO" "Successfully installed gum via apk"
+							GUM=$(command -v gum 2>/dev/null)
+						else
+							log "WARN" "Failed to install gum from apk repositories, trying direct download"
+							pkg_manager=""
+						fi
+						;;
+				esac
 			fi
+			
+			# If package manager installation didn't work, fall back to downloading binary
+			if [ -z "$pkg_manager" ] || [ ! -x "$GUM" ]; then
+				log "INFO" "Gum not found in repositories, downloading version ${GUM_VERSION}..."
+				
+				# https://github.com/charmbracelet/gum/releases
+				local gum_url="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_${os_name}_${arch_name}.tar.gz"
+				log "INFO" "Downloading from: ${gum_url}"
 
-			gum_path=$(find "${SCRIPT_TMP_DIR}" -type f -executable -name "gum" -print -quit)
-			if [ -z "$gum_path" ]; then
-				log "ERROR" "Gum binary not found in extracted archive"
-				echo "Error: 'gum' binary not found in '${SCRIPT_TMP_DIR}'" >&2
-				return 1
+				if ! curl -Lsf "$gum_url" >"${SCRIPT_TMP_DIR}/gum.tar.gz"; then
+					log "ERROR" "Failed to download gum from ${gum_url}"
+					echo "Error downloading ${gum_url}" >&2
+					return 1
+				fi
+
+				log "INFO" "Extracting gum archive"
+				if ! tar -xf "${SCRIPT_TMP_DIR}/gum.tar.gz" --directory "$SCRIPT_TMP_DIR"; then
+					log "ERROR" "Failed to extract ${SCRIPT_TMP_DIR}/gum.tar.gz"
+					echo "Error extracting ${SCRIPT_TMP_DIR}/gum.tar.gz" >&2
+					return 1
+				fi
+
+				local gum_path
+				gum_path=$(find "${SCRIPT_TMP_DIR}" -type f -executable -name "gum" -print -quit)
+				if [ -z "$gum_path" ]; then
+					log "ERROR" "Gum binary not found in extracted archive"
+					echo "Error: 'gum' binary not found in '${SCRIPT_TMP_DIR}'" >&2
+					return 1
+				fi
+
+				log "INFO" "Creating ~/.local/bin directory if it doesn't exist"
+				# Ensure ~/.local/bin exists
+				if ! mkdir -p "$HOME/.local/bin"; then
+					log "ERROR" "Failed to create directory ~/.local/bin"
+					echo "Error creating directory ~/.local/bin" >&2
+					return 1
+				fi
+
+				log "INFO" "Moving gum binary to ~/.local/bin"
+				if ! mv "$gum_path" "$HOME/.local/bin/gum"; then
+					log "ERROR" "Failed to move ${gum_path} to ~/.local/bin/gum"
+					echo "Error moving ${gum_path} to ~/.local/bin/gum" >&2
+					return 1
+				fi
+
+				log "INFO" "Making gum binary executable"
+				if ! chmod +x "$HOME/.local/bin/gum"; then
+					log "ERROR" "Failed to make ~/.local/bin/gum executable"
+					echo "Error chmod +x ~/.local/bin/gum" >&2
+					return 1
+				fi
+
+				GUM="$HOME/.local/bin/gum"
+				log "INFO" "Gum binary downloaded and made executable at: $GUM"
 			fi
-
-			log "INFO" "Creating ~/.local/bin directory if it doesn't exist"
-			# Ensure ~/.local/bin exists
-			if ! mkdir -p "$HOME/.local/bin"; then
-				log "ERROR" "Failed to create directory ~/.local/bin"
-				echo "Error creating directory ~/.local/bin" >&2
-				return 1
-			fi
-
-			log "INFO" "Moving gum binary to ~/.local/bin"
-			if ! mv "$gum_path" "$HOME/.local/bin/gum"; then
-				log "ERROR" "Failed to move ${gum_path} to ~/.local/bin/gum"
-				echo "Error moving ${gum_path} to ~/.local/bin/gum" >&2
-				return 1
-			fi
-
-			log "INFO" "Making gum binary executable"
-			if ! chmod +x "$HOME/.local/bin/gum"; then
-				log "ERROR" "Failed to make ~/.local/bin/gum executable"
-				echo "Error chmod +x ~/.local/bin/gum" >&2
-				return 1
-			fi
-
-			GUM="$HOME/.local/bin/gum" # Update GUM variable to point to the local binary
-			log "INFO" "Gum binary downloaded and made executable at: $GUM"
 		fi
 	else
 		log "INFO" "Gum binary already exists at: $GUM"
