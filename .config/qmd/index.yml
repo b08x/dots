@@ -1,0 +1,28 @@
+collections:
+  Notebook:
+    path: /home/b08x/Notebook
+    pattern: "**/*.md"
+  sfl-engine:
+    path: /home/b08x/WorkspaceV3/sfl-engine
+    pattern: "**/*.md"
+  RubyRAG_Ref:
+    path: /home/b08x/Workspace/RubyRAG_Ref
+    pattern: "**/*.md"
+  RubyStuff:
+    path: /home/b08x/Workspace/RubyStuff
+    pattern: "**/*.md"
+  dspy-ruby:
+    path: /home/b08x/.gemini/config/plugins/dspy-ruby/skills/dspy-ruby
+    pattern: "**/*.md"
+  hermes-agent:
+    path: /home/b08x/WorkspaceV3/Syncopated/Hermes/hermes-agent
+    pattern: "**/*.md"
+    context:
+      "": Python-based AI agent framework
+  ansible-tasks:
+    path: /home/b08x/WorkspaceV3/Syncopated/Archive/Ansible/Tasks
+    pattern: "**/*.md"
+models:
+  embed: hf:ggml-org/embeddinggemma-300M-GGUF/embeddinggemma-300M-Q8_0.gguf
+  generate: hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf
+  rerank: hf:ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/qwen3-reranker-0.6b-q8_0.gguf
