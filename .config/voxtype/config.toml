@@ -14,7 +14,7 @@ state_file = "auto"
 # Key to hold for push-to-talk
 # Common choices: SCROLLLOCK, PAUSE, RIGHTALT, F13-F24
 # Use `evtest` to find key names for your keyboard
-key = "SCROLLLOCK"
+key = "WEV_175"
 
 # Optional modifier keys that must also be held
 # Example: modifiers = ["LEFTCTRL", "LEFTALT"]
@@ -23,7 +23,7 @@ modifiers = []
 # Activation mode: "push_to_talk" or "toggle"
 # - push_to_talk: Hold hotkey to record, release to transcribe (default)
 # - toggle: Press hotkey once to start recording, press again to stop
-# mode = "push_to_talk"
+mode = "toggle"
 
 # Enable built-in hotkey detection (default: true)
 # Set to false when using compositor keybindings (Hyprland, Sway) instead
@@ -94,7 +94,7 @@ translate = false
 # causing slower transcription. For different-vendor setups (e.g., Intel iGPU +
 # NVIDIA dGPU), use VOXTYPE_VULKAN_DEVICE=nvidia instead (simpler).
 # Use gpu_device for same-vendor GPUs or precise index control.
-# gpu_device = 1
+gpu_device = 1
 
 # Enable flash attention for GPU inference (default: false)
 # Reduces memory usage (~75%) and improves speed (~10%) on CUDA/Vulkan.
@@ -154,7 +154,7 @@ translate = false
 # Primary output mode: "type" or "clipboard"
 # - type: Simulates keyboard input at cursor position (requires ydotool)
 # - clipboard: Copies text to clipboard (requires wl-copy)
-mode = "ty--clipboardpe"
+mode = "type"
 
 # Fall back to clipboard if typing fails
 fallback_to_clipboard = true
@@ -166,7 +166,7 @@ fallback_to_clipboard = true
 # Example: prefer ydotool over dotool:
 #   driver_order = ["wtype", "ydotool", "dotool", "clipboard"]
 # Example: use only ydotool, no fallback:
-#   driver_order = ["ydotool"]
+driver_order = ["ydotool"]
 # driver_order = ["wtype", "dotool", "ydotool", "clipboard"]
 
 # Delay between typed characters in milliseconds
@@ -234,7 +234,7 @@ on_transcription = true
 # Text processing options (word replacements, spoken punctuation)
 #
 # Enable spoken punctuation conversion (e.g., say "period" to get ".")
-# spoken_punctuation = false
+spoken_punctuation = true
 #
 # Custom word replacements (case-insensitive)
 # replacements = { "vox type" = "voxtype" }
