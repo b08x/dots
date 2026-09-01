@@ -1,15 +1,14 @@
 {
   "version": 2,
   "input_ports": [
-    "Built-in Audio Analog Stereo:capture_FL",
-    "Built-in Audio Analog Stereo:capture_FR"
+    "PowerMicII-NS Mono:capture_MONO"
   ],
   "save_path": "/home/b08x/WorkspaceV3/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",
   "transcription": {
     "enabled": true,
     "auto_transcribe": true,
-    "provider": "local",
+    "provider": "groq",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
     "model_size": "large-v3-turbo",
