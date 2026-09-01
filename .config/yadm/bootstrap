@@ -80,3 +80,11 @@ display_welcome_message
 sleep 1
 
 sudo usermod -s /usr/bin/zsh $USER
+
+sleep 1
+
+/usr/local/bin/yadm decrypt
+
+sleep 1
+
+
