@@ -188,6 +188,7 @@ allowlist = [
     "pnpm eslint",
     "pnpm install",
     "pnpm lint",
+    "pre-commit",
     "python -c",
     "python -m",
     "python /tmp/test_transcription_fix.py",
