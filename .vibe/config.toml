@@ -159,8 +159,10 @@ allowlist = [
     "/home/b08x/.zread/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
     "/home/b08x/WorkspaceV3/*",
+    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/tmp/*",
+    "bash",
     "bundle",
     "cat",
     "cd",
@@ -244,6 +246,7 @@ permission = "always"
 [tools.write_file]
 permission = "always"
 allowlist = [
+    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
     "/tmp/*",
@@ -271,6 +274,7 @@ permission = "always"
 permission = "always"
 allowlist = [
     "./**/*",
+    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
     "/tmp/*",
     "~/.vibe/skills/*",
@@ -302,6 +306,7 @@ allowlist = [
     "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
     "/home/b08x/Notebook/PromptLibrary/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
+    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
 ]
 
