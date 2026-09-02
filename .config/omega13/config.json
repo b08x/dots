@@ -29,5 +29,6 @@
     "begin_threshold_db": -25.0,
     "end_threshold_db": -35.0,
     "silence_duration_seconds": 2.5
-  }
+  },
+  "force_osd": true
 }

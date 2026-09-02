@@ -17,7 +17,7 @@ export SCREENCASTS="$HOME/Screencasts"
 
 [[ -f ~/.cargo/env ]] && source ~/.cargo/env
 
-export YDOTOOL_SOCKET="/tmp/.ydotool_socket"
+# export YDOTOOL_SOCKET="/tmp/.ydotool_socket"
 
 export PATH="$HOME/.local/bin:$HOME/Tools/bin:$PATH"
 

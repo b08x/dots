@@ -159,6 +159,7 @@ allowlist = [
     "/home/b08x/.zread/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
     "/home/b08x/WorkspaceV3/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/tmp/*",
