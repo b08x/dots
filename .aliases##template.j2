@@ -120,18 +120,38 @@ alias lzd="~/.local/bin/lazydocker"
 alias ydiff="yadm diff --staged | fabric --pattern create_git_diff_commit"
 alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
 
-{% if YADM_DISTRO_FAMILY == 'RedHat' or YADM_DISTRO == 'Fedora' %}
+{% if YADM_DISTRO_FAMILY == 'RedHat' %}
 # RedHat/Fedora package manager aliases
 alias provides="sudo dnf provides"
 alias dnf="sudo dnf"
 {% endif %}
 
-{% if YADM_DISTRO == 'Arch' or YADM_DISTRO_FAMILY == 'Arch' %}
+{% if YADM_DISTRO == 'Fedora' %}
+# RedHat/Fedora package manager aliases
+alias provides="sudo dnf provides"
+alias dnf="sudo dnf"
+{% endif %}
+
+{% if YADM_DISTRO == 'Arch' %}
 alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
 alias unmountchroot="sudo umount /mnt/chroots/arch"
 {% endif %}
 
-{% if YADM_HOSTNAME in ['soundbot', 'gir'] %}
+{% if YADM_DISTRO_FAMILY == 'Arch' %}
+alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
+alias unmountchroot="sudo umount /mnt/chroots/arch"
+{% endif %}
+
+{% if YADM_HOSTNAME == 'soundbot' %}
+# Audio/Sampler utilities for specific hosts
+alias baudline_jack="baudline_jack -channels 4 -jack"
+alias pulse_list_sources="pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'"
+alias vnc_serv="x11vnc -ncache_cr -display :0"
+alias soundsampler="fd -e flac -e wav -e opus -e mp3 --strip-cwd-prefix . | fzf --preview='mpv {}' --preview-window=30% --tac --reverse -m --cycle --bind 'return:execute(play {})'"
+alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x' | fzf --preview='mpv {}' --preview-window '~3,follow' --tac --reverse -m --cycle --bind 'ctrl-/:toggle-preview' --bind 'return:execute(mpv {}),ctrl-y:change-preview-window(down|hidden|)'"
+{% endif %}
+
+{% if YADM_HOSTNAME == 'gir' %}
 # Audio/Sampler utilities for specific hosts
 alias baudline_jack="baudline_jack -channels 4 -jack"
 alias pulse_list_sources="pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'"

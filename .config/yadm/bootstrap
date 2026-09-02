@@ -87,4 +87,16 @@ sleep 1
 
 sleep 1
 
+say "Checking for Jinja2 template engine (jinjanator)..." $BLUE
+if ! command -v j2 &> /dev/null; then
+    say "j2 not found. Installing jinjanator via uv..." $YELLOW
+    if command -v uv &> /dev/null; then
+        uv tool install jinjanator
+    else
+        say "Error: uv is not installed. Please install uv first to setup templates." $RED
+    fi
+fi
 
+say "Processing yadm alternates and templates..." $BLUE
+/usr/local/bin/yadm alt
+say "Bootstrap complete." $GREEN

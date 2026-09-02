@@ -16,16 +16,18 @@ else
   echo "oh-my-zsh cannot be found"
 fi
 
+ZSH_THEME="jaischeema"
 {% if YADM_HOSTNAME == 'ninjabot' %}
 ZSH_THEME="jaischeema"
-{% elif YADM_HOSTNAME == 'soundbot' %}
+{% endif %}
+{% if YADM_HOSTNAME == 'soundbot' %}
 ZSH_THEME="strug"
-{% elif YADM_HOSTNAME == 'gir' %}
+{% endif %}
+{% if YADM_HOSTNAME == 'gir' %}
 ZSH_THEME="gnzh"
-{% elif YADM_HOSTNAME == 'tinybot' %}
+{% endif %}
+{% if YADM_HOSTNAME == 'tinybot' %}
 ZSH_THEME="xiong-chiamiov"
-{% else %}
-ZSH_THEME="jaischeema"
 {% endif %}
 
 CASE_SENSITIVE="true"
@@ -208,12 +210,6 @@ echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
 {% if YADM_HOSTNAME == 'ninjabot' %}
 export LIBVA_DRIVER_NAME=i965
-# {% elif YADM_HOSTNAME == 'server2' %}
-#   export MY_VAR="value_for_server2"
-# {% elif YADM_HOSTNAME == 'laptop' %}
-#   export MY_VAR="value_for_laptop"
-# {% else %}
-#   export MY_VAR="default_value"
 {% endif %}
 
 if [ -f "$HOME/.config/claude/local/claude" ]; then
