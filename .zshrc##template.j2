@@ -120,7 +120,7 @@ setopt extendedglob
 unsetopt nomatch
 
 # load custom completion functions
-fpath=($HOME/.local/share/zsh/completion $HOME/.local/share/zsh/site-functions /usr/local/share/zsh/completion /usr/local/share/zsh/site-functions $fpath)
+fpath=($HOME/.rbenv/completions $HOME/.local/share/zsh/completion $HOME/.local/share/zsh/site-functions /usr/local/share/zsh/completion /usr/local/share/zsh/site-functions $fpath)
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -233,9 +233,6 @@ export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
 
 # Added by Antigravity CLI installer
 export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
-
-export ASDF_DATA_DIR="/opt/asdf"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
