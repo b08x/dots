@@ -1,5 +1,5 @@
 # =============================================================================
-# yadm managed
+# yadm managed template (Jinja2 syntax)
 # =============================================================================
 
 # System power
@@ -50,10 +50,6 @@ alias netlog='sudo journalctl -g "iwd|Network" -f -o json | lnav'
 alias networklogdebug="sudo nmcli general logging level DEBUG domains ALL"
 alias networkloginfo="sudo nmcli general logging level INFO domains ALL"
 alias p="gping github.com"
-
-# RedHat/Fedora package manager aliases
-alias provides="sudo dnf provides"
-alias dnf="sudo dnf"
 
 # Git aliases
 alias gc="env GIT_EDITOR=micro git commit && gum confirm 'push changes' && git push"
@@ -108,7 +104,6 @@ alias dla="yt-dlp -o '%(title)s.%(ext)s' -x --audio-format wav --external-downlo
 alias dlv="yt-dlp -o '%(title)s.%(ext)s' -f mp4 --external-downloader aria2c"
 
 alias loadpry='pry -r'
-alias baudline_jack="baudline_jack -channels 4 -jack"
 
 # Yadm aliases
 alias yfp="yadm fetch && yadm pull"
@@ -117,21 +112,30 @@ alias yd="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
 alias yc="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
 alias ys="gitui -d $HOME/.local/share/yadm/repo.git -w $HOME --logging"
 
-alias pulse_list_sources="pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'"
-alias vnc_serv="x11vnc -ncache_cr -display :0"
-
-# Sampler fzf utilities
-alias soundsampler="fd -e flac -e wav -e opus -e mp3 --strip-cwd-prefix . | fzf --preview='mpv {}' --preview-window=30% --tac --reverse -m --cycle --bind 'return:execute(play {})'"
-alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x' | fzf --preview='mpv {}' --preview-window '~3,follow' --tac --reverse -m --cycle --bind 'ctrl-/:toggle-preview' --bind 'return:execute(mpv {}),ctrl-y:change-preview-window(down|hidden|)'"
-
-alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
-alias unmountchroot="sudo umount /mnt/chroots/arch"
-
 alias m="micro"
+alias jq="jq -r"
+alias lzd="~/.local/bin/lazydocker"
 
 # Fabric GenAI commit message helpers
 alias ydiff="yadm diff --staged | fabric --pattern create_git_diff_commit"
 alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
 
-alias jq="jq -r"
-alias lzd="~/.local/bin/lazydocker"
+{% if YADM_DISTRO_FAMILY == 'RedHat' or YADM_DISTRO == 'Fedora' %}
+# RedHat/Fedora package manager aliases
+alias provides="sudo dnf provides"
+alias dnf="sudo dnf"
+{% endif %}
+
+{% if YADM_DISTRO == 'Arch' or YADM_DISTRO_FAMILY == 'Arch' %}
+alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/chroots/arch"
+alias unmountchroot="sudo umount /mnt/chroots/arch"
+{% endif %}
+
+{% if YADM_HOSTNAME in ['soundbot', 'gir'] %}
+# Audio/Sampler utilities for specific hosts
+alias baudline_jack="baudline_jack -channels 4 -jack"
+alias pulse_list_sources="pacmd list-sources | grep -e 'index:' -e device.string -e 'name:'"
+alias vnc_serv="x11vnc -ncache_cr -display :0"
+alias soundsampler="fd -e flac -e wav -e opus -e mp3 --strip-cwd-prefix . | fzf --preview='mpv {}' --preview-window=30% --tac --reverse -m --cycle --bind 'return:execute(play {})'"
+alias samplerv2="fd -e flac -e wav -e opus -e mp3 . '/home/b08x' | fzf --preview='mpv {}' --preview-window '~3,follow' --tac --reverse -m --cycle --bind 'ctrl-/:toggle-preview' --bind 'return:execute(mpv {}),ctrl-y:change-preview-window(down|hidden|)'"
+{% endif %}

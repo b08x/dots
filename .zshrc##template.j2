@@ -16,19 +16,17 @@ else
   echo "oh-my-zsh cannot be found"
 fi
 
-hostname=$(hostname)
-
-if [[ $hostname == "ninjabot" ]]; then
-  ZSH_THEME="jaischeema"
-elif [[ $hostname == "soundbot" ]]; then
-  ZSH_THEME="strug"
-elif [[ $hostname == "gir" ]]; then
-  ZSH_THEME="gnzh"
-elif [[ $hostname == "tinybot" ]]; then
-  ZSH_THEME="xiong-chiamiov"
-else
-  ZSH_THEME="jaischeema"
-fi
+{% if YADM_HOSTNAME == 'ninjabot' %}
+ZSH_THEME="jaischeema"
+{% elif YADM_HOSTNAME == 'soundbot' %}
+ZSH_THEME="strug"
+{% elif YADM_HOSTNAME == 'gir' %}
+ZSH_THEME="gnzh"
+{% elif YADM_HOSTNAME == 'tinybot' %}
+ZSH_THEME="xiong-chiamiov"
+{% else %}
+ZSH_THEME="jaischeema"
+{% endif %}
 
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
@@ -208,15 +206,15 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-if [[ $hostname == "ninjabot" ]]; then
-  export LIBVA_DRIVER_NAME=i965
-# elif [[ $hostname == "server2" ]]; then
+{% if YADM_HOSTNAME == 'ninjabot' %}
+export LIBVA_DRIVER_NAME=i965
+# {% elif YADM_HOSTNAME == 'server2' %}
 #   export MY_VAR="value_for_server2"
-# elif [[ $hostname == "laptop" ]]; then
+# {% elif YADM_HOSTNAME == 'laptop' %}
 #   export MY_VAR="value_for_laptop"
-# else
+# {% else %}
 #   export MY_VAR="default_value"
-fi
+{% endif %}
 
 if [ -f "$HOME/.config/claude/local/claude" ]; then
   alias claude="$HOME/.config/claude/local/claude"
