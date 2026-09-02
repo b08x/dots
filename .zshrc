@@ -48,6 +48,29 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+# gum options
+export GUM_SPIN_SPINNER="pulse"
+export GUM_SPIN_ALIGN="right"
+export GUM_SPIN_SHOW_OUTPUT=true
+export GUM_SPIN_SPINNER_FOREGROUND=033
+export GUM_SPIN_TITLE_FOREGROUND=024
+
+export GUM_CHOOSE_CURSOR="> "
+export GUM_CHOOSE_CURSOR_PREFIX="[ ] "
+export GUM_CHOOSE_SELECTED_PREFIX="[✓] "
+export GUM_CHOOSE_UNSELECTED_PREFIX="[ ] "
+export GUM_CHOOSE_CURSOR_FOREGROUND=046
+export GUM_CHOOSE_ITEM_FOREGROUND=045
+export GUM_CHOOSE_SELECTED_FOREGROUND=027
+
+export GUM_CONFIRM_PROMPT_FOREGROUND=027
+export GUM_CONFIRM_SELECTED_FOREGROUND=064
+export GUM_CONFIRM_UNSELECTED_FOREGROUND=010
+
+# fzf options
+export FZF_BASE=/usr/share/fzf
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:#BDBB72,border:#6B6B6B,spinner:#98BC99' --color='hl:#719872,fg:#bbb12a,header:#719872,fg+:#D9D9D9' --color='pointer:#E12672,marker:#E17899,prompt:#98BEDE,hl+:#98BC99''
+
 for function in $ZSH_LOCAL/functions/*; do
   source $function
 done
@@ -215,16 +238,12 @@ export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
 # Added by Antigravity CLI installer
 export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
-
-# Added by codebase-memory-mcp install
-export PATH="$HOME/.local/bin:$PATH"
-
-# Added by codebase-memory-mcp install
-export PATH="/home/b08x/.local/bin:$PATH"
-
 export ASDF_DATA_DIR="/opt/asdf"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Ensure PATH has no duplicates (Kaizen: Error Proofing)
+typeset -U path
