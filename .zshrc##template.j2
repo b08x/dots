@@ -194,7 +194,9 @@ TERMCMD="$TERMINAL"
 
 [ -n "$DISPLAY" ] && export BROWSER="google-chrome-stable" || export BROWSER=links
 
-eval "$(zoxide init zsh)"
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
 
 export PYENV_ROOT="$HOME/.pyenv"
 if [[ -d $PYENV_ROOT/bin ]]; then
@@ -206,7 +208,7 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv init - zsh)"
 fi
 
-echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
+
 
 {% if YADM_HOSTNAME == 'ninjabot' %}
 export LIBVA_DRIVER_NAME=i965
