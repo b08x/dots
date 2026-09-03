@@ -16,7 +16,8 @@
     "save_to_file": true,
     "copy_to_clipboard": true,
     "inject_to_active_window": false,
-    "write_to_daily_note": true
+    "write_to_daily_note": true,
+    "write_to_file": true
   },
   "desktop_notifications": true,
   "sessions": {
@@ -30,5 +31,8 @@
     "end_threshold_db": -35.0,
     "silence_duration_seconds": 2.5
   },
-  "force_osd": true
+  "force_osd": true,
+  "output_file": {
+    "directory": "~/Notebook/Daily"
+  }
 }
