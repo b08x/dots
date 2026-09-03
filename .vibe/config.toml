@@ -1,4 +1,4 @@
-active_model = ""
+active_model = "glm-5-2"
 vim_keybindings = true
 disable_welcome_banner_animation = true
 autocopy_to_clipboard = true
@@ -322,4 +322,31 @@ permission = "always"
 permission = "always"
 
 [tools.codebase-memory-mcp_search_graph]
+permission = "always"
+
+[tools.codebase-memory-mcp_list_projects]
+permission = "always"
+
+[tools.codebase-memory-mcp_index_status]
+permission = "always"
+
+[tools.codebase-memory-mcp_get_architecture]
+permission = "always"
+
+[tools.codebase-memory-mcp_get_graph_schema]
+permission = "always"
+
+[tools.codebase-memory-mcp_query_graph]
+permission = "always"
+
+[tools.codebase-memory-mcp_search_code]
+permission = "always"
+
+[tools.codebase-memory-mcp_trace_path]
+permission = "always"
+
+[tools.codebase-memory-mcp_check_index_coverage]
+permission = "always"
+
+[tools.codebase-memory-mcp_get_code_snippet]
 permission = "always"

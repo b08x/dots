@@ -22,3 +22,8 @@ export SCREENCASTS="$HOME/Screencasts"
 export PATH="$HOME/.local/bin:$HOME/Tools/bin:$PATH"
 
 export RESTIC_REPO="/mnt/ninjabot/backup00/b08x"
+
+export GRAPHIFY_OPENAI_MODEL="deepseek/deepseek-v4-flash-0731"
+
+export OPENAI_MODEL="deepseek/deepseek-v4-flash-0731"
+export OPENAI_BASE_URL="https://openrouter.ai/api/v1"
