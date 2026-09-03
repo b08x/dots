@@ -120,11 +120,8 @@ alias lzd="~/.local/bin/lazydocker"
 alias ydiff="yadm diff --staged | fabric --pattern create_git_diff_commit"
 alias gdiff="git diff --staged | fabric --pattern create_git_diff_commit"
 
-#{% if YADM_DISTRO_FAMILY == 'RedHat' %}
-# RedHat/Fedora package manager aliases
 alias provides="sudo dnf provides"
 alias dnf="sudo dnf"
-#{% endif %}
 
 {% if YADM_DISTRO == 'Fedora' %}
 # RedHat/Fedora package manager aliases
