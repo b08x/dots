@@ -132,10 +132,6 @@ alias = "devstral-2"
 temperature = 0.2
 thinking = "high"
 
-[[models]]
-thinking = "medium"
-alias = "devstral-small"
-
 [project_context]
 default_commit_count = 30
 timeout_seconds = 30.0
@@ -150,19 +146,35 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "$(cat",
+    "$PYTHON",
+    ".venv/bin/ansible-lint",
     "/code-insights",
+    "/home/b08x/.agents/skills/archify/*",
+    "/home/b08x/.agents/skills/archify/examples/*",
     "/home/b08x/.code-insights/*",
     "/home/b08x/.config/omega13/*",
+    "/home/b08x/.local/bin/*",
+    "/home/b08x/.local/opt/python@3.14/bin/*",
+    "/home/b08x/.local/share/uv/tools/graphifyy/bin/*",
+    "/home/b08x/.local/share/uv/tools/graphifyy/bin/python",
     "/home/b08x/.vibe/skills/code-insights/*",
     "/home/b08x/.vibe/skills/code-insights/code-insights",
+    "/home/b08x/.vibe/skills/graphify/*",
     "/home/b08x/.vibe/skills/zread/*",
     "/home/b08x/.zread/*",
+    "/home/b08x/Notebook/DevOps/Docker/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
     "/home/b08x/WorkspaceV3/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/tmp/*",
+    "/usr/bin/*",
+    "ansible-doc",
+    "ansible-lint",
+    "ansible-playbook",
+    "basename",
     "bash",
     "bundle",
     "cat",
@@ -175,6 +187,7 @@ allowlist = [
     "fd -e py --exclude venv -x grep -l \"jinja2\\|from jinja2\"",
     "fd -e py --exclude venv -x grep -l \"lxml\\|etree\"",
     "fd -e py -x grep -l \"jinja2\\|Template\\|Environment\"",
+    "file",
     "find",
     "git",
     "git-cliff",
@@ -182,27 +195,44 @@ allowlist = [
     "grep",
     "head",
     "ls",
+    "mkdir",
     "mv",
     "node",
     "npm",
+    "pip3",
+    "pip3.10",
+    "pip3.12",
     "pnpm build",
     "pnpm eslint",
     "pnpm install",
     "pnpm lint",
+    "podman pod",
+    "podman volume",
     "pre-commit",
     "python -c",
     "python -m",
     "python /tmp/test_transcription_fix.py",
     "python /tmp/test_transcription_trigger.py",
     "python3",
+    "python3.10",
+    "python3.11",
+    "python3.12",
+    "python3.13",
     "qmd",
+    "rmdir",
+    "sleep",
     "sort",
     "sqlite3",
+    "ssh",
     "tail",
     "timeout",
+    "tr",
     "tree",
     "uv --version",
     "uv pip",
+    "uv run python3",
+    "uv run ruff",
+    "uv tool",
     "wc",
     "which",
     "xargs",
@@ -244,10 +274,14 @@ denylist = [
 
 [tools.grep]
 permission = "always"
+allowlist = [
+    "/home/b08x/*",
+]
 
 [tools.write_file]
 permission = "always"
 allowlist = [
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
@@ -296,18 +330,31 @@ denylist = [
 permission = "always"
 max_read_bytes = 262144
 allowlist = [
+    "/home/b08x/.agents/skills/archify/examples/*",
+    "/home/b08x/.agents/skills/archify/schemas/*",
     "/home/b08x/.local/lib/python3.14/site-packages/graphify/*",
     "/home/b08x/.syncopated/skills/scaffold/*",
+    "/home/b08x/.vibe/skills/ansible-automation/references/*",
     "/home/b08x/.vibe/skills/github-commit/*",
+    "/home/b08x/.vibe/skills/graphify/references/*",
     "/home/b08x/.vibe/skills/refactor/*",
     "/home/b08x/.vibe/skills/skill-creator/*",
     "/home/b08x/.vibe/skills/skill-manager/*",
     "/home/b08x/.vibe/skills/yadm-commit/*",
     "/home/b08x/.vibe/skills/zread/*",
     "/home/b08x/.zread/*",
+    "/home/b08x/Notebook/Daily/*",
+    "/home/b08x/Notebook/DevOps/*",
+    "/home/b08x/Notebook/DevOps/Ansible/*",
+    "/home/b08x/Notebook/DevOps/Docker/*",
+    "/home/b08x/Notebook/GenAI/Applications/*",
+    "/home/b08x/Notebook/Projects/Ansible-DSPy-Ruby/*",
     "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
     "/home/b08x/Notebook/PromptLibrary/*",
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/group_vars/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/host_vars/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
 ]
@@ -349,4 +396,69 @@ permission = "always"
 permission = "always"
 
 [tools.codebase-memory-mcp_get_code_snippet]
+permission = "always"
+
+[tools.qmd_status]
+permission = "always"
+
+[tools.qmd_query]
+permission = "always"
+
+[tools.qmd_get]
+permission = "always"
+
+[tools.trackboi_orient_agent]
+permission = "always"
+
+[tools.trackboi_create_track]
+permission = "always"
+
+[tools.trackboi_create_card]
+permission = "always"
+
+[tools.trackboi_list_tracks]
+permission = "always"
+
+[tools.trackboi_list_cards]
+permission = "always"
+
+[tools.trackboi_delete_card]
+permission = "always"
+
+[tools.trackboi_delete_track]
+permission = "always"
+
+[tools.trackboi_add_card_comment]
+permission = "always"
+
+[tools.trackboi_update_track]
+permission = "always"
+
+[tools.trackboi_list_columns]
+permission = "always"
+
+[tools.context7_resolve-library-id]
+permission = "always"
+
+[tools.context7_query-docs]
+permission = "always"
+
+[tools.trackboi_update_card]
+permission = "always"
+
+[tools.trackboi_list_track_files]
+permission = "always"
+
+[tools.trackboi_write_track_file]
+permission = "always"
+
+[tools.trackboi_read_track_file]
+permission = "always"
+
+[tools.web_fetch]
+allowlist = [
+    "raw.githubusercontent.com",
+]
+
+[tools.trackboi_get_active_context]
 permission = "always"
