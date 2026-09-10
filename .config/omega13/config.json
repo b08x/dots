@@ -1,14 +1,15 @@
 {
   "version": 2,
   "input_ports": [
-    "PowerMicII-NS Mono:capture_MONO"
+    "NoiseTorch Microphone for Built-in Audio Source:monitor_FL",
+    "NoiseTorch Microphone for Built-in Audio Source:monitor_FR"
   ],
   "save_path": "/home/b08x/WorkspaceV3/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",
   "transcription": {
     "enabled": true,
-    "auto_transcribe": true,
-    "provider": "groq",
+    "auto_transcribe": false,
+    "provider": "local",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
     "model_size": "large-v3-turbo",

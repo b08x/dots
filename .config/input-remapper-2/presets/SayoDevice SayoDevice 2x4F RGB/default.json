@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Super_L + Alt_L + d",
+        "output_symbol": "Control_L + Alt_L + space",
         "mapping_type": "key_macro"
     },
     {
@@ -44,7 +44,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + c",
+        "output_symbol": "KEY_F5",
         "mapping_type": "key_macro"
     },
     {
@@ -56,7 +56,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 5",
+        "output_symbol": "Return",
         "mapping_type": "key_macro"
     },
     {
@@ -68,7 +68,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 6",
+        "output_symbol": "KEY_UP",
         "mapping_type": "key_macro"
     },
     {
@@ -80,7 +80,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 7",
+        "output_symbol": "KEY_DOWN",
         "mapping_type": "key_macro"
     },
     {
@@ -92,7 +92,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + Shift_L + 8",
+        "output_symbol": "Escape",
         "mapping_type": "key_macro"
     }
 ]

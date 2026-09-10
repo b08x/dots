@@ -36,6 +36,29 @@ cup 1
 !
 }
 
+ensure_gum() {
+  if ! command_exists gum; then
+    echo "============================================================"
+    echo "Installing Gum (TUI Toolkit)"
+    echo "============================================================"
+    echo "Gum not found. Installing from official repository..."
+    if dnf install -y https://github.com/charmbracelet/gum/releases/download/v2.0.0/gum-2.0.0-1.x86_64.rpm; then
+      if command_exists gum; then
+        log success "Gum installed successfully!"
+        log info "Gum version: $(gum --version)"
+      else
+        echo "ERROR: Gum installation failed. Please install manually from https://github.com/charmbracelet/gum"
+        exit 1
+      fi
+    else
+      echo "ERROR: Failed to install Gum. This script requires Gum."
+      exit 1
+    fi
+  else
+    log info "Gum is already installed: $(gum --version)"
+  fi
+}
+
 # --- Display Welcome Message ---
 display_welcome_message() {
   wipe
@@ -72,8 +95,15 @@ get_environment_variables() {
 declare -rx USER_HOME="${HOME}"
 declare -rx CONFIG_DIR="${USER_HOME}/.config"
 
-echo $DISTRO
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bootstrap script started" > "$LOG_FILE"
 
+ensure_gum
+
+local term_width
+term_width=$(tput cols 2>/dev/null || echo 80)
+wipe
+
+echo $DISTRO
 
 display_welcome_message
 

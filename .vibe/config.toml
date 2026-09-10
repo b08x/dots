@@ -40,6 +40,7 @@ connectors = [
     { name = "deepwiki", disabled = true },
     { name = "github_app", disabled = false },
     { name = "google_drive", disabled = false },
+    { name = "web_search", disabled = false },
 ]
 show_thinking_nodes = true
 experimental_enable_registry_skills = true
@@ -146,6 +147,7 @@ permission = "always"
 [tools.bash]
 permission = "ask"
 allowlist = [
+    "\"$PYTHON\"",
     "$(cat",
     "$PYTHON",
     ".venv/bin/ansible-lint",
@@ -158,6 +160,7 @@ allowlist = [
     "/home/b08x/.local/opt/python@3.14/bin/*",
     "/home/b08x/.local/share/uv/tools/graphifyy/bin/*",
     "/home/b08x/.local/share/uv/tools/graphifyy/bin/python",
+    "/home/b08x/.syncopated/skills/codebase-memory/*",
     "/home/b08x/.vibe/skills/code-insights/*",
     "/home/b08x/.vibe/skills/code-insights/code-insights",
     "/home/b08x/.vibe/skills/graphify/*",
@@ -167,6 +170,7 @@ allowlist = [
     "/home/b08x/Workspace/Tools/deepwiki-builder/*",
     "/home/b08x/WorkspaceV3/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
+    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/*",
     "/tmp/*",
@@ -179,6 +183,7 @@ allowlist = [
     "bundle",
     "cat",
     "cd",
+    "command",
     "cut",
     "date",
     "diff",
@@ -194,11 +199,14 @@ allowlist = [
     "graphify",
     "grep",
     "head",
+    "locate",
     "ls",
     "mkdir",
     "mv",
     "node",
     "npm",
+    "omm",
+    "pip show",
     "pip3",
     "pip3.10",
     "pip3.12",
@@ -224,10 +232,12 @@ allowlist = [
     "sort",
     "sqlite3",
     "ssh",
+    "strings",
     "tail",
     "timeout",
     "tr",
     "tree",
+    "uniq",
     "uv --version",
     "uv pip",
     "uv run python3",
@@ -355,6 +365,9 @@ allowlist = [
     "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/group_vars/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/host_vars/*",
+    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/*",
+    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/annotator/*",
+    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/core/*",
     "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
     "/home/b08x/WorkspaceV3/graphify/graphify/*",
 ]
@@ -461,4 +474,19 @@ allowlist = [
 ]
 
 [tools.trackboi_get_active_context]
+permission = "always"
+
+[tools.codebase-memory-mcp_index_repository]
+permission = "always"
+
+[tools.codebase-memory-mcp_delete_project]
+permission = "always"
+
+[tools.deepwiki_ask_question]
+permission = "always"
+
+[tools.deepwiki_read_wiki_structure]
+permission = "always"
+
+[tools.connector_github_app_get_file_contents]
 permission = "always"
