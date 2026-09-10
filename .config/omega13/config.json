@@ -1,14 +1,13 @@
 {
   "version": 2,
   "input_ports": [
-    "NoiseTorch Microphone for Built-in Audio Source:monitor_FL",
-    "NoiseTorch Microphone for Built-in Audio Source:monitor_FR"
+    "NoiseTorch Microphone for Built-in Audio Source:capture_MONO"
   ],
   "save_path": "/home/b08x/WorkspaceV3/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",
   "transcription": {
     "enabled": true,
-    "auto_transcribe": false,
+    "auto_transcribe": true,
     "provider": "local",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
