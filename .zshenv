@@ -19,7 +19,7 @@ export SCREENCASTS="$HOME/Screencasts"
 
 # export YDOTOOL_SOCKET="/tmp/.ydotool_socket"
 
-export PATH="$HOME/.local/bin:$HOME/Tools/bin:$PATH"
+#export PATH="$HOME/.local/bin:$HOME/Tools/bin:$PATH"
 
 export RESTIC_REPO="/mnt/ninjabot/backup00/b08x"
 
