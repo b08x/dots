@@ -106,7 +106,8 @@ prompt_vault_location() {
     
     if [[ ! -d "${VAULT_DIR}" ]]; then
         gum log --level info "Directory does not exist. Creating ${VAULT_DIR}..."
-        mkdir -p "${VAULT_DIR}"
+        mkdir -p "${VAULT_DIR}" && \
+        mkdir -p "${VAULT_DIR}/Daily"
     fi
     
     cd "${VAULT_DIR}" || {
