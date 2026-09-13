@@ -102,6 +102,8 @@ wipe
 # Set up variables
 declare -rx USER_HOME="${HOME}"
 declare -rx CONFIG_DIR="${USER_HOME}/.config"
+LOG_FILE="${USER_HOME}/.yadm/config/bootstrap.log"
+mkdir -p "$(dirname "$LOG_FILE")"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bootstrap script started" > "$LOG_FILE"
 
