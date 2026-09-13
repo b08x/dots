@@ -15,7 +15,9 @@
     "debug_lsp": false,
     "disable_provider_auto_update": false,
     "disable_metrics": false,
-    "context_paths": ["/home/b08x/.config/crush/codebase-memory.md"]
+    "context_paths": [
+  "/home/b08x/.config/crush/codebase-memory.md"
+]
   },
   "permissions": {
     "allowed_tools": [
