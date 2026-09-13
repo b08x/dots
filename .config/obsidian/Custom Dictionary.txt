@@ -1,0 +1,13 @@
+ANSIBLE
+Ansible
+Jinja
+Jinja2
+KVM
+Kubectl
+YADM
+ZShell
+ansible
+dotfile
+dotfiles
+yadm
+checksum_v1 = f9b9247f8632f355c62365864a3bc43b

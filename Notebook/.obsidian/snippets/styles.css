@@ -1,0 +1,119 @@
+:root {
+  --background-primary: #1a1a1a;
+  
+}
+
+body {
+  --tab-stacked-pane-width: 100%;
+
+}
+
+span.cm-inline-code {
+  color: #928b78;
+}
+
+
+inline-code {
+  background: black;
+  border-color: black;
+}
+
+.cm-header-1 {
+  color: darkgoldenrod;
+}
+
+.cm-header-2 {
+  color: #3c6aa1;
+  font-weight: unset;
+}
+
+.cm-header-3 {
+  --text-title-h3: firebrick;	
+}
+
+.cm-em {
+  color: #68d169;
+}
+
+.cm-link {
+  color: #f5ab4c;
+}
+
+.cm-strong {
+  color: #4c4cf5;
+}
+
+.cm-line {
+  color: #eae5e6;
+}
+
+.theme-dark span.cm-strong {
+  color: hsl(33, 89%, 62%) !important;
+}
+
+.community-item-name {
+  color: #fff;
+}
+
+.vertical-tab-nav-item.tappable {
+  color: #fff;
+}
+
+.inline-title {
+  color: #AFA8FE;
+}
+
+.menu-item-title {
+  color: #fff;
+}
+
+.sc-warning {
+  color: #fff;
+}
+
+.table-cell-wrapper {
+  color: cornsilk;
+}
+
+p {
+color: chocolate;
+}
+
+td {
+color: cornsilk;
+}
+
+th {
+color: brown;
+}
+
+li {
+color: cornsilk;
+}
+
+.claudian-text-block {
+h2 {
+color: goldenrod;
+}
+h3 {
+color: #c86b2f;
+}
+
+span.p {
+	color: chocolate !important;
+}
+
+.markdown-rendered p {
+	color: chocolate !important;
+}
+
+.cm-s-obsidian div.HyperMD-codeblock-bg {
+	background-color: #0000008f;
+}
+
+.cm-hmd-codeblock {
+	color: #b9ff52;
+}
+.cm-hmd-codeblock.cm-string {
+	color: #fc3131;
+}

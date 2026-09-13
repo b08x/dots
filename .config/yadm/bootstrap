@@ -114,13 +114,20 @@ display_welcome_message
 
 sleep 1
 
+gum log --level info "ensuring user shell is set to zsh"
+
 sudo usermod -s /usr/bin/zsh $USER
 
 sleep 1
 
+gum log --level info "decrypting secrets..."
+
 /usr/local/bin/yadm decrypt
 
 sleep 1
+
+gum style --foreground 212 "Bootstrap complete!"
+
 
 say "Checking for Jinja2 template engine (jinjanator)..." $BLUE
 if ! command -v j2 &> /dev/null; then
@@ -133,5 +140,24 @@ if ! command -v j2 &> /dev/null; then
 fi
 
 say "Processing yadm alternates and templates..." $BLUE
+
 /usr/local/bin/yadm alt
+
+say "Executing additional scripts from bootstrap.d/ ..." $BLUE
+BOOTSTRAP_D_DIR="$(dirname "${BASH_SOURCE[0]}")/bootstrap.d"
+
+if [[ -d "$BOOTSTRAP_D_DIR" ]]; then
+  mapfile -t scripts < <(find "$BOOTSTRAP_D_DIR" -maxdepth 1 -type f | sort)
+  for script in "${scripts[@]}"; do
+    if [[ -x "$script" ]]; then
+      gum log --level info "Executing $(basename "$script")..."
+      "$script"
+    else
+      gum log --level warn "Skipping $(basename "$script") (not executable)"
+    fi
+  done
+else
+  gum log --level warn "Directory not found: $BOOTSTRAP_D_DIR"
+fi
+
 say "Bootstrap complete." $GREEN
