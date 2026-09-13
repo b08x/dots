@@ -10,8 +10,79 @@ IFS=$'\n\t'
 export GUM_HELPERS_NO_TRAP=1
 source "$(dirname "${BASH_SOURCE[0]}")/../scripts/gum-helpers.sh"
 
-USE_FLATPAK=true
-INIT_GIT=true
+USE_FLATPAK=""
+INIT_GIT=""
+
+PLUGINS=(
+    "advanced-merger"
+    "obsidian-auto-link-title"
+    "obsidian-chat-view"
+    "cmdr"
+    "mermaid-popup"
+    "editing-toolbar"
+    "folder-notes"
+    "image-converter"
+    "json-table"
+    "obsidian-link-converter"
+    "obsidian-linter"
+    "obsidian-markdown-formatting-assistant-plugin"
+    "markdown-table-editor"
+    "mermaid-tools"
+    "multi-properties"
+    "note-refactor-obsidian"
+    "obsidian-plantuml"
+    "recent-files-obsidian"
+    "regex-replace"
+    "obsidian-shellcommands"
+    "obsidian-textgenerator-plugin"
+    "hide-folders"
+    "liquid-templates"
+    "obsidian-style-settings"
+    "links"
+    "obsidian-image-layouts"
+    "frontmatter-markdown-links"
+    "advanced-canvas"
+    "obsidian-image-toolkit"
+    "scholar"
+    "better-export-pdf"
+    "recent-notes"
+    "edge-tts"
+    "attachment-management"
+    "consistent-attachments-and-links"
+    "note-archiver"
+    "obsidian-mindmap-nextgen"
+    "obsidian-custom-attachment-location"
+    "quick-tagger"
+    "notes-merger"
+    "merge-notes"
+    "break-page"
+    "obsidian-enhancing-export"
+    "obsidian-git"
+    "janitor"
+    "obsidian-csv-table"
+    "pretty-properties"
+    "iconic"
+    "obsidian-icon-folder"
+    "task-list-kanban"
+    "pdf-plus"
+    "obsidian42-brat"
+    "obsidian-local-rest-api"
+    "canvas-link-optimizer"
+    "foldercanvas"
+    "canvas2document"
+    "enhanced-canvas"
+    "similar-notes"
+    "dataview"
+    "metadata-extractor"
+    "omnisearch"
+    "related-notes-by-tag"
+    "semantic-canvas"
+    "bulk-exporter"
+    "ai-tagger-universe"
+    "text-extractor"
+    "realclaudian"
+    "gemini-scribe"
+)
 
 # -----------------------------------------------------------------------------
 # Helper Functions
@@ -140,8 +211,22 @@ setup_flatpak() {
         gum log --level info "Launching Obsidian via Flatpak in the background..."
         # redirect output to /dev/null so it doesn't clutter the terminal
         flatpak run md.obsidian.Obsidian > /dev/null 2>&1 &
-        # Give it a few seconds to start up and expose the CLI API
-        gum spin --spinner dot --title "Waiting for Obsidian to initialize..." -- sleep 8
+        # Wait for Obsidian CLI to become ready (max 30s)
+        gum log --level info "Waiting for Obsidian CLI to initialize..."
+        local ready=false
+        for i in {1..30}; do
+            if command -v obsidian &>/dev/null && obsidian plugin:list &>/dev/null; then
+                ready=true
+                break
+            fi
+            sleep 1
+        done
+        
+        if [[ "$ready" == true ]]; then
+            gum log --level success "Obsidian initialized."
+        else
+            gum log --level warn "Obsidian CLI readiness check timed out. Continuing..."
+        fi
     else
         gum log --level info "Obsidian is already running."
     fi
@@ -155,7 +240,9 @@ setup_flatpak() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --flatpak|-f) USE_FLATPAK=true ;;
+        --no-flatpak) USE_FLATPAK=false ;;
         --git|-g) INIT_GIT=true ;;
+        --no-git) INIT_GIT=false ;;
         -h|--help) usage ;;
         *) gum log --level error "Unknown parameter passed: $1"; exit 1 ;;
     esac
@@ -164,6 +251,48 @@ done
 
 check_prerequisites
 prompt_vault_location
+
+slide_transition
+section_header "Policy Configuration"
+
+if [[ -z "$INIT_GIT" ]]; then
+    if gum confirm --prompt.foreground "${COLORS[primary]}" "Initialize Git repository and default .gitignore?"; then
+        INIT_GIT=true
+    else
+        INIT_GIT=false
+    fi
+fi
+
+if [[ -z "$USE_FLATPAK" ]]; then
+    if gum confirm --prompt.foreground "${COLORS[primary]}" "Install and launch Obsidian via Flatpak?"; then
+        USE_FLATPAK=true
+    else
+        USE_FLATPAK=false
+    fi
+fi
+
+slide_transition
+section_header "Preflight Summary"
+echo ""
+gum style --foreground "${COLORS[info]}" "The following actions will be performed:"
+echo "  • Vault Location: $VAULT_DIR"
+if [[ "$INIT_GIT" == true ]]; then
+    echo "  • Git: Initialize repository and .gitignore"
+else
+    echo "  • Git: Skip initialization"
+fi
+if [[ "$USE_FLATPAK" == true ]]; then
+    echo "  • Flatpak: Install and launch Obsidian"
+else
+    echo "  • Flatpak: Skip installation"
+fi
+echo "  • Plugins: Install and enable ${#PLUGINS[@]} standard plugins"
+echo ""
+
+if ! gum confirm --prompt.foreground "${COLORS[warning]}" --affirmative "Proceed" --negative "Abort" "Ready to provision Obsidian?"; then
+    gum log --level error "Setup aborted by user."
+    exit 1
+fi
 
 slide_transition
 section_header "Git Initialization"
@@ -186,76 +315,6 @@ if ! command -v obsidian &> /dev/null; then
     exit 1
 fi
 
-PLUGINS=(
-    "advanced-merger"
-    "obsidian-auto-link-title"
-    "obsidian-chat-view"
-    "cmdr"
-    "mermaid-popup"
-    "editing-toolbar"
-    "folder-notes"
-    "image-converter"
-    "json-table"
-    "obsidian-link-converter"
-    "obsidian-linter"
-    "obsidian-markdown-formatting-assistant-plugin"
-    "markdown-table-editor"
-    "mermaid-tools"
-    "multi-properties"
-    "note-refactor-obsidian"
-    "obsidian-plantuml"
-    "recent-files-obsidian"
-    "regex-replace"
-    "obsidian-shellcommands"
-    "obsidian-textgenerator-plugin"
-    "hide-folders"
-    "liquid-templates"
-    "obsidian-style-settings"
-    "links"
-    "obsidian-image-layouts"
-    "frontmatter-markdown-links"
-    "advanced-canvas"
-    "obsidian-image-toolkit"
-    "scholar"
-    "better-export-pdf"
-    "recent-notes"
-    "edge-tts"
-    "attachment-management"
-    "consistent-attachments-and-links"
-    "note-archiver"
-    "obsidian-mindmap-nextgen"
-    "obsidian-custom-attachment-location"
-    "quick-tagger"
-    "notes-merger"
-    "merge-notes"
-    "break-page"
-    "obsidian-enhancing-export"
-    "obsidian-git"
-    "janitor"
-    "obsidian-csv-table"
-    "pretty-properties"
-    "iconic"
-    "obsidian-icon-folder"
-    "task-list-kanban"
-    "pdf-plus"
-    "obsidian42-brat"
-    "obsidian-local-rest-api"
-    "canvas-link-optimizer"
-    "foldercanvas"
-    "canvas2document"
-    "enhanced-canvas"
-    "similar-notes"
-    "dataview"
-    "metadata-extractor"
-    "omnisearch"
-    "related-notes-by-tag"
-    "semantic-canvas"
-    "bulk-exporter"
-    "ai-tagger-universe"
-    "text-extractor"
-    "realclaudian"
-    "gemini-scribe"
-)
 
 TOTAL=${#PLUGINS[@]}
 CURRENT=0
