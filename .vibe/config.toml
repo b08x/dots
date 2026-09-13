@@ -1,62 +1,121 @@
-active_model = "glm-5-2"
-vim_keybindings = true
-disable_welcome_banner_animation = true
-autocopy_to_clipboard = true
-displayed_workdir = ""
-auto_compact_threshold = 500000
-context_warnings = true
-system_prompt_id = "cli"
-include_commit_signature = true
-include_model_info = true
-include_project_context = true
-include_prompt_detail = true
-enable_update_checks = true
-enable_auto_update = true
-api_timeout = 1800.0
-voice_mode_enabled = true
-agent_paths = [
-    "~/.vibe/agents",
-]
-disabled_agents = []
-installed_agents = [
-    "lean",
-    "agent-creator",
-    "other-steve",
-    "project-recall",
-]
+active_model = "mistral-medium-3.5"
+theme = "auto"
 skill_paths = [
     "~/.vibe/skills",
     "~/.syncopated/skills",
     ".agents/skills/",
+    "~/.gemini/skills",
 ]
-disabled_skills = [
-    "workflows",
-]
-theme = "flexoki"
 applied_migrations = [
     "bash_read_only_defaults_v1",
 ]
 connectors = [
-    { name = "deepwiki", disabled = true },
-    { name = "github_app", disabled = false },
-    { name = "google_drive", disabled = false },
-    { name = "web_search", disabled = false },
+    { name = "deepwiki", disabled = false },
 ]
-show_thinking_nodes = true
-experimental_enable_registry_skills = true
 
-[[mcp_servers]]
-name = "trackboi"
-transport = "stdio"
-command = "trackboi"
-args = [
-    "mcp",
+[[providers]]
+name = "mistral"
+api_base = "https://api.mistral.ai/v1"
+api_key_env_var = "MISTRAL_VIBE_API_KEY"
+backend = "mistral"
+reasoning_field_name = "reasoning_content"
+
+[tools.bash]
+allowlist = [
+    "/home/b08x/.local/bin/*",
+    "/opt/asdf/installs/*",
+    "asdf",
+    "basename",
+    "bundle",
+    "cat",
+    "cd",
+    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.cards.items[] | select(.trackId == \"track-role-hermes-llmops-1kzjfxq\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"No cards found or error\"",
+    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.tracks[] | select(.slug == \"role-hermes-llmops\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"Parsing failed, reading differently\"",
+    "comm",
+    "cut",
+    "date",
+    "diff",
+    "dirname",
+    "du",
+    "echo",
+    "echo \"=== COMPLETED CARDS ===\"; ls /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-* | while read card_dir; do card_name=$(basename \"$card_dir\"); card_file=\"$card_dir/index.md\"; column=$(grep \"^column:\" \"$card_file\" | head -1 | cut -d'\"' -f4); echo \"$card_name -> $column\"; done",
+    "file",
+    "find",
+    "find /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles -name \"hermes*\" -type d 2>/dev/null || echo \"Hermes role not found\"",
+    "fmt",
+    "fold",
+    "for card_dir in /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-*; do echo \"=== $(basename $card_dir) ===\"; cat \"$card_dir/index.md\" | head -5; echo; done",
+    "git checkout",
+    "git diff",
+    "git log",
+    "git reset",
+    "git rev-parse",
+    "git status",
+    "grep",
+    "grep -r \"\\~\\/.hermes\\|/root/.hermes\" /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/hermes/ 2>/dev/null | head -20",
+    "head",
+    "join",
+    "jq",
+    "less",
+    "ls",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/trackboi/ 2>/dev/null || echo \"No trackboi directories found\"",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/ 2>/dev/null || echo \"Directory not accessible\"",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/ 2>/dev/null | head -20",
+    "ls -la ~/.local/bin/trackboi 2>/dev/null || echo \"not in ~/.local/bin\"",
+    "md5sum",
+    "more",
+    "nl",
+    "od",
+    "paste",
+    "plannotator",
+    "pwd",
+    "read",
+    "readlink",
+    "ruby",
+    "sha1sum",
+    "sha256sum",
+    "shasum",
+    "sort",
+    "stat",
+    "sum",
+    "tac",
+    "tail",
+    "timeout",
+    "tr",
+    "trackboi",
+    "trackboi --version 2>&1 | head -5",
+    "tree",
+    "uname",
+    "uniq",
+    "wc",
+    "which",
+    "which trackboi 2>/dev/null || echo \"trackboi not in PATH\"",
+    "whoami",
 ]
+
+[tools.read_file]
+allowlist = [
+    "/home/b08x/.syncopated/skills/ruby-design-patterns/references/*",
+    "/home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/*",
+]
+
+[tools.context7_query-docs]
+permission = "always"
+
+[tools.trackboi_list_projects]
+permission = "always"
+
+[tools.trackboi_switch_project]
+permission = "always"
+
+[tools.trackboi_get_active_project]
+permission = "always"
 
 [[mcp_servers]]
 name = "codebase-memory-mcp"
 transport = "stdio"
 command = "/home/b08x/.local/bin/codebase-memory-mcp"
+args = []
 
 [[mcp_servers]]
 transport = "http"
@@ -71,425 +130,9 @@ api_key_header = "X-API-Key"
 api_key_format = "{token}"
 
 [[mcp_servers]]
-transport = "http"
-name = "deepwiki"
-url = "https://mcp.deepwiki.com/mcp"
-startup_timeout_sec = 30.0
-
-[[mcp_servers]]
+name = "trackboi"
 transport = "stdio"
-name = "qmd"
-command = "qmd"
+command = "trackboi"
 args = [
     "mcp",
 ]
-startup_timeout_sec = 30.0
-
-[[providers]]
-name = "mistral"
-api_base = "https://api.mistral.ai/v1"
-api_key_env_var = "MISTRAL_VIBE_API_KEY"
-backend = "mistral"
-reasoning_field_name = "reasoning_content"
-
-[[providers]]
-name = "openrouter"
-api_base = "https://openrouter.ai/api/v1"
-api_key_env_var = "OPENROUTER_API_KEY"
-backend = "generic"
-api_style = "openai"
-reasoning_field_name = "reasoning_content"
-
-[[models]]
-name = "minimax/minimax-m2.7"
-provider = "openrouter"
-alias = "minimax-m2.7"
-temperature = 0.3
-input_price = 0.0
-output_price = 0.0
-
-[[models]]
-name = "mistral-vibe-cli-latest"
-provider = "mistral"
-alias = "mistral-medium-3.5"
-temperature = 0.2
-thinking = "medium"
-input_price = 1.5
-output_price = 7.5
-supports_images = true
-
-[[models]]
-name = "mistral-small-latest"
-provider = "mistral"
-alias = "mistral-small"
-temperature = 0.2
-input_price = 0.1
-output_price = 0.3
-
-[[models]]
-name = "devstral-2512"
-provider = "mistral"
-alias = "devstral-2"
-temperature = 0.2
-thinking = "high"
-
-[project_context]
-default_commit_count = 30
-timeout_seconds = 30.0
-
-[session_logging]
-save_dir = "~/.vibe/logs/session"
-enabled = true
-
-[tools.ask_user_question]
-permission = "always"
-
-[tools.bash]
-permission = "ask"
-allowlist = [
-    "\"$PYTHON\"",
-    "$(cat",
-    "$PYTHON",
-    ".venv/bin/ansible-lint",
-    "/code-insights",
-    "/home/b08x/.agents/skills/archify/*",
-    "/home/b08x/.agents/skills/archify/examples/*",
-    "/home/b08x/.code-insights/*",
-    "/home/b08x/.config/omega13/*",
-    "/home/b08x/.local/bin/*",
-    "/home/b08x/.local/opt/python@3.14/bin/*",
-    "/home/b08x/.local/share/uv/tools/graphifyy/bin/*",
-    "/home/b08x/.local/share/uv/tools/graphifyy/bin/python",
-    "/home/b08x/.syncopated/skills/codebase-memory/*",
-    "/home/b08x/.vibe/skills/code-insights/*",
-    "/home/b08x/.vibe/skills/code-insights/code-insights",
-    "/home/b08x/.vibe/skills/graphify/*",
-    "/home/b08x/.vibe/skills/zread/*",
-    "/home/b08x/.zread/*",
-    "/home/b08x/Notebook/DevOps/Docker/*",
-    "/home/b08x/Workspace/Tools/deepwiki-builder/*",
-    "/home/b08x/WorkspaceV3/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
-    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/*",
-    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
-    "/home/b08x/WorkspaceV3/graphify/*",
-    "/tmp/*",
-    "/usr/bin/*",
-    "ansible-doc",
-    "ansible-lint",
-    "ansible-playbook",
-    "basename",
-    "bash",
-    "bundle",
-    "cat",
-    "cd",
-    "command",
-    "cut",
-    "date",
-    "diff",
-    "echo",
-    "fd",
-    "fd -e py --exclude venv -x grep -l \"jinja2\\|from jinja2\"",
-    "fd -e py --exclude venv -x grep -l \"lxml\\|etree\"",
-    "fd -e py -x grep -l \"jinja2\\|Template\\|Environment\"",
-    "file",
-    "find",
-    "git",
-    "git-cliff",
-    "graphify",
-    "grep",
-    "head",
-    "locate",
-    "ls",
-    "mkdir",
-    "mv",
-    "node",
-    "npm",
-    "omm",
-    "pip show",
-    "pip3",
-    "pip3.10",
-    "pip3.12",
-    "pnpm build",
-    "pnpm eslint",
-    "pnpm install",
-    "pnpm lint",
-    "podman pod",
-    "podman volume",
-    "pre-commit",
-    "python -c",
-    "python -m",
-    "python /tmp/test_transcription_fix.py",
-    "python /tmp/test_transcription_trigger.py",
-    "python3",
-    "python3.10",
-    "python3.11",
-    "python3.12",
-    "python3.13",
-    "qmd",
-    "rmdir",
-    "sleep",
-    "sort",
-    "sqlite3",
-    "ssh",
-    "strings",
-    "tail",
-    "timeout",
-    "tr",
-    "tree",
-    "uniq",
-    "uv --version",
-    "uv pip",
-    "uv run python3",
-    "uv run ruff",
-    "uv tool",
-    "wc",
-    "which",
-    "xargs",
-    "yadm",
-]
-denylist = [
-    "find",
-    "find *",
-    "rm",
-    "rm -rf",
-    "curl | bash",
-    "wget | bash",
-    "su",
-    "passwd",
-    "useradd",
-    "usermod",
-    "groupadd",
-    "apt",
-    "yum",
-    "dnf",
-    "pacman",
-    "chmod -R",
-    "chown",
-    "chgrp",
-    "dd",
-    "mkfs",
-    "gdb",
-    "pdb",
-    "strace",
-    "tcpdump",
-    "wireshark",
-    "tshark",
-    "nmap",
-    "> /dev/sd*",
-    "mv /",
-    "cp -r /",
-    "sed",
-]
-
-[tools.grep]
-permission = "always"
-allowlist = [
-    "/home/b08x/*",
-]
-
-[tools.write_file]
-permission = "always"
-allowlist = [
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
-    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
-    "/home/b08x/WorkspaceV3/graphify/*",
-    "/home/b08x/WorkspaceV3/graphify/graphify/*",
-    "/tmp/*",
-]
-
-[tools.task]
-permission = "always"
-
-[tools.todo]
-permission = "always"
-
-[tools.trackboi_switch_project]
-permission = "always"
-
-[tools.trackboi_add_track_decision]
-permission = "always"
-
-[tools.trackboi_move_card]
-permission = "always"
-
-[tools.trackboi_get_track]
-permission = "always"
-
-[tools.edit]
-permission = "always"
-allowlist = [
-    "./**/*",
-    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
-    "/home/b08x/WorkspaceV3/graphify/graphify/*",
-    "/tmp/*",
-    "~/.vibe/skills/*",
-]
-denylist = [
-    "~/.vibe/agents/*",
-    "~/.vibe/config.toml",
-    "~/.ssh/*",
-    "/etc/*",
-    "/usr/*",
-    "/bin/*",
-    "/sbin/*",
-    "/lib/*",
-]
-
-[tools.read_file]
-permission = "always"
-max_read_bytes = 262144
-allowlist = [
-    "/home/b08x/.agents/skills/archify/examples/*",
-    "/home/b08x/.agents/skills/archify/schemas/*",
-    "/home/b08x/.local/lib/python3.14/site-packages/graphify/*",
-    "/home/b08x/.syncopated/skills/other-steve-arch/references/config/*",
-    "/home/b08x/.syncopated/skills/other-steve-arch/references/constraints/*",
-    "/home/b08x/.syncopated/skills/other-steve-arch/references/traits/*",
-    "/home/b08x/.syncopated/skills/scaffold/*",
-    "/home/b08x/.vibe/skills/ansible-automation/references/*",
-    "/home/b08x/.vibe/skills/github-commit/*",
-    "/home/b08x/.vibe/skills/graphify/references/*",
-    "/home/b08x/.vibe/skills/refactor/*",
-    "/home/b08x/.vibe/skills/skill-creator/*",
-    "/home/b08x/.vibe/skills/skill-manager/*",
-    "/home/b08x/.vibe/skills/yadm-commit/*",
-    "/home/b08x/.vibe/skills/zread/*",
-    "/home/b08x/.zread/*",
-    "/home/b08x/Notebook/Daily/*",
-    "/home/b08x/Notebook/DevOps/*",
-    "/home/b08x/Notebook/DevOps/Ansible/*",
-    "/home/b08x/Notebook/DevOps/Docker/*",
-    "/home/b08x/Notebook/GenAI/Applications/*",
-    "/home/b08x/Notebook/Projects/Ansible-DSPy-Ruby/*",
-    "/home/b08x/Notebook/Prompt-Library-V2/SFL/prompts/*",
-    "/home/b08x/Notebook/PromptLibrary/*",
-    "/home/b08x/Workspace/Tools/deepwiki-builder/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/group_vars/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/host_vars/*",
-    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/*",
-    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/annotator/*",
-    "/home/b08x/WorkspaceV3/Syncopated/phantom-agent/src/phantom_agent/core/*",
-    "/home/b08x/WorkspaceV3/b08x.github.io/scripts/*",
-    "/home/b08x/WorkspaceV3/graphify/graphify/*",
-]
-
-[tools.codebase-memory-mcp_manage_adr]
-permission = "always"
-
-[tools.connector_github_app_create_repository]
-permission = "always"
-
-[tools.connector_github_app_get_me]
-permission = "always"
-
-[tools.codebase-memory-mcp_search_graph]
-permission = "always"
-
-[tools.codebase-memory-mcp_list_projects]
-permission = "always"
-
-[tools.codebase-memory-mcp_index_status]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_architecture]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_graph_schema]
-permission = "always"
-
-[tools.codebase-memory-mcp_query_graph]
-permission = "always"
-
-[tools.codebase-memory-mcp_search_code]
-permission = "always"
-
-[tools.codebase-memory-mcp_trace_path]
-permission = "always"
-
-[tools.codebase-memory-mcp_check_index_coverage]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_code_snippet]
-permission = "always"
-
-[tools.qmd_status]
-permission = "always"
-
-[tools.qmd_query]
-permission = "always"
-
-[tools.qmd_get]
-permission = "always"
-
-[tools.trackboi_orient_agent]
-permission = "always"
-
-[tools.trackboi_create_track]
-permission = "always"
-
-[tools.trackboi_create_card]
-permission = "always"
-
-[tools.trackboi_list_tracks]
-permission = "always"
-
-[tools.trackboi_list_cards]
-permission = "always"
-
-[tools.trackboi_delete_card]
-permission = "always"
-
-[tools.trackboi_delete_track]
-permission = "always"
-
-[tools.trackboi_add_card_comment]
-permission = "always"
-
-[tools.trackboi_update_track]
-permission = "always"
-
-[tools.trackboi_list_columns]
-permission = "always"
-
-[tools.context7_resolve-library-id]
-permission = "always"
-
-[tools.context7_query-docs]
-permission = "always"
-
-[tools.trackboi_update_card]
-permission = "always"
-
-[tools.trackboi_list_track_files]
-permission = "always"
-
-[tools.trackboi_write_track_file]
-permission = "always"
-
-[tools.trackboi_read_track_file]
-permission = "always"
-
-[tools.web_fetch]
-allowlist = [
-    "raw.githubusercontent.com",
-]
-
-[tools.trackboi_get_active_context]
-permission = "always"
-
-[tools.codebase-memory-mcp_index_repository]
-permission = "always"
-
-[tools.codebase-memory-mcp_delete_project]
-permission = "always"
-
-[tools.deepwiki_ask_question]
-permission = "always"
-
-[tools.deepwiki_read_wiki_structure]
-permission = "always"
-
-[tools.connector_github_app_get_file_contents]
-permission = "always"
