@@ -79,6 +79,18 @@ section_header() {
     --bold
 }
 
+slide_transition() {
+  echo ""
+  # Use gum to prompt for Enter key
+  gum style --foreground "${COLORS[muted]}" --align center "Press Enter to continue ⮞"
+  read -r -p ""
+  # Wipe screen
+  tput -S <<!
+clear
+cup 1
+!
+}
+
 # FIELD NOTE COLOR PALETTE (from b08x.github.io theme-tokens.html)
 FN_BG="#EDE6D6"
 FN_BG2="#E3DBC8"

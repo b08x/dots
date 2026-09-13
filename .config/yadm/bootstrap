@@ -119,6 +119,7 @@ display_welcome_message
 
 sleep 1
 
+slide_transition
 section_header "System Configuration"
 gum log --level info "ensuring user shell is set to zsh"
 
@@ -126,6 +127,7 @@ sudo usermod -s /usr/bin/zsh $USER
 
 sleep 1
 
+slide_transition
 section_header "Secrets & Credentials"
 gum log --level info "decrypting secrets..."
 
@@ -135,6 +137,7 @@ sleep 1
 
 gum style --foreground 212 "Bootstrap complete!"
 
+slide_transition
 section_header "Templates & Alternates"
 say "Checking for Jinja2 template engine (jinjanator)..." $BLUE
 if ! command -v j2 &> /dev/null; then
@@ -150,6 +153,7 @@ say "Processing yadm alternates and templates..." $BLUE
 
 /usr/local/bin/yadm alt
 
+slide_transition
 section_header "Additional Scripts"
 say "Executing additional scripts from bootstrap.d/ ..." $BLUE
 BOOTSTRAP_D_DIR="$(dirname "${BASH_SOURCE[0]}")/bootstrap.d"

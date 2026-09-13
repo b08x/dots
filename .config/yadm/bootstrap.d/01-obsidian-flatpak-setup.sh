@@ -164,17 +164,20 @@ done
 check_prerequisites
 prompt_vault_location
 
+slide_transition
 section_header "Git Initialization"
 # Setup Git if requested (do this before launching Obsidian)
 if [[ "$INIT_GIT" == true ]]; then
     init_git
 fi
 
+slide_transition
 section_header "Obsidian Flatpak Setup"
 if [[ "$USE_FLATPAK" == true ]]; then
     setup_flatpak
 fi
 
+slide_transition
 section_header "Obsidian Plugins Configuration"
 # Ensure obsidian CLI is installed
 if ! command -v obsidian &> /dev/null; then
