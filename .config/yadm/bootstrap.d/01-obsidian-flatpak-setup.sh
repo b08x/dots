@@ -6,6 +6,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source gum helpers
+export GUM_HELPERS_NO_TRAP=1
+source "$(dirname "${BASH_SOURCE[0]}")/../scripts/gum-helpers.sh"
+
 USE_FLATPAK=true
 INIT_GIT=true
 
@@ -160,15 +164,18 @@ done
 check_prerequisites
 prompt_vault_location
 
+section_header "Git Initialization"
 # Setup Git if requested (do this before launching Obsidian)
 if [[ "$INIT_GIT" == true ]]; then
     init_git
 fi
 
+section_header "Obsidian Flatpak Setup"
 if [[ "$USE_FLATPAK" == true ]]; then
     setup_flatpak
 fi
 
+section_header "Obsidian Plugins Configuration"
 # Ensure obsidian CLI is installed
 if ! command -v obsidian &> /dev/null; then
     gum log --level error "obsidian CLI could not be found."

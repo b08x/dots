@@ -10,7 +10,7 @@ ctrl_c() {
 }
 trap ctrl_c INT SIGINT SIGTERM ERR EXIT
 
-# --- Colors ---
+# --- Colors & UI Components ---
 ALL_OFF="\e[1;0m"
 BBOLD="\e[1;1m"
 BLUE="${BBOLD}\e[1;34m"
@@ -19,11 +19,15 @@ RED="${BBOLD}\e[1;31m"
 YELLOW="${BBOLD}\e[1;33m"
 export GUM_INPUT_WIDTH=0
 
+# Source gum helpers
+export GUM_HELPERS_NO_TRAP=1
+source "$(dirname "${BASH_SOURCE[0]}")/scripts/gum-helpers.sh"
+
 DISTRO=$(lsb_release -si)
 
 # --- Display Function ---
 say() {
-  echo -e "${2}${1}${ALL_OFF}"
+  echo -e "${2}${1}${ALL_OFF}" | typewriter
   sleep 1
 }
 
@@ -102,7 +106,7 @@ wipe
 # Set up variables
 declare -rx USER_HOME="${HOME}"
 declare -rx CONFIG_DIR="${USER_HOME}/.config"
-LOG_FILE="${USER_HOME}/.yadm/config/bootstrap.log"
+LOG_FILE="${USER_HOME}/.bootstrap.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bootstrap script started" > "$LOG_FILE"
@@ -115,12 +119,14 @@ display_welcome_message
 
 sleep 1
 
+section_header "System Configuration"
 gum log --level info "ensuring user shell is set to zsh"
 
 sudo usermod -s /usr/bin/zsh $USER
 
 sleep 1
 
+section_header "Secrets & Credentials"
 gum log --level info "decrypting secrets..."
 
 /usr/local/bin/yadm decrypt
@@ -129,7 +135,7 @@ sleep 1
 
 gum style --foreground 212 "Bootstrap complete!"
 
-
+section_header "Templates & Alternates"
 say "Checking for Jinja2 template engine (jinjanator)..." $BLUE
 if ! command -v j2 &> /dev/null; then
     say "j2 not found. Installing jinjanator via uv..." $YELLOW
@@ -144,6 +150,7 @@ say "Processing yadm alternates and templates..." $BLUE
 
 /usr/local/bin/yadm alt
 
+section_header "Additional Scripts"
 say "Executing additional scripts from bootstrap.d/ ..." $BLUE
 BOOTSTRAP_D_DIR="$(dirname "${BASH_SOURCE[0]}")/bootstrap.d"
 

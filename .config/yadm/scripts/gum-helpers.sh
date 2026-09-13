@@ -34,6 +34,51 @@ COLOR_PURPLE=212
 COLOR_YELLOW=221
 COLOR_RED=9
 
+# Color palette - warm, inviting colors
+declare -A COLORS=(
+  [primary]="#FA8072"
+  [secondary]="#FFD700"
+  [success]="#90EE90"
+  [error]="#FF6B6B"
+  [warning]="#FFA07A"
+  [info]="#87CEFA"
+  [muted]="#D3D3D3"
+  [border]="#FFE4B5"
+)
+
+typewriter() {
+  local in_esc=0
+  while IFS= read -r -N1 char; do
+    if [[ "$char" == $'\e' ]]; then
+      in_esc=1
+    fi
+    echo -n "$char"
+    if [[ $in_esc -eq 1 ]]; then
+      if [[ "$char" == "m" || "$char" == "K" || "$char" == "H" || "$char" == "J" ]]; then
+        in_esc=0
+      fi
+    else
+      sleep 0.001 2>/dev/null || true
+    fi
+  done
+  echo
+}
+
+section_header() {
+  local title="$1"
+  local term_width
+  term_width=$(tput cols 2>/dev/null || echo 80)
+  echo ""
+  echo "$title" | gum style \
+    --foreground "${COLORS[primary]}" \
+    --border double \
+    --border-foreground "${COLORS[border]}" \
+    --padding "1 2" \
+    --align center \
+    --width "$term_width" \
+    --bold
+}
+
 # FIELD NOTE COLOR PALETTE (from b08x.github.io theme-tokens.html)
 FN_BG="#EDE6D6"
 FN_BG2="#E3DBC8"
