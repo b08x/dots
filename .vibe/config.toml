@@ -29,6 +29,13 @@ allowlist = [
     "bundle",
     "cat",
     "cd",
+    "cd /home/b08x && ls -la .yadm/hooks/ 2>&1 || echo \"No hooks directory\"",
+    "cd /home/b08x && yadm add .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
+    "cd /home/b08x && yadm add .vibe/config.toml && yadm commit -m \"🔧 chore: add yadm to vibe command allowlist\" 2>&1",
+    "cd /home/b08x && yadm diff --cached 2>&1",
+    "cd /home/b08x && yadm diff .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
+    "cd /home/b08x && yadm reset HEAD .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
+    "cd /home/b08x && yadm status 2>&1",
     "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.cards.items[] | select(.trackId == \"track-role-hermes-llmops-1kzjfxq\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"No cards found or error\"",
     "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.tracks[] | select(.slug == \"role-hermes-llmops\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"Parsing failed, reading differently\"",
     "comm",
@@ -91,6 +98,7 @@ allowlist = [
     "which",
     "which trackboi 2>/dev/null || echo \"trackboi not in PATH\"",
     "whoami",
+    "yadm",
 ]
 
 [tools.read_file]
