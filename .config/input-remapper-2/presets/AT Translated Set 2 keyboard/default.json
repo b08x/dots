@@ -8,7 +8,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + Alt_L + space",
+        "output_symbol": "Alt_L + Super_L + m",
         "mapping_type": "key_macro"
     }
 ]
