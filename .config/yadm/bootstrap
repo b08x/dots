@@ -91,7 +91,6 @@ get_environment_variables() {
 
 wipe
 
-local term_width
 term_width=$(tput cols 2>/dev/null || echo 80)
 
 sudo dnf install -y fastfetch && sudo fastfetch
