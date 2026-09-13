@@ -101,12 +101,12 @@ check_drift_and_collisions() {
     
     local drift_detected=false
     local modified_files
-    modified_files=$(/usr/local/bin/yadm status --porcelain 2>/dev/null | sed -n 's/^.[MD] //p')
+    modified_files=$(yadm status --porcelain 2>/dev/null | sed -n 's/^.[MD] //p')
     
     local alt_targets=()
-    for f in $(/usr/local/bin/yadm ls-files 2>/dev/null | grep '##'); do
+    for f in $(yadm ls-files 2>/dev/null | grep '##'); do
         local target="${f%%##*}"
-        if [[ -e "$USER_HOME/$target" ]]; then
+        if [[ -n "$target" && -e "$USER_HOME/$target" ]]; then
             alt_targets+=("$target")
         fi
     done
@@ -133,11 +133,55 @@ check_drift_and_collisions() {
         
         echo ""
         if [[ "$drift_detected" == true ]]; then
-            if ! gum confirm --prompt.foreground "${COLORS[error]}" --affirmative "Overwrite & Proceed" --negative "Abort" "Do you want to continue and potentially overwrite these files?"; then
-                gum log --level error "Bootstrap aborted by user to handle conflicts manually."
-                exit 1
-            fi
-            gum log --level info "User opted to proceed despite drift/collisions."
+            local action
+            action=$(gum choose --header "How would you like to handle these conflicts?" "Backup, Diff & Proceed" "Overwrite & Proceed" "Abort")
+            
+            case "$action" in
+                "Backup, Diff & Proceed")
+                    local backup_dir
+                    backup_dir=$(mktemp -d "/tmp/yadm_backup_$(date +%s)_XXX")
+                    gum log --level info "Backing up conflicting files to $backup_dir"
+                    
+                    if [[ -n "$modified_files" ]]; then
+                        echo "$modified_files" | while read -r f; do
+                            if [[ -n "$f" && -e "$USER_HOME/$f" ]]; then
+                                mkdir -p "$backup_dir/$(dirname "$f")"
+                                cp -a "$USER_HOME/$f" "$backup_dir/$f"
+                            fi
+                        done
+                    fi
+                    
+                    if [[ ${#alt_targets[@]} -gt 0 ]]; then
+                        for t in "${alt_targets[@]}"; do
+                            if [[ -n "$t" && -e "$USER_HOME/$t" ]]; then
+                                mkdir -p "$backup_dir/$(dirname "$t")"
+                                cp -a "$USER_HOME/$t" "$backup_dir/$t"
+                            fi
+                        done
+                    fi
+                    
+                    gum log --level success "Backup completed successfully."
+                    
+                    if [[ -n "$modified_files" ]]; then
+                        gum log --level info "Generating diff for modified tracked files..."
+                        # Use yadm diff with color and pipe to gum pager for a clean TUI experience
+                        yadm diff --color=always | gum pager
+                    fi
+                    
+                    if ! gum confirm --prompt.foreground "${COLORS[warning]}" --affirmative "Proceed" --negative "Abort" "Are you sure you want to proceed and overwrite these files?"; then
+                        gum log --level error "Bootstrap aborted by user after review."
+                        exit 1
+                    fi
+                    gum log --level info "User opted to proceed after review."
+                    ;;
+                "Overwrite & Proceed")
+                    gum log --level info "User opted to proceed directly."
+                    ;;
+                "Abort"|*)
+                    gum log --level error "Bootstrap aborted by user to handle conflicts manually."
+                    exit 1
+                    ;;
+            esac
         fi
     else
         gum log --level success "No configuration drift or collisions detected."
@@ -185,7 +229,7 @@ slide_transition
 section_header "Secrets & Credentials"
 gum log --level info "decrypting secrets..."
 
-/usr/local/bin/yadm decrypt
+yadm decrypt
 
 sleep 1
 
@@ -205,7 +249,7 @@ fi
 
 say "Processing yadm alternates and templates..." $BLUE
 
-/usr/local/bin/yadm alt
+yadm alt
 
 slide_transition
 section_header "Additional Scripts"
