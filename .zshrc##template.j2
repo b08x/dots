@@ -19,16 +19,16 @@ else
 fi
 
 ZSH_THEME="jaischeema"
-{% if YADM_HOSTNAME == 'ninjabot' %}
+{% if HOSTNAME == 'ninjabot' %}
 ZSH_THEME="jaischeema"
 {% endif %}
-{% if YADM_HOSTNAME == 'soundbot' %}
+{% if HOSTNAME == 'soundbot' %}
 ZSH_THEME="strug"
 {% endif %}
-{% if YADM_HOSTNAME == 'gir' %}
+{% if HOSTNAME == 'gir' %}
 ZSH_THEME="gnzh"
 {% endif %}
-{% if YADM_HOSTNAME == 'tinybot' %}
+{% if HOSTNAME == 'tinybot' %}
 ZSH_THEME="xiong-chiamiov"
 {% endif %}
 
@@ -212,7 +212,7 @@ fi
 
 
 
-{% if YADM_HOSTNAME == 'ninjabot' %}
+{% if HOSTNAME == 'ninjabot' %}
 export LIBVA_DRIVER_NAME=i965
 {% endif %}
 
@@ -220,6 +220,8 @@ if [ -f "$HOME/.config/claude/local/claude" ]; then
   alias claude="$HOME/.config/claude/local/claude"
 fi
 
+
+{% if HOSTNAME == 'gir' %}
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
@@ -227,19 +229,17 @@ fi
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+{% endif %}
+
+
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 export PATH="$HOME/.local/bin:$HOME/Tools/bin:$HOME/WorkspaceV3/bin:$PATH"
 
 export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
-
-
-# Added by Antigravity CLI installer
-#export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
-
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 export HOMEBREW_MAKE_JOBS=4
 
