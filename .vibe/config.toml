@@ -23,6 +23,7 @@ reasoning_field_name = "reasoning_content"
 [tools.bash]
 allowlist = [
     "/home/b08x/.local/bin/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
     "/opt/asdf/installs/*",
     "asdf",
     "basename",
