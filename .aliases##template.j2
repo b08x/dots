@@ -39,8 +39,8 @@ alias locate='sudo locate'
 alias nocomment='grep -v "^\($\|#\|;;\|;\|\n\)"'
 
 # View logs with lnav
-alias checklog='sudo journalctl -r -b -o short-precise | lnav -f ~/.config/lnav/checklog.lnav'
-alias taillog='sudo journalctl -f -o json | lnav -f ~/.config/lnav/checklog.lnav'
+alias checklog='sudo journalctl -r -b -o short-precise | lnav'
+alias taillog='sudo journalctl -f -o json | lnav'
 
 # Network troubleshooting
 alias dig="doggo"
