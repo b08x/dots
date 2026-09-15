@@ -1,7 +1,7 @@
 {
   "version": 2,
   "input_ports": [
-    "NoiseTorch Microphone for Built-in Audio Source:capture_MONO"
+    "PowerMicII-NS Mono:capture_MONO"
   ],
   "save_path": "/home/b08x/WorkspaceV3/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",
@@ -15,7 +15,7 @@
     "groq_model": "whisper-large-v3-turbo",
     "save_to_file": true,
     "copy_to_clipboard": true,
-    "inject_to_active_window": false,
+    "inject_to_active_window": true,
     "write_to_daily_note": true,
     "write_to_file": true
   },
