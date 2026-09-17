@@ -8,7 +8,7 @@
   "transcription": {
     "enabled": true,
     "auto_transcribe": true,
-    "provider": "groq",
+    "provider": "local",
     "server_url": "http://tinybot:8080",
     "inference_path": "/v1/audio/transcriptions",
     "model_size": "large-v3-turbo",
@@ -17,7 +17,11 @@
     "copy_to_clipboard": true,
     "inject_to_active_window": true,
     "write_to_daily_note": true,
-    "write_to_file": true
+    "write_to_file": true,
+    "local_model_path": "/home/b08x/.local/share/omega13/models",
+    "local_model_name": "whisper-large-v3-turbo-Q8_0.gguf",
+    "local_model_threads": 8,
+    "streaming_mode": false
   },
   "desktop_notifications": true,
   "sessions": {

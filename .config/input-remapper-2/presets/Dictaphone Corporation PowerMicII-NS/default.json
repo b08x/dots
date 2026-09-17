@@ -20,19 +20,7 @@
             }
         ],
         "target_uinput": "keyboard",
-        "output_symbol": "Control_L + v",
-        "mapping_type": "key_macro"
-    },
-    {
-        "input_combination": [
-            {
-                "type": 1,
-                "code": 259,
-                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
-            }
-        ],
-        "target_uinput": "keyboard",
-        "output_symbol": "XF86AudioPlay",
+        "output_symbol": "Control_L + Shift_L + v",
         "mapping_type": "key_macro"
     },
     {
@@ -45,6 +33,54 @@
         ],
         "target_uinput": "keyboard",
         "output_symbol": "Control_L + z",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 262,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Super_L + h",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 264,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Shift_L + Return",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 265,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_DOWN",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 263,
+                "origin_hash": "bb3656e9c42c8a350ac42588432b0be1"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_UP",
         "mapping_type": "key_macro"
     }
 ]

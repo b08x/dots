@@ -45,7 +45,9 @@
     "typescript": {
       "command": "typescript-language-server",
       "args": [
-        "--stdio"
+        "--stdio",
+        "--tsserver-path",
+        "/usr/local/lib/node_modules/typescript/lib"
       ]
     },
     "go": {

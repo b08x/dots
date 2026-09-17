@@ -1,4 +1,4 @@
-active_model = "mistral-medium-3.5"
+active_model = "glm-5-2"
 theme = "auto"
 skill_paths = [
     "~/.vibe/skills",
@@ -22,13 +22,31 @@ reasoning_field_name = "reasoning_content"
 
 [tools.bash]
 allowlist = [
+    "./bin/prosodic-text-converter",
+    "/\\.cache\\|/node_modules\\|/\\.npm\\|/\\.cargo\\|/\\.local\\|/Library\\|/\\.config\\|/\\.gem\\|/*",
+    "/home/b08x/*",
     "/home/b08x/.local/bin/*",
+    "/home/b08x/.syncopated/*",
+    "/home/b08x/.zread/*",
+    "/home/b08x/.zread/log/*",
+    "/home/b08x/Desktop/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
+    "/home/linuxbrew/.linuxbrew/bin/zread",
     "/opt/asdf/installs/*",
     "asdf",
     "basename",
     "bundle",
+    "bundle exec rake zeitwerk:check 2>&1",
+    "bundle exec rspec spec/core/loaders/catalog_spec.rb 2>&1",
+    "bundle exec rspec spec/ingest/target_resolver_spec.rb 2>&1",
+    "bundle exec rubocop --only lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1",
+    "bundle exec rubocop lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1",
+    "bundle exec rubocop lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1 && bundle exec rspec spec/core/loaders/catalog_spec.rb 2>&1",
     "cat",
+    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/current 2>/dev/null; echo \"---CURRENT_EXIT:$?---\"",
+    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/current 2>/dev/null; echo \"---EXIT:$?---\"",
+    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/goal.md 2>/dev/null || echo \"No goal.md yet\"",
+    "cat /home/b08x/WorkspaceV3/omega-13/goals/osd-visual-cues-decoupling/plan-gate-result.json 2>/dev/null || echo \"No output captured\"",
     "cd",
     "cd /home/b08x && ls -la .yadm/hooks/ 2>&1 || echo \"No hooks directory\"",
     "cd /home/b08x && yadm add .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh && yadm commit -m \"✨ feat: add interactive setup and plugin list to obsidian bootstrap\" 2>&1",
@@ -41,8 +59,22 @@ allowlist = [
     "cd /home/b08x && yadm log --oneline -2 2>&1",
     "cd /home/b08x && yadm reset HEAD .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
     "cd /home/b08x && yadm status 2>&1",
+    "cd /home/b08x/.syncopated && git reset HEAD -- . 2>&1 | tail -5",
+    "cd /home/b08x/.syncopated && ls package.json Gemfile Makefile 2>/dev/null; echo \"---\"; ls -la .pre-commit-config.yaml 2>/dev/null",
+    "cd /home/b08x/.syncopated/skills/fact-check && git log --oneline -10 && echo \"---\" && ls -la && echo \"---\" && cat .gitignore 2>/dev/null || echo \"no .gitignore\"",
+    "cd /home/b08x/WorkspaceV3 && for d in */; do git -C \"$d\" log --format='%ae' --no-merges 2>/dev/null; done | sort | uniq -c | sort -rn | head -20",
+    "cd /home/b08x/WorkspaceV3/RubyStuff/prosodic-text-converter && ./bin/prosodic-text-converter --help 2>&1 | head -40",
     "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.cards.items[] | select(.trackId == \"track-role-hermes-llmops-1kzjfxq\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"No cards found or error\"",
     "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.tracks[] | select(.slug == \"role-hermes-llmops\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"Parsing failed, reading differently\"",
+    "cd /home/b08x/WorkspaceV3/b08x.github.io && git reset HEAD -- . 2>&1 | tail -5",
+    "cd /home/b08x/WorkspaceV3/b08x.github.io && which rubocop && bundle exec rubocop 2>&1 | head -50",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run mypy src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py 2>&1 | head -40",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check --fix src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1 | head -40",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff format src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
+    "cd /home/b08x/WorkspaceV3/sfl-engine && /home/linuxbrew/.linuxbrew/bin/zread generate --draft resume -y --stdio 2>&1",
+    "cd /home/b08x/WorkspaceV3/sfl-engine && /home/linuxbrew/.linuxbrew/bin/zread generate -y --stdio 2>&1",
     "comm",
     "cut",
     "date",
@@ -53,15 +85,26 @@ allowlist = [
     "echo \"=== COMPLETED CARDS ===\"; ls /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-* | while read card_dir; do card_name=$(basename \"$card_dir\"); card_file=\"$card_dir/index.md\"; column=$(grep \"^column:\" \"$card_file\" | head -1 | cut -d'\"' -f4); echo \"$card_name -> $column\"; done",
     "file",
     "find",
+    "find /home/b08x -maxdepth 3 -type d -name '.git' 2>/dev/null | grep -v '/\\.cache\\|/node_modules\\|/\\.npm\\|/\\.cargo\\|/\\.local\\|/Library\\|/\\.config\\|/\\.gem\\|/\\.syncopated' | head -60",
+    "find /home/b08x/WorkspaceV3 /home/b08x/LLMOS /home/b08x/Archive /home/b08x/contexts -maxdepth 2 -type d -name '.git' 2>/dev/null | sed 's|/.git||' | sort",
     "find /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles -name \"hermes*\" -type d 2>/dev/null || echo \"Hermes role not found\"",
     "fmt",
     "fold",
     "for card_dir in /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-*; do echo \"=== $(basename $card_dir) ===\"; cat \"$card_dir/index.md\" | head -5; echo; done",
+    "git -C",
+    "git add",
+    "git add lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb && git status 2>&1",
     "git checkout",
+    "git commit",
+    "git commit -m \"feat(ingest): add Loaders::Catalog registering 10 leaf loaders into Core::Registry\n\nLoaders::Catalog.register_into(registry) registers :markdown, :pdf,\n:canvas, :image, :subtitle, :chatgpt_export, :claude_export,\n:mistral_export, :json, :csv. Composite loaders (ConversationSource,\nDocumentationSource, KnowledgeBaseSource) are explicitly excluded.\nFactory blocks forward ref: and optional kwargs to each constructor;\nrequired kwargs (chat: for :image, text_key: for :json, text_column:\nfor :csv) raise ArgumentError when missing — fail-fast.\n\nGenerated by Mistral Vibe.\nCo-Authored-By: Mistral Vibe <vibe@mistral.ai>\" 2>&1",
+    "git config --global",
     "git diff",
     "git log",
+    "git ls-files",
     "git reset",
+    "git reset HEAD -- . 2>&1 | tail -5",
     "git rev-parse",
+    "git show",
     "git status",
     "grep",
     "grep -r \"\\~\\/.hermes\\|/root/.hermes\" /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/hermes/ 2>/dev/null | head -20",
@@ -70,20 +113,42 @@ allowlist = [
     "jq",
     "less",
     "ls",
+    "ls -d /home/b08x/Workspace* /home/b08x/dev /home/b08x/projects /home/b08x/code /home/b08x/Desktop 2>/dev/null; echo \"---\"; find /home/b08x -maxdepth 2 -type d -name '.git' 2>/dev/null | head -40",
     "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/trackboi/ 2>/dev/null || echo \"No trackboi directories found\"",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---\"; cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/wiki.json 2>/dev/null | head -50",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---DRAFTS_EXIT:$?---\"",
     "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/ 2>/dev/null || echo \"Directory not accessible\"",
     "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/ 2>/dev/null | head -20",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ 2>/dev/null || echo \"No goals directory yet\"",
+    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ 2>/dev/null; echo \"---\"; ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/ 2>/dev/null; echo \"---\"; cat /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/goal.md 2>/dev/null",
+    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/ 2>/dev/null",
+    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/ 2>/dev/null || echo \"No .zread directory found\"",
+    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/wiki/ 2>/dev/null || echo \"No .zread/wiki directory found\"",
     "ls -la ~/.local/bin/trackboi 2>/dev/null || echo \"not in ~/.local/bin\"",
+    "ls /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---EXIT:$?---\"",
+    "ls /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/core/ports/null/ /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/core/ports/fake/ 2>/dev/null",
+    "ls /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/ingest/ 2>&1",
+    "ls ~/.zread/login.json 2>/dev/null; cat ~/.zread/config.yaml 2>/dev/null; echo \"---EXIT:$?---\"",
     "md5sum",
+    "mkdir",
     "more",
     "nl",
     "od",
     "paste",
     "plannotator",
+    "plannotator annotate goals/osd-visual-cues-decoupling/plan.md --gate 2>&1 | tee goals/osd-visual-cues-decoupling/plan-gate-result.json",
+    "plannotator setup-goal facts goals/osd-visual-cues-decoupling/facts-review.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/facts-result.json",
+    "plannotator setup-goal interview goals/osd-visual-cues-decoupling/interview.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/interview-result.json",
     "pwd",
+    "python3",
+    "python3 -c \"import json; json.load(open('goals/ansible-consolidation/interview-result.json')); print('interview-result.json: valid JSON')\" 2>&1",
+    "python3 /home/b08x/.agents/skills/project-graveyard/scripts/graveyard.py /home/b08x/WorkspaceV3 /home/b08x/LLMOS --max 120 --days 45 --json /tmp/vibe-scratchpad-63f974a1-vrbyvqa_/graveyard-report.json 2>&1",
+    "python3 /home/b08x/.agents/skills/project-graveyard/scripts/graveyard.py /home/b08x/WorkspaceV3 /home/b08x/LLMOS --max 160 --days 45 --me b08x@users.noreply.github.com --me b08x@local --json /tmp/vibe-scratchpad-63f974a1-vrbyvqa_/graveyard-report2.json 2>&1",
     "read",
     "readlink",
     "ruby",
+    "ruby -Ilib -rsfl -e 'p SFL::Ingest::TargetResolver.call(\"https://docs.example.com/usage\") rescue puts $!.class' 2>&1",
+    "sed",
     "sha1sum",
     "sha256sum",
     "shasum",
@@ -92,6 +157,8 @@ allowlist = [
     "sum",
     "tac",
     "tail",
+    "tail -30 ~/.zread/log/zread.log 2>/dev/null",
+    "tee",
     "timeout",
     "tr",
     "trackboi",
@@ -99,15 +166,26 @@ allowlist = [
     "tree",
     "uname",
     "uniq",
+    "uv run mypy",
+    "uv run ruff",
     "wc",
     "which",
     "which trackboi 2>/dev/null || echo \"trackboi not in PATH\"",
+    "which zread 2>/dev/null && zread version --stdio 2>/dev/null; echo \"---EXIT:$?---\"",
     "whoami",
+    "xargs",
     "yadm",
+    "zread",
+    "zread generate -y --draft resume --stdio 2>&1 | tail -80",
+    "zread generate -y --stdio 2>&1 | tail -50",
+    "zread generate -y --stdio 2>&1 | tail -80",
 ]
 
 [tools.read_file]
 allowlist = [
+    "/home/b08x/.agents/skills/project-graveyard/references/*",
+    "/home/b08x/.agents/skills/project-graveyard/scripts/*",
+    "/home/b08x/.gemini/skills/readme-generator/references/*",
     "/home/b08x/.syncopated/skills/ruby-design-patterns/references/*",
     "/home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/*",
 ]
@@ -122,6 +200,45 @@ permission = "always"
 permission = "always"
 
 [tools.trackboi_get_active_project]
+permission = "always"
+
+[tools.trackboi_orient_agent]
+permission = "always"
+
+[tools.trackboi_delete_card]
+permission = "always"
+
+[tools.trackboi_update_card]
+permission = "always"
+
+[tools.trackboi_update_track]
+permission = "always"
+
+[tools.trackboi_add_track_decision]
+permission = "always"
+
+[tools.trackboi_remove_track_reference]
+permission = "always"
+
+[tools.trackboi_list_cards]
+permission = "always"
+
+[tools.codebase-memory-mcp_list_projects]
+permission = "always"
+
+[tools.codebase-memory-mcp_search_graph]
+permission = "always"
+
+[tools.codebase-memory-mcp_get_code_snippet]
+permission = "always"
+
+[tools.trackboi_move_card]
+permission = "always"
+
+[tools.trackboi_add_card_comment]
+permission = "always"
+
+[tools.trackboi_get_card]
 permission = "always"
 
 [[mcp_servers]]

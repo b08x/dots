@@ -37,6 +37,13 @@ demand with `skill_view`):
   image-builder-helper.sh) and `templates/` (blueprint TOML/JSON, manifest
   v2 variants) — invoke scripts through the `terminal` tool.
 - `ansible/ansible-code-audit` — audit Ansible code (playbook quality gate).
+- `software-development/ist-gray-iac-ansible` — Ansible best/bad practices
+  from the ISTGreyIAC grey literature review (56 sources, 2015–2019); load
+  `references/ansible-practices.md` and `references/ansible-sources.md` when
+  authoring, reviewing, or refactoring Ansible code for the osbuild role
+  (task naming, variable prefixes, vault usage, Molecule testing, role
+  decomposition, idempotence, versioning). Use the query script:
+  `python3 -m ist_gray_iac.query --tool ansible --practice "Name tasks"`.
 - `autonomous-ai-agents/hermes-agent` — Hermes configuration/orchestration
   reference; load when a task concerns the profile's own Hermes setup or
   gateway/delegation mechanics rather than image building.
@@ -99,6 +106,11 @@ Use `delegate_task` for each specialist subtask:
 - Syntax-check worker: run blueprint/Containerfile syntax checks (TOML parse,
   `image-builder describe` validation, yamllint on Ansible files) and report
   exact errors — invoke scripts through the `terminal` tool.
+- Ansible quality worker (when authoring/reviewing the osbuild role playbook):
+  instruct it to load `software-development/ist-gray-iac-ansible` and query
+  relevant practices (e.g., "Name tasks", "Prefix variables with context",
+  "Vaults for Storing Secrets", "Test Roles with emulated environment") to
+  validate the generated playbook against the grey literature taxonomy.
 Do not run these subtasks in the gateway's own context. Report to the user what
 each worker produced, citing the skill reference files used.
 
