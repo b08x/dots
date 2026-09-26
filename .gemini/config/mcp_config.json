@@ -1,0 +1,53 @@
+{
+  "mcpServers": {
+    "ansible": {
+      "command": "npx",
+      "args": ["-y", "@ansible/ansible-mcp-server", "--stdio"],
+      "env": {
+        "WORKSPACE_ROOT": "/home/b08x/WorkspaceV3/Syncopated/ansible"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "deepwiki": {
+      "serverUrl": "https://mcp.deepwiki.com/mcp"
+    },
+    "trackboi": {
+      "command": "trackboi",
+      "args": [
+        "mcp"
+      ]
+    },
+    "github-mcp-server": {
+      "$typeName": "exa.cascade_plugins_pb.CascadePluginCommandTemplate",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    },
+    "codebase-memory-mcp": {"command":"/home/b08x/.local/bin/codebase-memory-mcp","args":[]}
+  }
+}

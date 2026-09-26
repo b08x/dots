@@ -241,6 +241,9 @@ permission = "always"
 [tools.trackboi_get_card]
 permission = "always"
 
+[tools."process.start"]
+permission = "always"
+
 [[mcp_servers]]
 name = "codebase-memory-mcp"
 transport = "stdio"
