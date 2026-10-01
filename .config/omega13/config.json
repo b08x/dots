@@ -16,7 +16,7 @@
     "save_to_file": true,
     "copy_to_clipboard": true,
     "inject_to_active_window": true,
-    "write_to_daily_note": true,
+    "write_to_daily_note": false,
     "write_to_file": true,
     "local_model_path": "/home/b08x/.local/share/omega13/models",
     "local_model_name": "whisper-large-v3-turbo-Q8_0.gguf",

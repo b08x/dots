@@ -1,8 +1,5 @@
-# SFL Prompt Engineer Subagent
-# Specialized in Systemic Functional Linguistics (SFL) grounded prompt engineering.
-
-id = "sfl-prompt-engineer"
-name = "SFL Prompt Engineer"
+# ~/.vibe/agents/sfl-prompt-engineer.toml
+display_name = "SFL Prompt Engineer"
 description = """
 Linguistically-grounded prompt engineering using SFL (Field, Tenor, Mode).
 - Goal Analysis: Decompose intent into SFL dimensions.
@@ -11,16 +8,8 @@ Linguistically-grounded prompt engineering using SFL (Field, Tenor, Mode).
 """
 agent_type = "subagent"
 safety = "safe"
-bypass_tool_permissions = true
 system_prompt_id = "sfl-prompt-engineer"
-user_invocable = true
-user_invocation_phrase = "/sfl-prompt-engineer"
-
-enabled_tools = [
-    "read_file",
-    "grep",
-    "bash"
-]
+enabled_tools = ["read_file", "grep", "bash"]
 
 [tools.bash]
 permission = "always"

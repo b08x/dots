@@ -1,345 +1,220 @@
-active_model = "glm-5-3"
-theme = "auto"
+bypass_tool_permissions = false
+ask_confirmation_on_exit = true
+enable_auto_update = true
+enable_update_checks = true
+enable_notifications = true
+enable_telemetry = true
+enable_system_trust_store = false
+log_level = "WARNING"
+enable_otel = false
+otel_endpoint = ""
+otel_redaction = "default"
+api_timeout = 720.0
+api_retry_max_elapsed_time = 300.0
+api_connect_timeout = 10.0
+api_write_timeout = 30.0
+api_pool_timeout = 10.0
+vibe_base_url = "https://chat.mistral.ai"
+vibe_code_sessions_base_url = "https://chat.mistral.ai"
+active_model = ""
+allowed_models = []
+auto_compact_threshold = 200000
+raise_on_compaction_failure = false
+tool_paths = []
+enabled_tools = []
+disabled_tools = []
+managed_shell_tools_enabled = false
 skill_paths = [
-    "~/.vibe/skills",
+    "~/.agents/skills/",
     "~/.syncopated/skills",
-    ".agents/skills/",
+    "~/.vibe/skills",
     "~/.gemini/skills",
+    ".agents/skills/",
 ]
-applied_migrations = [
-    "bash_read_only_defaults_v1",
+enabled_skills = []
+disabled_skills = []
+agent_paths = ["~/.vibe/agents", "~/.syncopated/agents"]
+enabled_agents = []
+disabled_agents = []
+installed_agents = ["lean", "agent-creator", "sfl-prompt-engineer"]
+default_agent = "accept-edits"
+enable_connectors = true
+system_prompt_id = "cli"
+compaction_prompt_id = "compact"
+include_model_info = true
+include_project_context = true
+include_prompt_detail = true
+include_commit_signature = true
+worktree_limit = 15
+theme = "auto"
+console_base_url = "https://console.mistral.ai"
+displayed_workdir = ""
+disable_welcome_banner_animation = false
+show_greeting = true
+autocopy_to_clipboard = true
+file_watcher_for_autocomplete = true
+context_warnings = false
+show_thinking_nodes = false
+show_subagent_status_list = true
+experimental_enable_tab_status = true
+voice_mode_enabled = false
+narrator_enabled = false
+active_transcribe_model = "voxtral-realtime"
+active_tts_model = "voxtral-tts"
+connectors = [{ name = "my_connector", disabled = false, disabled_tools = [] }]
+tts_models = [
+    { name = "voxtral-mini-tts-latest", provider = "mistral", alias = "voxtral-tts" },
 ]
-connectors = [
-    { name = "deepwiki", disabled = false },
-]
+applied_migrations = ["bash_read_only_defaults_v1"]
+
+[[models]]
+name = "mistral-vibe-cli-latest"
+provider = "mistral"
+alias = "mistral-medium-3.5"
+display_name = "Mistral Medium 3.5"
+temperature = 1.0
+input_price = 1.5
+output_price = 7.5
+cached_input_price = 0.15
+thinking = "high"
+supports_images = true
+auto_compact_threshold = 200000
+
+[[models]]
+name = "mistral-vibe-cli-fast"
+provider = "mistral"
+alias = "mistral-small"
+input_price = 0.1
+output_price = 0.3
+
+[[models]]
+name = "devstral"
+provider = "llamacpp"
+alias = "local"
+display_name = "Devstral (local)"
+input_price = 0.0
+output_price = 0.0
+
+[[models]]
+name = "zai-glm-5-3"
+provider = "mistral"
+alias = "glm-5-3"
+display_name = "glm-5.3 (Mistral Hosted)"
+
+[vision_model]
+name = "mistral-medium-latest"
+provider = "mistral"
+alias = "vision"
+supports_images = true
 
 [[providers]]
 name = "mistral"
 api_base = "https://api.mistral.ai/v1"
 api_key_env_var = "MISTRAL_VIBE_API_KEY"
 backend = "mistral"
-reasoning_field_name = "reasoning_content"
+
+[[providers]]
+name = "llamacpp"
+api_base = "http://127.0.0.1:8080/v1"
+api_key_env_var = ""
+backend = "generic"
+emits_finish_reason = false
 
 [tools.bash]
+permission = "ask"
+max_output_bytes = 16000
+default_timeout = 300
 allowlist = [
-    "./bin/prosodic-text-converter",
-    "/\\.cache\\|/node_modules\\|/\\.npm\\|/\\.cargo\\|/\\.local\\|/Library\\|/\\.config\\|/\\.gem\\|/*",
-    "/home/b08x/*",
-    "/home/b08x/.local/bin/*",
-    "/home/b08x/.syncopated/*",
-    "/home/b08x/.zread/*",
-    "/home/b08x/.zread/log/*",
-    "/home/b08x/Desktop/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
-    "/home/b08x/WorkspaceV3/Syncopated/ansible/.venv/bin/python",
-    "/home/linuxbrew/.linuxbrew/bin/zread",
-    "/opt/asdf/installs/*",
-    "D=/home/b08x/Archive/Workspace/syncopated/ansible-collection-fortyau; head -60 \"$D/README.md\"; echo '===== OVERVIEW ====='; head -40 \"$D/overview.txt\"",
-    "D=/home/b08x/Archive/Workspace/syncopated/ansible-collection-fortyau; ls -la \"$D\"; echo '---'; du -sh \"$D\"; echo '---'; find \"$D\" -maxdepth 2 -type d | head -25; echo '---'; head -c 600 \"$D/fortyau.json\" 2>/dev/null",
-    "F=/home/b08x/.vibe/logs/session/unified/b16d814d-626b-5db1-ccf7-692195df8600/tool-results/run_typescript-chatcmpl-tool-b3c21f66cf5d294f.json; echo '===== ARCH RAG ====='; jq -r '.archRag' \"$F\"; echo '===== ARCH TASKS ====='; jq -r '.archTasks' \"$F\"; echo '===== TASKS STATUS ====='; jq -r '.statusTasks | {status, nodes, edges, parse_partial_count: .parse_partial.count, skipped_count: .skipped.count, not_indexed_files: .not_indexed.files_count}' \"$F\"",
-    "F=/home/b08x/.vibe/logs/session/unified/b16d814d-626b-5db1-ccf7-692195df8600/tool-results/run_typescript-chatcmpl-tool-b3c21f66cf5d294f.json; jq -r '.value.archRag' \"$F\" | head -80",
-    "F=/home/b08x/.vibe/logs/session/unified/b16d814d-626b-5db1-ccf7-692195df8600/tool-results/run_typescript-chatcmpl-tool-b3c21f66cf5d294f.json; jq -r 'keys' \"$F\"; jq -r '.archRag // .value.archRag // \"MISSING\"' \"$F\" | head -c 300; echo; jq -r 'paths | join(\".\")' \"$F\" | head -20",
-    "asdf",
     "basename",
-    "bundle",
-    "bundle exec rake zeitwerk:check 2>&1",
-    "bundle exec rspec spec/core/loaders/catalog_spec.rb 2>&1",
-    "bundle exec rspec spec/ingest/target_resolver_spec.rb 2>&1",
-    "bundle exec rubocop --only lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1",
-    "bundle exec rubocop lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1",
-    "bundle exec rubocop lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb 2>&1 && bundle exec rspec spec/core/loaders/catalog_spec.rb 2>&1",
     "cat",
-    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/current 2>/dev/null; echo \"---CURRENT_EXIT:$?---\"",
-    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/current 2>/dev/null; echo \"---EXIT:$?---\"",
-    "cat /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/goal.md 2>/dev/null || echo \"No goal.md yet\"",
-    "cat /home/b08x/WorkspaceV3/omega-13/goals/osd-visual-cues-decoupling/plan-gate-result.json 2>/dev/null || echo \"No output captured\"",
-    "cat > /home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval/facts-result.json <<'FACTS_RESULT_EOF'\n{\"decision\":\"submitted\",\"stage\":\"facts\",\"result\":{\"stage\":\"facts\",\"title\":\"Ansible Context Compiler — Corpus + Retrieval\",\"goalSlug\":\"corpus-and-retrieval\",\"facts\":[{\"id\":\"fact-scope\",\"text\":\"This goal covers the corpus build and retrieval only: normalization, distillation, chunking, context envelopes, intent annotation, embedding, storage, and hybrid RRF retrieval. The SLM gateway, output staging store, and REST/MCP service surfaces are excluded and become a follow-up goal package.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-sources\",\"text\":\"The corpus ingests all six sources: ansible-collection-fortyau, archlabs, ansible-collection-pop_os, the live Syncopated/ansible repo (read-only, from git), Ansible_RAG, and Ansible_RAG_Tasks.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-provenance\",\"text\":\"Every stored chunk records provenance: source repo, role, file path, and era.\",\"accepted\":false,\"removed\":false,\"comment\":\"confer with ISTGrayIAC skill on this topic\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-dedupe\",\"text\":\"Duplicate generations in the Ansible_RAG archive (e.g. desktop_0/1, applications_0/1/2) are collapsed so no duplicate chunks persist in the corpus.\",\"accepted\":false,\"removed\":false,\"comment\":\"or just removed---leave no trace, ; anything wth *_0/1/2 etc should idealy be extracted then dedupe into a base folder\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-fqcn\",\"text\":\"All module references are FQCN-normalized at ingest. No chunk stores the deprecated `include:` module form, and `hosts:` parser artifacts are filtered out.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-families\",\"text\":\"Near-duplicate tasks distill into pattern families: for example, all package-install tasks across all sources resolve to one package-install family, with member instances linked as provenance.\",\"accepted\":false,\"removed\":false,\"comment\":\"So, like, for example, installing dependencies for any particular project across distributions, the dependencies are the same. The package names will be somehow different, though. And so that's where part of the desire is to have sort of a plug-in piece where there's a single source of truth for programs and applications that would be installed on any given host and compatible versioning with build libraries and kernels. And then from there, package variable lists are generated.\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-merge-review\",\"text\":\"Proposed family merges are staged for human review before they are committed to the corpus.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-chunk\",\"text\":\"The chunk unit is the Ansible task; tasks are never split by character or token count. Unparseable YAML fails closed into a quarantine log instead of entering the corpus.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-envelope\",\"text\":\"Each chunk carries a context envelope: software-arrival tier (OS package / language ecosystem / git clone-release), ownership layer (image / ansible / yadm), and distro family with version constraints.\",\"accepted\":false,\"removed\":false,\"comment\":\"If possible, I'd also like to include in here the pragmatic intent where within the envelope, the chunk, which in this case would be an Ansible task, is the task for a host that will require specific tuning or configuration. Is it processing video? Is it processing audio? Is it processing vector embeddings? Is it a full-fledged development workstation? etc etc\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-annotation\",\"text\":\"Each chunk is annotated with the SFL mapping: ideational (action, target, medium), interpersonal (modality from when/failed_when/ignore_errors, privilege and blast radius from become/scope), textual (tags, handlers, ordering), and register (Field, Tenor, Mode).\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-summaries\",\"text\":\"Each pattern family gets an SLM-generated contextual summary prepended before embedding. Invalid model output fails closed — it never enters the store.\",\"accepted\":true,\"removed\":false,\"comment\":\"And so here, I would put in a retry and fallback. And so if the first retry fails, it'll fall back to the secondary model specified. And if that fails, like if there's no connection for some reason, then the chunk can be marked as such in the database to then be put into a dead letter queue for reprocessing at some point in the future.\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-store\",\"text\":\"The corpus SSOT is PostgreSQL + pgvector with a fresh schema: embeddings in pgvector columns, context envelopes and annotations in JSONB with CHECK constraints, typed structs at parse time.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-filters\",\"text\":\"Retrieval supports scalar filters on distro, tier, module family, era, and validation status.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-rrf\",\"text\":\"Retrieval fuses three ranked channels via reciprocal rank fusion: BM25 keyword search, vector cosine over contextualized embeddings, and a scalar-filter pass.\",\"accepted\":true,\"removed\":false,\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-archaeology\",\"text\":\"Default retrieval excludes stale or deprecated patterns; an explicit archaeology mode retrieves them by era.\",\"accepted\":false,\"removed\":false,\"comment\":\"In this case, era or time frame is irrelevant. The retrieval should focus on the intention and what fits best.\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-golden\",\"text\":\"A golden-query eval passes: the query \\\"install a bleeding-edge cargo crate on AlmaLinux 10.2 with system rust 1.9.2\\\" returns both valid blueprints (pin the crate version to system rust compatibility; install latest rust in user space) in the top results.\",\"accepted\":false,\"removed\":false,\"comment\":\"This can be determined later on. Even if the query is install dependencies for the input mapper reproject, and then install the input mapper or build the input mapper project from source and have it installs a systemd service should print should return not only valid but dry clean low cognitive load.\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-cli\",\"text\":\"A CLI queries the corpus with cited provenance (family plus member instances), and serves as the eval harness for this goal.\",\"accepted\":false,\"removed\":true,\"comment\":\"See how I query through the corpus. Uh, not sure what this means. I'm going to take it out.\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true},{\"id\":\"fact-runtime\",\"text\":\"The pipeline is a fresh Ruby build with a Python sidecar for spaCy/bertopic; embeddings run on local ollama api/embed; annotation uses a hosted SLM. No runtime dependency on prior projects (sfl-compiler, sfl-engine, archive_tools) — they are read as reference only.\",\"accepted\":true,\"removed\":false,\"comment\":\"the Gem whitelist for the project;\\n\\neach gem has a purpose and should be used\\n\\n/home/b08x/WorkspaceV3/context-compiler-Gemlist.json\",\"automatedVerification\":true,\"recommendedAutomatedVerification\":true}],\"factsMarkdown\":\"# Facts\\n\\n- This goal covers the corpus build and retrieval only: normalization, distillation, chunking, context envelopes, intent annotation, embedding, storage, and hybrid RRF retrieval. The SLM gateway, output staging store, and REST/MCP service surfaces are excluded and become a follow-up goal package.\\n- The corpus ingests all six sources: ansible-collection-fortyau, archlabs, ansible-collection-pop_os, the live Syncopated/ansible repo (read-only, from git), Ansible_RAG, and Ansible_RAG_Tasks.\\n- All module references are FQCN-normalized at ingest. No chunk stores the deprecated `include:` module form, and `hosts:` parser artifacts are filtered out.\\n- Proposed family merges are staged for human review before they are committed to the corpus.\\n- The chunk unit is the Ansible task; tasks are never split by character or token count. Unparseable YAML fails closed into a quarantine log instead of entering the corpus.\\n- Each chunk is annotated with the SFL mapping: ideational (action, target, medium), interpersonal (modality from when/failed_when/ignore_errors, privilege and blast radius from become/scope), textual (tags, handlers, ordering), and register (Field, Tenor, Mode).\\n- Each pattern family gets an SLM-generated contextual summary prepended before embedding. Invalid model output fails closed — it never enters the store.\\n- The corpus SSOT is PostgreSQL + pgvector with a fresh schema: embeddings in pgvector columns, context envelopes and annotations in JSONB with CHECK constraints, typed structs at parse time.\\n- Retrieval supports scalar filters on distro, tier, module family, era, and validation status.\\n- Retrieval fuses three ranked channels via reciprocal rank fusion: BM25 keyword search, vector cosine over contextualized embeddings, and a scalar-filter pass.\\n- The pipeline is a fresh Ruby build with a Python sidecar for spaCy/bertopic; embeddings run on local ollama api/embed; annotation uses a hosted SLM. No runtime dependency on prior projects (sfl-compiler, sfl-engine, archive_tools) — they are read as reference only.\"}}\nFACTS_RESULT_EOF\necho \"facts-result.json bytes: $(wc -c < /home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval/facts-result.json)\"\necho \"=== gem whitelist names ===\"\njq -r '.[].name' /home/b08x/WorkspaceV3/context-compiler-Gemlist.json | tr '\\n' ' '\necho\necho \"=== gem count: $(jq 'length' /home/b08x/WorkspaceV3/context-compiler-Gemlist.json)\"",
     "cd",
-    "cd /home/b08x && ls -la .yadm/hooks/ 2>&1 || echo \"No hooks directory\"",
-    "cd /home/b08x && yadm add .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh && yadm commit -m \"✨ feat: add interactive setup and plugin list to obsidian bootstrap\" 2>&1",
-    "cd /home/b08x && yadm add .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
-    "cd /home/b08x && yadm add .vibe/config.toml && yadm commit -m \"🔧 chore: add yadm to vibe command allowlist\" 2>&1",
-    "cd /home/b08x && yadm add .vibe/config.toml && yadm commit -m \"🔧 chore: update vibe allowlist with additional yadm commands\" 2>&1",
-    "cd /home/b08x && yadm diff --cached 2>&1",
-    "cd /home/b08x && yadm diff .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
-    "cd /home/b08x && yadm diff .vibe/config.toml 2>&1",
-    "cd /home/b08x && yadm log --oneline -2 2>&1",
-    "cd /home/b08x && yadm reset HEAD .config/yadm/bootstrap.d/01-obsidian-flatpak-setup.sh .vibe/config.toml 2>&1",
-    "cd /home/b08x && yadm status 2>&1",
-    "cd /home/b08x/.syncopated && git reset HEAD -- . 2>&1 | tail -5",
-    "cd /home/b08x/.syncopated && ls package.json Gemfile Makefile 2>/dev/null; echo \"---\"; ls -la .pre-commit-config.yaml 2>/dev/null",
-    "cd /home/b08x/.syncopated/skills/fact-check && git log --oneline -10 && echo \"---\" && ls -la && echo \"---\" && cat .gitignore 2>/dev/null || echo \"no .gitignore\"",
-    "cd /home/b08x/WorkspaceV3 && for d in */; do git -C \"$d\" log --format='%ae' --no-merges 2>/dev/null; done | sort | uniq -c | sort -rn | head -20",
-    "cd /home/b08x/WorkspaceV3/RubyStuff/prosodic-text-converter && ./bin/prosodic-text-converter --help 2>&1 | head -40",
-    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && diff -rq roles/run roles/run_ && echo RUN_VS_RUN__IDENTICAL; diff -rq roles/run_ roles/run_0 && echo RUN__VS_RUN0_IDENTICAL; grep -rn \"role: run\\|roles/run\" playbooks/ inventory/ roles/*/tasks 2>/dev/null | grep -v \"roles/run\" | head; echo \"---refs done---\"; cat roles/run/README.md | head -20",
-    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && git check-ignore -v docs/graphs files/scripts files/etc docs/audits TODO.md 2>/dev/null; echo \"---\"; head -20 TODO.md; echo \"=== csv script head ===\"; head -30 scripts/csv_to_packages.py",
-    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.cards.items[] | select(.trackId == \"track-role-hermes-llmops-1kzjfxq\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"No cards found or error\"",
-    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && jq '.tracks[] | select(.slug == \"role-hermes-llmops\")' /home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/run_typescript-sCvtN2oOW.json 2>/dev/null || echo \"Parsing failed, reading differently\"",
-    "cd /home/b08x/WorkspaceV3/Syncopated/ansible && ls vars/packages/ files/scripts/ files/etc/ 2>/dev/null && echo \"=== run tasks diff ===\" && diff roles/run/tasks/main.yml roles/run_/tasks/main.yml; head -20 roles/run/tasks/main.yml; echo \"=== refs to run roles or csv ===\" && grep -rln \"csv_to_packages\\|roles/run_\\|vars/packages\" playbooks/ roles/ scripts/ inventory/ 2>/dev/null | head",
-    "cd /home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval && cat > plan.md <<'PLAN_EOF'\n# Plan — Corpus + Retrieval (ansible-context-compiler)\n\n## Solution approach\n\nA fresh Ruby pipeline at `~/WorkspaceV3/ansible-context-compiler` that extracts\nAnsible tasks read-only from six sources, normalizes them (FQCN, artifact\nfiltering, generation collapse), chunks at task granularity with context\nenvelopes and full provenance, distills near-duplicates into pattern families\nanchored on a canonical program registry, annotates each chunk with an SFL\nmapping plus SLM-generated contextual summaries (retry, fallback, dead letter\nqueue), stores everything in PostgreSQL + pgvector, and serves intent-first\nhybrid RRF retrieval. A golden-query eval over the input-remapper use case is\nthe acceptance surface. Python sidecar (spaCy/bertopic) supports the\ndistillation pass. Gemfile draws only from the whitelist at\n`/home/b08x/WorkspaceV3/context-compiler-Gemlist.json`.\n\n## Ordered steps\n\n### 1. Scaffold the repository\nTouches: `Gemfile`, `Gemfile.lock`, `config/`, `db/migrate/`, `spec/`,\n`sidecar/` (Python), `.env.example`, `Rakefile`.\n- Fresh git repo; Gemfile from the whitelist subset for this goal: sequel,\n  sequel_pg, pg, pgvector, bm25f, pragmatic_tokenizer, amatch,\n  tf-idf-similarity, dspy, dspy-evals, ruby_llm, schematist (typed structs),\n  dotenv, rake, rspec, parallel. Postgres is local (18.6); embeddings via\n  ollama `api/embed` on localhost:11434.\n- Python sidecar skeleton: venv with spacy + bertopic, JSON-over-stdio or\n  localhost HTTP contract.\nVerification: `bundle install` clean; `bundle exec rspec` runs (empty); sidecar\nresponds to a ping command.\n\n### 2. Source adapters (read-only extraction)\nTouches: `lib/ansible_context/sources/`, `config/sources.yml`.\n- Six sources pinned by path and, where available, git commit:\n  `/home/b08x/Archive/Workspace/syncopated/ansible-collection-fortyau`,\n  `/home/b08x/Archive/Workspace/syncopated/archlabs`,\n  `/home/b08x/WorkspaceV3/Syncopated/ansible-collection-pop_os`,\n  `/home/b08x/WorkspaceV3/Syncopated/ansible` (read-only from git),\n  `/home/b08x/Archive/Workspace/syncopated/Ansible_RAG`,\n  `/home/b08x/Archive/Workspace/syncopated/Ansible_RAG_Tasks`.\n- Archive sources are copied into a staging area before any processing; the\n  archives themselves are never written to.\n- Known gap carried forward: fortyau `roles/haproxy/tasks/main.yml:7-33` has a\n  parse-partial region (codebase-memory coverage report) — the extractor must\n  not silently drop it; it lands in quarantine for human inspection.\nVerification: spec asserts extraction counts per source (fortyau 21 roles,\narchlabs 24, pop_os 13, current 17); no source file mtimes change.\n\n### 3. Normalization\nTouches: `lib/ansible_context/normalize/` (fqcn map, filters, quarantine).\n- FQCN normalization table for all observed short-form modules (dnf, file,\n  template, systemd, etc.).\n- Deprecated `include:` tasks (202 in the Tasks bucket) and `hosts:` parser\n  artifacts (78) are filtered or rewritten to `import_tasks`.\n- Unparseable YAML fails closed into a quarantine table with file path and\n  reason.\nVerification: spec asserts zero chunks with `include:` or bare module names;\nquarantine table row count equals known unparseable files.\n\n### 4. Generation collapse (on the staging copy)\nTouches: `lib/ansible_context/collapse/`, staging area only.\n- `*_0/1/2` generations (desktop_0/1, applications_0/1/2, etc.) extracted and\n  deduplicated into a single base folder in staging; duplicates removed from\n  staging, leaving no trace downstream.\n- The Archive directories themselves remain untouched in this goal; mutation\n  of the real Archive, if wanted later, is a separate explicit decision.\nVerification: content-hash duplicate count = 0 in corpus; spec asserts the\nexpected generation groups were collapsed.\n\n### 5. Schema + migrations\nTouches: `db/migrate/`, `lib/ansible_context/schema/`.\n- Tables: `sources`, `chunks` (task payload, provenance: repo/role/file/era/\n  commit), `envelopes` (JSONB: arrival tier, ownership layer, distro family +\n  version constraints, pragmatic intent profile), `annotations` (JSONB SFL:\n  ideational/interpersonal/textual/register), `families` (distilled pattern +\n  SLM contextual summary), `family_members`, `program_registry` (canonical\n  program, distro package-name map, version compatibility against build\n  libraries/kernels), `staged_merges`, `quarantine`, `dead_letter_queue`.\n- CHECK constraints on every enum-like JSONB field; typed structs (schematist)\n  at parse time so a raw Hash never outlives parsing.\nVerification: migration runs; spec asserts CHECK constraints reject invalid\nenum values; \\d+ shows pgvector column types.\n\n### 6. Program registry\nTouches: `lib/ansible_context/registry/`, seed data under `data/registry/`.\n- Canonical program records seeded from package names observed in the corpus\n  (dnf, pacman, apt names plus language ecosystems and git-clone projects).\n- Distro-specific package variable lists generated from the registry — same\n  dependency identity across distributions, different names.\nVerification: spec asserts a sample program (e.g. input-remapper) resolves to\ncorrect package names across Fedora, Arch, and Debian families; generated\nvariable lists are valid YAML.\n\n### 7. Context envelope + provenance assignment\nTouches: `lib/ansible_context/envelope/`.\n- Deterministic pass: arrival tier (OS package / language ecosystem / git\n  clone-release), ownership layer (image / ansible / yadm), distro family +\n  version constraints, pragmatic intent profile (audio, video, vector\n  embeddings, development workstation).\nVerification: spec asserts every chunk has a complete envelope; intent profile\npresent for chunks from role/host context.\n\n### 8. Family distillation + staged merges\nTouches: `lib/ansible_context/distill/`, sidecar bertopic call.\n- Near-duplicate clustering (sidecar bertopic / amatch / tf-idf), then family\n  merge proposals written to `staged_merges` for human review — nothing merges\n  without approval.\n- Review surface: a rake task listing staged merges with member diffs.\nVerification: spec asserts all package-install instances resolve to one\nproposed family; zero families committed without staged-merge approval.\n\n### 9. SFL annotation + contextual summaries (stochastic pass)\nTouches: `lib/ansible_context/annotate/`, `lib/ansible_context/llm/`.\n- Hosted SLM via ruby_llm with schema-constrained output: ideational (action,\n  target, medium), interpersonal (modality, privilege, blast radius), textual\n  (tags, handlers, ordering), register (Field, Tenor, Mode).\n- Contextual summary per family, prepended before embedding.\n- Retry, then fallback to secondary model, then mark chunk in DB and route to\n  `dead_letter_queue`. Invalid output never enters the store.\nVerification: spec with a stubbed LLM asserts retry and fallback sequencing\nand DLQ routing; integration run over a sample batch with real SLM; DLQ\nreprocessing rake task exists.\n\n### 10. Embeddings\nTouches: `lib/ansible_context/embed/`.\n- ollama `api/embed` (localhost:11434) over contextual summary + chunk payload;\n  vectors into pgvector columns.\nVerification: embedding count = family/chunk count (minus DLQ-marked); spot\ncheck nearest-neighbour sanity (similar families share neighbours).\n\n### 11. Retrieval — hybrid contextual RRF\nTouches: `lib/ansible_context/retrieval/`.\n- Three channels: bm25f (keyword over module names, args, task names),\n  pgvector cosine over contextualized embeddings, scalar-filter pass (distro,\n  tier, module family, era, validation status).\n- Reciprocal rank fusion over the three ranked lists; intent-first ranking —\n  no era/timeframe weighting, era stays queryable metadata only.\nVerification: spec asserts channel fusion order changes results monotonically\nwith rank; scalar filters exclude correctly.\n\n### 12. Golden-query eval harness\nTouches: `eval/`, Rakefile.\n- Golden queries finalized here (fact-golden): primary — \"install the\n  dependencies for the input-remapper project, then build input-remapper from\n  source and install its systemd service\"; secondary — \"install a\n  bleeding-edge cargo crate on AlmaLinux 10.2 with system rust 1.9.2\" (both\n  blueprints: pin to system rust; user-space latest rust).\n- Validity proxies for \"dry, clean, low cognitive load\": correct family\n  retrieval at top ranks, no deprecated-module chunks retrieved, minimal\n  family count for the goal, no shell escapes unless the family is inherently\n  imperative (AUR, make install).\n- dspy-evals for scoring; eval runnable as a rake task.\nVerification: `rake eval:golden` passes against the built corpus; results\nrecorded with cited provenance per family.\n\n## Risks and open questions\n\n1. **Archive mutation is out of scope here.** Generation collapse runs on the\n   staging copy. Whether the real Ansible_RAG Archive gets reorganized into\n   base folders is a separate, explicit decision (destructive).\n2. **Program registry is the largest new surface.** Seeding is manual at first;\n   naming collisions across distros (python3- vs python- vs python) need a\n   convention. Proposal: canonical name + distro-family alias map.\n3. **\"Dry, clean, low cognitive load\" needs measurable proxies** — the eval\n   defines them (top-rank retrieval, no deprecated chunks, minimal family\n   count); they are assertions, not vibes, but they are chosen by us.\n4. **Hosted SLM choice for annotation** is a config decision (.env: primary +\n   fallback model IDs + keys). The pipeline only assumes a ruby_llm-compatible\n   endpoint.\n5. **bertopic on ~1.4k task chunks** may over-cluster; distillation thresholds\n   get tuned during step 8 with the staged-merge review as the safety net.\n6. **Era extraction** relies on git metadata where it exists; Ansible_RAG\n   generations carry implicit era in folder names, not commits — the adapter\n   derives era from directory naming.\n7. **Sidecar process management**: spaCy model downloads and bertopic\n   dependencies pinned in `sidecar/requirements.txt`; first run needs network.\nPLAN_EOF\nwc -l plan.md",
-    "cd /home/b08x/WorkspaceV3/b08x.github.io && git reset HEAD -- . 2>&1 | tail -5",
-    "cd /home/b08x/WorkspaceV3/b08x.github.io && which rubocop && bundle exec rubocop 2>&1 | head -50",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && grep -n \"ingest_text\\|async def ingest_source\" src/notebooklm/_preprocessing/ingestion.py | head && sed -n \"$(grep -n 'def ingest_text' src/notebooklm/_preprocessing/ingestion.py | cut -d: -f1),+25p\" src/notebooklm/_preprocessing/ingestion.py",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && nohup uv run pytest -n auto --dist loadgroup --cov=src/notebooklm --cov-fail-under=90 -q > /tmp/full_pytest.log 2>&1 & echo \"started pid $!\"",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && nohup uv run python scripts/_live_curation_smoke.py > /tmp/curation_smoke.log 2>&1 & echo \"started $!\"",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run mypy src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py 2>&1 | head -40",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check --fix src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1 | head -40",
-    "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff format src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
-    "cd /home/b08x/WorkspaceV3/sfl-engine && /home/linuxbrew/.linuxbrew/bin/zread generate --draft resume -y --stdio 2>&1",
-    "cd /home/b08x/WorkspaceV3/sfl-engine && /home/linuxbrew/.linuxbrew/bin/zread generate -y --stdio 2>&1",
+    "choose",
     "comm",
     "cut",
     "date",
     "diff",
     "dirname",
-    "docker compose -f",
-    "docker ps",
     "du",
     "echo",
-    "echo \"=== COMPLETED CARDS ===\"; ls /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-* | while read card_dir; do card_name=$(basename \"$card_dir\"); card_file=\"$card_dir/index.md\"; column=$(grep \"^column:\" \"$card_file\" | head -1 | cut -d'\"' -f4); echo \"$card_name -> $column\"; done",
+    "fd",
     "file",
     "find",
-    "find /home/b08x -maxdepth 3 -type d -name '.git' 2>/dev/null | grep -v '/\\.cache\\|/node_modules\\|/\\.npm\\|/\\.cargo\\|/\\.local\\|/Library\\|/\\.config\\|/\\.gem\\|/\\.syncopated' | head -60",
-    "find /home/b08x/WorkspaceV3 /home/b08x/LLMOS /home/b08x/Archive /home/b08x/contexts -maxdepth 2 -type d -name '.git' 2>/dev/null | sed 's|/.git||' | sort",
-    "find /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles -name \"hermes*\" -type d 2>/dev/null || echo \"Hermes role not found\"",
     "fmt",
     "fold",
-    "for card_dir in /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-*; do echo \"=== $(basename $card_dir) ===\"; cat \"$card_dir/index.md\" | head -5; echo; done",
-    "for d in /home/b08x/Archive/Workspace /home/b08x/Archive/Workspace/syncopated /home/b08x/WorkspaceV3 /home/b08x/WorkspaceV3/Syncopated /mnt/tinybot/Archive/Workspace/syncopated; do find \"$d\" -maxdepth 2 -iname '*fortyau*' 2>/dev/null; done | sort -u",
-    "git -C",
-    "git add",
-    "git add lib/sfl/core/loaders/catalog.rb spec/core/loaders/catalog_spec.rb && git status 2>&1",
-    "git check-ignore",
-    "git checkout",
-    "git commit",
-    "git commit -m \"feat(ingest): add Loaders::Catalog registering 10 leaf loaders into Core::Registry\n\nLoaders::Catalog.register_into(registry) registers :markdown, :pdf,\n:canvas, :image, :subtitle, :chatgpt_export, :claude_export,\n:mistral_export, :json, :csv. Composite loaders (ConversationSource,\nDocumentationSource, KnowledgeBaseSource) are explicitly excluded.\nFactory blocks forward ref: and optional kwargs to each constructor;\nrequired kwargs (chat: for :image, text_key: for :json, text_column:\nfor :csv) raise ArgumentError when missing — fail-fast.\n\nGenerated by Mistral Vibe.\nCo-Authored-By: Mistral Vibe <vibe@mistral.ai>\" 2>&1",
-    "git config --global",
     "git diff",
     "git log",
-    "git log -1 --stat [git repositories: /home/b08x/WorkspaceV3/Syncopated/ansible/.git]",
-    "git ls-files",
-    "git reset",
-    "git reset HEAD -- . 2>&1 | tail -5",
-    "git rev-parse",
-    "git show",
     "git status",
-    "git worktree remove /tmp/nblm-base --force",
     "grep",
-    "grep -r \"\\~\\/.hermes\\|/root/.hermes\" /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/hermes/ 2>/dev/null | head -20",
-    "gsettings",
     "head",
     "join",
-    "jq",
     "less",
     "ls",
-    "ls -d /home/b08x/Workspace* /home/b08x/dev /home/b08x/projects /home/b08x/code /home/b08x/Desktop 2>/dev/null; echo \"---\"; find /home/b08x -maxdepth 2 -type d -name '.git' 2>/dev/null | head -40",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/.trackboi/ 2>/dev/null || ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.etc/trackboi/ 2>/dev/null || echo \"No trackboi directories found\"",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---\"; cat /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/wiki.json 2>/dev/null | head -50",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---DRAFTS_EXIT:$?---\"",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/ 2>/dev/null || echo \"Directory not accessible\"",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/ 2>/dev/null | head -20",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ 2>/dev/null || echo \"No goals directory yet\"",
-    "ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ 2>/dev/null; echo \"---\"; ls -la /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/ 2>/dev/null; echo \"---\"; cat /home/b08x/WorkspaceV3/Syncopated/ansible/goals/ansible-consolidation/goal.md 2>/dev/null",
-    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/ 2>/dev/null",
-    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/ 2>/dev/null || echo \"No .zread directory found\"",
-    "ls -la /home/b08x/WorkspaceV3/sfl-engine/.zread/wiki/ 2>/dev/null || echo \"No .zread/wiki directory found\"",
-    "ls -la ~/.local/bin/trackboi 2>/dev/null || echo \"not in ~/.local/bin\"",
-    "ls /home/b08x/WorkspaceV3/Syncopated/ansible/.zread/wiki/drafts/ 2>/dev/null; echo \"---EXIT:$?---\"",
-    "ls /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/core/ports/null/ /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/core/ports/fake/ 2>/dev/null",
-    "ls /home/b08x/WorkspaceV3/sfl-engine/lib/sfl/ingest/ 2>&1",
-    "ls ~/.zread/login.json 2>/dev/null; cat ~/.zread/config.yaml 2>/dev/null; echo \"---EXIT:$?---\"",
     "md5sum",
-    "mkdir",
     "more",
     "nl",
     "od",
     "paste",
-    "plannotator",
-    "plannotator annotate goals/osd-visual-cues-decoupling/plan.md --gate 2>&1 | tee goals/osd-visual-cues-decoupling/plan-gate-result.json",
-    "plannotator setup-goal facts goals/osd-visual-cues-decoupling/facts-review.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/facts-result.json",
-    "plannotator setup-goal interview goals/osd-visual-cues-decoupling/interview.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/interview-result.json",
-    "pre-commit run --files $(git ls-files -om --exclude-standard) 2>&1 | tail -30",
-    "ps",
     "pwd",
-    "python3",
-    "python3 -c \"import json; json.load(open('goals/ansible-consolidation/interview-result.json')); print('interview-result.json: valid JSON')\" 2>&1",
-    "python3 /home/b08x/.agents/skills/project-graveyard/scripts/graveyard.py /home/b08x/WorkspaceV3 /home/b08x/LLMOS --max 120 --days 45 --json /tmp/vibe-scratchpad-63f974a1-vrbyvqa_/graveyard-report.json 2>&1",
-    "python3 /home/b08x/.agents/skills/project-graveyard/scripts/graveyard.py /home/b08x/WorkspaceV3 /home/b08x/LLMOS --max 160 --days 45 --me b08x@users.noreply.github.com --me b08x@local --json /tmp/vibe-scratchpad-63f974a1-vrbyvqa_/graveyard-report2.json 2>&1",
-    "read",
     "readlink",
-    "ruby",
-    "ruby -Ilib -rsfl -e 'p SFL::Ingest::TargetResolver.call(\"https://docs.example.com/usage\") rescue puts $!.class' 2>&1",
-    "sed",
+    "rg",
+    "sd",
     "sha1sum",
     "sha256sum",
     "shasum",
-    "sleep",
     "sort",
     "stat",
-    "stat -c '%s %n' assets/images/log.png; git show 'HEAD:assets/images/Omega-13 Logo Variants-selection (1).png' > /tmp/omega13.png 2>/dev/null && stat -c '%s' /tmp/omega13.png; head -40 goals/notebook-restructure/goal.md; grep -rn \"Omega-13\\|log\\.png\" --include=\"*.html\" --include=\"*.md\" --include=\"*.yml\" . 2>/dev/null | grep -v _site | head",
     "sum",
     "tac",
     "tail",
-    "tail -30 ~/.zread/log/zread.log 2>/dev/null",
-    "tee",
-    "timeout",
     "tr",
-    "trackboi",
-    "trackboi --version 2>&1 | head -5",
     "tree",
     "uname",
     "uniq",
-    "uv --version",
-    "uv run alembic",
-    "uv run mypy",
-    "uv run notebooklm",
-    "uv run pytest",
-    "uv run pytest tests/unit/tui tests/unit/_app/test_rrf_search.py tests/unit/test_audio_runner.py -q > /tmp/pytest-new.log 2>&1; echo \"exit: $?\"; tail -2 /tmp/pytest-new.log",
-    "uv run python",
-    "uv run ruff",
-    "vibe-path:directory_recursive:/home/b08x/.notebooklm/profiles",
-    "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/Ansible_RAG",
-    "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/Ansible_RAG_Tasks",
-    "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/archlabs",
-    "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/archlabs/roles",
-    "vibe-path:directory_recursive:/home/b08x/NotebookLM/Reducing Hallucinations in GenAI A Multi-faceted Approach_assets/artifacts",
-    "vibe-path:directory_recursive:/home/b08x/WorkspaceV3/Syncopated",
-    "vibe-path:directory_recursive:/home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval",
-    "vibe-path:directory_recursive:/tmp",
-    "vibe-path:exact:/home/b08x/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/bin/python3.12",
-    "vibe-path:exact:/home/b08x/.plannotator/projects",
-    "vibe-path:exact:/home/b08x/.vibe/skills/zread/references/stdio-protocol.md",
-    "vibe-path:exact:/home/b08x/NotebookLM/*diarization*",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/Syncopated/ansible-collection-pop_os/README.md",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/ansible-context-compiler",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/sfl-compiler",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/sfl-compiler/README.md",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/syncopated-context-compiler",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/syncopated-context-compiler/README.md",
-    "vibe-path:exact:/mnt/tinybot/Archive/Workspace/syncopated/archlabs/README.md",
     "wc",
     "which",
-    "which trackboi 2>/dev/null || echo \"trackboi not in PATH\"",
-    "which zread 2>/dev/null && zread version --stdio 2>/dev/null; echo \"---EXIT:$?---\"",
     "whoami",
-    "xargs",
-    "yadm",
-    "zread",
-    "zread generate -y --draft resume --stdio 2>&1 | tail -80",
-    "zread generate -y --stdio 2>&1 | tail -50",
-    "zread generate -y --stdio 2>&1 | tail -80",
 ]
-
-[tools.read_file]
-allowlist = [
-    "/home/b08x/.agents/skills/project-graveyard/references/*",
-    "/home/b08x/.agents/skills/project-graveyard/scripts/*",
-    "/home/b08x/.gemini/skills/readme-generator/references/*",
-    "/home/b08x/.syncopated/skills/ruby-design-patterns/references/*",
-    "/home/b08x/.vibe/logs/session/unified/11767668-003b-074c-e5dd-a3eff878d124/tool-results/*",
-    "vibe-path:exact:/home/b08x/.syncopated/skills/groundline/references/config/sfl-mode.md",
-    "vibe-path:exact:/home/b08x/.syncopated/skills/groundline/references/constraints/ai-vocab-prohibitions.md",
-    "vibe-path:exact:/home/b08x/.syncopated/skills/groundline/references/constraints/structural-prohibitions.md",
-    "vibe-path:exact:/home/b08x/.vibe/skills/zread/references/stdio-protocol.md",
-    "vibe-path:exact:/home/b08x/Notebook/Daily/2026-09-16-Linux Philosophy and the Large Language Model Ecosystem.md",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/Syncopated/ansible-collection-pop_os/README.md",
-    "vibe-path:exact:/mnt/tinybot/Archive/Workspace/syncopated/archlabs/README.md",
+denylist = [
+    "gdb",
+    "pdb",
+    "passwd",
+    "nano",
+    "vim",
+    "vi",
+    "emacs",
+    "bash -i",
+    "sh -i",
+    "zsh -i",
+    "fish -i",
+    "dash -i",
+    "screen",
+    "tmux",
+    "find",
+    "awk",
+    "sed",
 ]
-
-[tools.context7_query-docs]
-permission = "always"
-
-[tools.trackboi_list_projects]
-permission = "always"
-
-[tools.trackboi_switch_project]
-permission = "always"
-
-[tools.trackboi_get_active_project]
-permission = "always"
-
-[tools.trackboi_orient_agent]
-permission = "always"
-
-[tools.trackboi_delete_card]
-permission = "always"
-
-[tools.trackboi_update_card]
-permission = "always"
-
-[tools.trackboi_update_track]
-permission = "always"
-
-[tools.trackboi_add_track_decision]
-permission = "always"
-
-[tools.trackboi_remove_track_reference]
-permission = "always"
-
-[tools.trackboi_list_cards]
-permission = "always"
-
-[tools.codebase-memory-mcp_list_projects]
-permission = "always"
-
-[tools.codebase-memory-mcp_search_graph]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_code_snippet]
-permission = "always"
-
-[tools.trackboi_move_card]
-permission = "always"
-
-[tools.trackboi_add_card_comment]
-permission = "always"
-
-[tools.trackboi_get_card]
-permission = "always"
-
-[tools."process.start"]
-permission = "always"
-
-[tools.codebase-memory-mcp_index_status]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_architecture]
-permission = "always"
-
-[tools.codebase-memory-mcp_query_graph]
-permission = "always"
-
-[tools.codebase-memory-mcp_check_index_coverage]
-permission = "always"
-
-[tools.codebase-memory-mcp_get_graph_schema]
-permission = "always"
-
-[tools.codebase-memory-mcp_index_repository]
-permission = "always"
-
-[tools.write_file]
-allowlist = [
-    "vibe-path:exact:/home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval/facts-review.json",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/README.md",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/src/audioseg/model.py",
-    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/src/audioseg/parse.py",
+denylist_standalone = [
+    "python",
+    "python3",
+    "ipython",
+    "bash",
+    "sh",
+    "nohup",
+    "vi",
+    "vim",
+    "emacs",
+    "nano",
+    "su",
 ]
+sensitive_patterns = ["sudo"]
 
-[tools.connector_deepwiki_read_wiki_contents]
-permission = "always"
+[tools.git_bash]
+permission = "ask"
+shell = "C:\\Program Files\\Git\\bin\\bash.exe"
 
-[tools.connector_web_search_web_search]
-permission = "always"
-
-[tools.connector_github_app_get_file_contents]
-permission = "always"
-
-[tools.connector_github_app_list_commits]
-permission = "always"
+[tools.powershell]
+permission = "ask"
+shell = "powershell.exe"
 
 [[mcp_servers]]
 name = "codebase-memory-mcp"
@@ -359,10 +234,20 @@ api_key_env = "CONTEXT7_API_KEY"
 api_key_header = "X-API-Key"
 api_key_format = "{token}"
 
-[[mcp_servers]]
-name = "trackboi"
-transport = "stdio"
-command = "trackboi"
-args = [
-    "mcp",
-]
+[session_logging]
+enabled = true
+save_dir = ""
+session_prefix = "session"
+generate_titles = false
+
+[project_context]
+default_commit_count = 5
+timeout_seconds = 2.0
+
+[[transcribe_models]]
+name = "voxtral-mini-transcribe-realtime-2602"
+provider = "mistral"
+alias = "voxtral-realtime"
+
+[experiments]
+enable = true
