@@ -1,0 +1,30 @@
+# Subagent Delegation Template
+# Variables: {agent_id}, {agent_name}, {description}
+
+id = "{agent_id}"
+display_name = "{agent_name}"
+description = """{description}"""
+agent_type = "agent"
+safety = "neutral"
+auto_approve = false
+system_prompt_id = "{agent_id}"
+user_invocable = true
+
+enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
+disabled_tools = ["write_file", "search_replace"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.task]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true

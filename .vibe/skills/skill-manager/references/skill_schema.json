@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mistral.ai/schemas/skill_schema.json",
+  "title": "Mistral Vibe Skill Schema",
+  "description": "Schema for validating Mistral Vibe SKILL.md files",
+  "type": "object",
+  "required": ["name", "description", "user-invocable"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique identifier for the skill (slug format, e.g., 'data-cleaner').",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "description": {
+      "type": "string",
+      "description": "Clear and concise description of the skill's purpose and use cases.",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "user-invocable": {
+      "type": "boolean",
+      "description": "Whether the skill can be invoked directly by the user.",
+      "default": true
+    },
+    "allowed-tools": {
+      "type": "array",
+      "description": "List of tools the skill is permitted to use.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read_file",
+          "write_file",
+          "bash",
+          "grep",
+          "ask_user_question",
+          "todo",
+          "task",
+          "open_url",
+          "web_search",
+          "search_replace",
+          "code_interpreter"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "license": {
+      "type": "string",
+      "description": "License for the skill (optional).",
+      "default": "MIT"
+    },
+    "compatibility": {
+      "type": "string",
+      "description": "Mistral Vibe version compatibility (optional).",
+      "default": "Mistral Vibe 2.0+"
+    }
+  },
+  "examples": [
+    {
+      "name": "data-cleaner",
+      "description": "A skill for cleaning and validating CSV files, including handling missing values and standardizing formats.",
+      "user-invocable": true,
+      "allowed-tools": ["read_file", "write_file", "bash"]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+# Skill Assignment Questions
+# Loaded after pattern selection, before finalizing agent config
+
+questions:
+  - id: "assign_skills"
+    header: "Skill Assignment"
+    question: "How should this agent handle skills?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Use existing skills only"
+        value: "existing"
+        description: "Assign from currently enabled skills"
+
+      - label: "Create new skill(s) for this agent"
+        value: "new"
+        description: "Branch to skill-manager to make new skill(s) first"
+
+      - label: "Both existing and new skills"
+        value: "mixed"
+        description: "Use some existing skills and create new ones"
+
+  - id: "existing_skills"
+    header: "Existing Skills"
+    question: "Which existing skills should this agent use? (Comma-separated)"
+    type: "text"
+    required: false
+    condition: "assign_skills == 'existing' or assign_skills == 'mixed'"
+    default: ""
+    placeholder: "e.g., analyse, refactor, github-auth"
+    validation:
+      regex: "^[a-z0-9_,-]+$"
+      message: "Use lowercase letters, numbers, hyphens, underscores, and commas only"
+
+  - id: "new_skill_purpose"
+    header: "New Skill Purpose"
+    question: "What is the PRIMARY purpose of the new skill this agent needs?"
+    type: "text"
+    required: false
+    condition: "assign_skills == 'new' or assign_skills == 'mixed'"
+    placeholder: "e.g., 'Ansible playbook analysis', 'README generation templates'"
+
+  - id: "skill_creation_workflow"
+    header: "Skill Creation"
+    question: "Ready to create the new skill? This will invoke the skill-manager agents."
+    type: "boolean"
+    required: false
+    condition: "assign_skills == 'new' or assign_skills == 'mixed'"
+    default: true
+    # When true, branch to: /skill-architect

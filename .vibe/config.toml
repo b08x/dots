@@ -31,6 +31,7 @@ allowlist = [
     "/home/b08x/.zread/log/*",
     "/home/b08x/Desktop/*",
     "/home/b08x/WorkspaceV3/Syncopated/ansible/*",
+    "/home/b08x/WorkspaceV3/Syncopated/ansible/.venv/bin/python",
     "/home/linuxbrew/.linuxbrew/bin/zread",
     "/opt/asdf/installs/*",
     "D=/home/b08x/Archive/Workspace/syncopated/ansible-collection-fortyau; head -60 \"$D/README.md\"; echo '===== OVERVIEW ====='; head -40 \"$D/overview.txt\"",
@@ -78,6 +79,9 @@ allowlist = [
     "cd /home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval && cat > plan.md <<'PLAN_EOF'\n# Plan — Corpus + Retrieval (ansible-context-compiler)\n\n## Solution approach\n\nA fresh Ruby pipeline at `~/WorkspaceV3/ansible-context-compiler` that extracts\nAnsible tasks read-only from six sources, normalizes them (FQCN, artifact\nfiltering, generation collapse), chunks at task granularity with context\nenvelopes and full provenance, distills near-duplicates into pattern families\nanchored on a canonical program registry, annotates each chunk with an SFL\nmapping plus SLM-generated contextual summaries (retry, fallback, dead letter\nqueue), stores everything in PostgreSQL + pgvector, and serves intent-first\nhybrid RRF retrieval. A golden-query eval over the input-remapper use case is\nthe acceptance surface. Python sidecar (spaCy/bertopic) supports the\ndistillation pass. Gemfile draws only from the whitelist at\n`/home/b08x/WorkspaceV3/context-compiler-Gemlist.json`.\n\n## Ordered steps\n\n### 1. Scaffold the repository\nTouches: `Gemfile`, `Gemfile.lock`, `config/`, `db/migrate/`, `spec/`,\n`sidecar/` (Python), `.env.example`, `Rakefile`.\n- Fresh git repo; Gemfile from the whitelist subset for this goal: sequel,\n  sequel_pg, pg, pgvector, bm25f, pragmatic_tokenizer, amatch,\n  tf-idf-similarity, dspy, dspy-evals, ruby_llm, schematist (typed structs),\n  dotenv, rake, rspec, parallel. Postgres is local (18.6); embeddings via\n  ollama `api/embed` on localhost:11434.\n- Python sidecar skeleton: venv with spacy + bertopic, JSON-over-stdio or\n  localhost HTTP contract.\nVerification: `bundle install` clean; `bundle exec rspec` runs (empty); sidecar\nresponds to a ping command.\n\n### 2. Source adapters (read-only extraction)\nTouches: `lib/ansible_context/sources/`, `config/sources.yml`.\n- Six sources pinned by path and, where available, git commit:\n  `/home/b08x/Archive/Workspace/syncopated/ansible-collection-fortyau`,\n  `/home/b08x/Archive/Workspace/syncopated/archlabs`,\n  `/home/b08x/WorkspaceV3/Syncopated/ansible-collection-pop_os`,\n  `/home/b08x/WorkspaceV3/Syncopated/ansible` (read-only from git),\n  `/home/b08x/Archive/Workspace/syncopated/Ansible_RAG`,\n  `/home/b08x/Archive/Workspace/syncopated/Ansible_RAG_Tasks`.\n- Archive sources are copied into a staging area before any processing; the\n  archives themselves are never written to.\n- Known gap carried forward: fortyau `roles/haproxy/tasks/main.yml:7-33` has a\n  parse-partial region (codebase-memory coverage report) — the extractor must\n  not silently drop it; it lands in quarantine for human inspection.\nVerification: spec asserts extraction counts per source (fortyau 21 roles,\narchlabs 24, pop_os 13, current 17); no source file mtimes change.\n\n### 3. Normalization\nTouches: `lib/ansible_context/normalize/` (fqcn map, filters, quarantine).\n- FQCN normalization table for all observed short-form modules (dnf, file,\n  template, systemd, etc.).\n- Deprecated `include:` tasks (202 in the Tasks bucket) and `hosts:` parser\n  artifacts (78) are filtered or rewritten to `import_tasks`.\n- Unparseable YAML fails closed into a quarantine table with file path and\n  reason.\nVerification: spec asserts zero chunks with `include:` or bare module names;\nquarantine table row count equals known unparseable files.\n\n### 4. Generation collapse (on the staging copy)\nTouches: `lib/ansible_context/collapse/`, staging area only.\n- `*_0/1/2` generations (desktop_0/1, applications_0/1/2, etc.) extracted and\n  deduplicated into a single base folder in staging; duplicates removed from\n  staging, leaving no trace downstream.\n- The Archive directories themselves remain untouched in this goal; mutation\n  of the real Archive, if wanted later, is a separate explicit decision.\nVerification: content-hash duplicate count = 0 in corpus; spec asserts the\nexpected generation groups were collapsed.\n\n### 5. Schema + migrations\nTouches: `db/migrate/`, `lib/ansible_context/schema/`.\n- Tables: `sources`, `chunks` (task payload, provenance: repo/role/file/era/\n  commit), `envelopes` (JSONB: arrival tier, ownership layer, distro family +\n  version constraints, pragmatic intent profile), `annotations` (JSONB SFL:\n  ideational/interpersonal/textual/register), `families` (distilled pattern +\n  SLM contextual summary), `family_members`, `program_registry` (canonical\n  program, distro package-name map, version compatibility against build\n  libraries/kernels), `staged_merges`, `quarantine`, `dead_letter_queue`.\n- CHECK constraints on every enum-like JSONB field; typed structs (schematist)\n  at parse time so a raw Hash never outlives parsing.\nVerification: migration runs; spec asserts CHECK constraints reject invalid\nenum values; \\d+ shows pgvector column types.\n\n### 6. Program registry\nTouches: `lib/ansible_context/registry/`, seed data under `data/registry/`.\n- Canonical program records seeded from package names observed in the corpus\n  (dnf, pacman, apt names plus language ecosystems and git-clone projects).\n- Distro-specific package variable lists generated from the registry — same\n  dependency identity across distributions, different names.\nVerification: spec asserts a sample program (e.g. input-remapper) resolves to\ncorrect package names across Fedora, Arch, and Debian families; generated\nvariable lists are valid YAML.\n\n### 7. Context envelope + provenance assignment\nTouches: `lib/ansible_context/envelope/`.\n- Deterministic pass: arrival tier (OS package / language ecosystem / git\n  clone-release), ownership layer (image / ansible / yadm), distro family +\n  version constraints, pragmatic intent profile (audio, video, vector\n  embeddings, development workstation).\nVerification: spec asserts every chunk has a complete envelope; intent profile\npresent for chunks from role/host context.\n\n### 8. Family distillation + staged merges\nTouches: `lib/ansible_context/distill/`, sidecar bertopic call.\n- Near-duplicate clustering (sidecar bertopic / amatch / tf-idf), then family\n  merge proposals written to `staged_merges` for human review — nothing merges\n  without approval.\n- Review surface: a rake task listing staged merges with member diffs.\nVerification: spec asserts all package-install instances resolve to one\nproposed family; zero families committed without staged-merge approval.\n\n### 9. SFL annotation + contextual summaries (stochastic pass)\nTouches: `lib/ansible_context/annotate/`, `lib/ansible_context/llm/`.\n- Hosted SLM via ruby_llm with schema-constrained output: ideational (action,\n  target, medium), interpersonal (modality, privilege, blast radius), textual\n  (tags, handlers, ordering), register (Field, Tenor, Mode).\n- Contextual summary per family, prepended before embedding.\n- Retry, then fallback to secondary model, then mark chunk in DB and route to\n  `dead_letter_queue`. Invalid output never enters the store.\nVerification: spec with a stubbed LLM asserts retry and fallback sequencing\nand DLQ routing; integration run over a sample batch with real SLM; DLQ\nreprocessing rake task exists.\n\n### 10. Embeddings\nTouches: `lib/ansible_context/embed/`.\n- ollama `api/embed` (localhost:11434) over contextual summary + chunk payload;\n  vectors into pgvector columns.\nVerification: embedding count = family/chunk count (minus DLQ-marked); spot\ncheck nearest-neighbour sanity (similar families share neighbours).\n\n### 11. Retrieval — hybrid contextual RRF\nTouches: `lib/ansible_context/retrieval/`.\n- Three channels: bm25f (keyword over module names, args, task names),\n  pgvector cosine over contextualized embeddings, scalar-filter pass (distro,\n  tier, module family, era, validation status).\n- Reciprocal rank fusion over the three ranked lists; intent-first ranking —\n  no era/timeframe weighting, era stays queryable metadata only.\nVerification: spec asserts channel fusion order changes results monotonically\nwith rank; scalar filters exclude correctly.\n\n### 12. Golden-query eval harness\nTouches: `eval/`, Rakefile.\n- Golden queries finalized here (fact-golden): primary — \"install the\n  dependencies for the input-remapper project, then build input-remapper from\n  source and install its systemd service\"; secondary — \"install a\n  bleeding-edge cargo crate on AlmaLinux 10.2 with system rust 1.9.2\" (both\n  blueprints: pin to system rust; user-space latest rust).\n- Validity proxies for \"dry, clean, low cognitive load\": correct family\n  retrieval at top ranks, no deprecated-module chunks retrieved, minimal\n  family count for the goal, no shell escapes unless the family is inherently\n  imperative (AUR, make install).\n- dspy-evals for scoring; eval runnable as a rake task.\nVerification: `rake eval:golden` passes against the built corpus; results\nrecorded with cited provenance per family.\n\n## Risks and open questions\n\n1. **Archive mutation is out of scope here.** Generation collapse runs on the\n   staging copy. Whether the real Ansible_RAG Archive gets reorganized into\n   base folders is a separate, explicit decision (destructive).\n2. **Program registry is the largest new surface.** Seeding is manual at first;\n   naming collisions across distros (python3- vs python- vs python) need a\n   convention. Proposal: canonical name + distro-family alias map.\n3. **\"Dry, clean, low cognitive load\" needs measurable proxies** — the eval\n   defines them (top-rank retrieval, no deprecated chunks, minimal family\n   count); they are assertions, not vibes, but they are chosen by us.\n4. **Hosted SLM choice for annotation** is a config decision (.env: primary +\n   fallback model IDs + keys). The pipeline only assumes a ruby_llm-compatible\n   endpoint.\n5. **bertopic on ~1.4k task chunks** may over-cluster; distillation thresholds\n   get tuned during step 8 with the staged-merge review as the safety net.\n6. **Era extraction** relies on git metadata where it exists; Ansible_RAG\n   generations carry implicit era in folder names, not commits — the adapter\n   derives era from directory naming.\n7. **Sidecar process management**: spaCy model downloads and bertopic\n   dependencies pinned in `sidecar/requirements.txt`; first run needs network.\nPLAN_EOF\nwc -l plan.md",
     "cd /home/b08x/WorkspaceV3/b08x.github.io && git reset HEAD -- . 2>&1 | tail -5",
     "cd /home/b08x/WorkspaceV3/b08x.github.io && which rubocop && bundle exec rubocop 2>&1 | head -50",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && grep -n \"ingest_text\\|async def ingest_source\" src/notebooklm/_preprocessing/ingestion.py | head && sed -n \"$(grep -n 'def ingest_text' src/notebooklm/_preprocessing/ingestion.py | cut -d: -f1),+25p\" src/notebooklm/_preprocessing/ingestion.py",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && nohup uv run pytest -n auto --dist loadgroup --cov=src/notebooklm --cov-fail-under=90 -q > /tmp/full_pytest.log 2>&1 & echo \"started pid $!\"",
+    "cd /home/b08x/WorkspaceV3/notebooklm-py && nohup uv run python scripts/_live_curation_smoke.py > /tmp/curation_smoke.log 2>&1 & echo \"started $!\"",
     "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run mypy src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py 2>&1 | head -40",
     "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check --fix src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
     "cd /home/b08x/WorkspaceV3/notebooklm-py && uv run ruff check src/notebooklm/tui/ src/notebooklm/cli/tui_cmd.py src/notebooklm/cli/__init__.py src/notebooklm/notebooklm_cli.py tests/unit/tui/ 2>&1",
@@ -90,6 +94,8 @@ allowlist = [
     "date",
     "diff",
     "dirname",
+    "docker compose -f",
+    "docker ps",
     "du",
     "echo",
     "echo \"=== COMPLETED CARDS ===\"; ls /home/b08x/WorkspaceV3/Syncopated/ansible/.trackboi/cards/card-*-hermes-* | while read card_dir; do card_name=$(basename \"$card_dir\"); card_file=\"$card_dir/index.md\"; column=$(grep \"^column:\" \"$card_file\" | head -1 | cut -d'\"' -f4); echo \"$card_name -> $column\"; done",
@@ -119,6 +125,7 @@ allowlist = [
     "git rev-parse",
     "git show",
     "git status",
+    "git worktree remove /tmp/nblm-base --force",
     "grep",
     "grep -r \"\\~\\/.hermes\\|/root/.hermes\" /home/b08x/WorkspaceV3/Syncopated/ansible/collections/ansible_collections/b08x/llmops/roles/hermes/ 2>/dev/null | head -20",
     "gsettings",
@@ -154,6 +161,7 @@ allowlist = [
     "plannotator setup-goal facts goals/osd-visual-cues-decoupling/facts-review.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/facts-result.json",
     "plannotator setup-goal interview goals/osd-visual-cues-decoupling/interview.json --json 2>&1 | tee goals/osd-visual-cues-decoupling/interview-result.json",
     "pre-commit run --files $(git ls-files -om --exclude-standard) 2>&1 | tail -30",
+    "ps",
     "pwd",
     "python3",
     "python3 -c \"import json; json.load(open('goals/ansible-consolidation/interview-result.json')); print('interview-result.json: valid JSON')\" 2>&1",
@@ -167,8 +175,10 @@ allowlist = [
     "sha1sum",
     "sha256sum",
     "shasum",
+    "sleep",
     "sort",
     "stat",
+    "stat -c '%s %n' assets/images/log.png; git show 'HEAD:assets/images/Omega-13 Logo Variants-selection (1).png' > /tmp/omega13.png 2>/dev/null && stat -c '%s' /tmp/omega13.png; head -40 goals/notebook-restructure/goal.md; grep -rn \"Omega-13\\|log\\.png\" --include=\"*.html\" --include=\"*.md\" --include=\"*.yml\" . 2>/dev/null | grep -v _site | head",
     "sum",
     "tac",
     "tail",
@@ -181,18 +191,30 @@ allowlist = [
     "tree",
     "uname",
     "uniq",
+    "uv --version",
+    "uv run alembic",
     "uv run mypy",
+    "uv run notebooklm",
+    "uv run pytest",
+    "uv run pytest tests/unit/tui tests/unit/_app/test_rrf_search.py tests/unit/test_audio_runner.py -q > /tmp/pytest-new.log 2>&1; echo \"exit: $?\"; tail -2 /tmp/pytest-new.log",
+    "uv run python",
     "uv run ruff",
+    "vibe-path:directory_recursive:/home/b08x/.notebooklm/profiles",
     "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/Ansible_RAG",
     "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/Ansible_RAG_Tasks",
     "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/archlabs",
     "vibe-path:directory_recursive:/home/b08x/Archive/Workspace/syncopated/archlabs/roles",
+    "vibe-path:directory_recursive:/home/b08x/NotebookLM/Reducing Hallucinations in GenAI A Multi-faceted Approach_assets/artifacts",
     "vibe-path:directory_recursive:/home/b08x/WorkspaceV3/Syncopated",
     "vibe-path:directory_recursive:/home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval",
     "vibe-path:directory_recursive:/tmp",
+    "vibe-path:exact:/home/b08x/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/bin/python3.12",
+    "vibe-path:exact:/home/b08x/.plannotator/projects",
     "vibe-path:exact:/home/b08x/.vibe/skills/zread/references/stdio-protocol.md",
+    "vibe-path:exact:/home/b08x/NotebookLM/*diarization*",
     "vibe-path:exact:/home/b08x/WorkspaceV3/Syncopated/ansible-collection-pop_os/README.md",
     "vibe-path:exact:/home/b08x/WorkspaceV3/ansible-context-compiler",
+    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor",
     "vibe-path:exact:/home/b08x/WorkspaceV3/sfl-compiler",
     "vibe-path:exact:/home/b08x/WorkspaceV3/sfl-compiler/README.md",
     "vibe-path:exact:/home/b08x/WorkspaceV3/syncopated-context-compiler",
@@ -302,7 +324,22 @@ permission = "always"
 [tools.write_file]
 allowlist = [
     "vibe-path:exact:/home/b08x/WorkspaceV3/ansible-context-compiler/goals/corpus-and-retrieval/facts-review.json",
+    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/README.md",
+    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/src/audioseg/model.py",
+    "vibe-path:exact:/home/b08x/WorkspaceV3/audio-segment-extractor/src/audioseg/parse.py",
 ]
+
+[tools.connector_deepwiki_read_wiki_contents]
+permission = "always"
+
+[tools.connector_web_search_web_search]
+permission = "always"
+
+[tools.connector_github_app_get_file_contents]
+permission = "always"
+
+[tools.connector_github_app_list_commits]
+permission = "always"
 
 [[mcp_servers]]
 name = "codebase-memory-mcp"

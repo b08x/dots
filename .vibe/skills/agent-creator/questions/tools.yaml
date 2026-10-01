@@ -1,0 +1,52 @@
+# Tool Selection Questions
+
+questions:
+  - id: "enabled_tools"
+    header: "Enabled Tools"
+    question: "Which tools does this agent need? (Select all that apply)"
+    type: "multi_choice"
+    required: true
+    options:
+      - label: "read_file"
+        value: "read_file"
+        description: "Read file contents"
+        default: true
+      - label: "write_file"
+        value: "write_file"
+        description: "Create/modify files"
+      - label: "grep"
+        value: "grep"
+        description: "Search files with regex"
+        default: true
+      - label: "bash"
+        value: "bash"
+        description: "Execute shell commands"
+      - label: "ask_user_question"
+        value: "ask_user_question"
+        description: "Interactive user prompts"
+        default: true
+      - label: "todo"
+        value: "todo"
+        description: "Task management"
+      - label: "task"
+        value: "task"
+        description: "Delegate to subagents"
+      - label: "search_replace"
+        value: "search_replace"
+        description: "Modify file contents"
+
+  - id: "disabled_tools"
+    header: "Disabled Tools"
+    question: "Which tools should be explicitly disabled? (Leave empty for none)"
+    type: "multi_choice"
+    required: false
+    options:
+      - label: "write_file"
+        value: "write_file"
+      - label: "search_replace"
+        value: "search_replace"
+      - label: "bash"
+        value: "bash"
+      - label: "task"
+        value: "task"
+    default: []

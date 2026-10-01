@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "skills": [
+    "~/.syncopated/skills"
+  ],
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+      	"Authorization": "Bearer $CONTEXT7_API_KEY",
+      	"Accept": "application/json, text/event-stream"
+      } 
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "trackboi": {
+      "type": "local",
+      "command": ["trackboi", "mcp"],
+    },
+    "codebase-memory-mcp": {"command":["/home/b08x/.local/bin/codebase-memory-mcp"],"type":"local"},
+  }
+}

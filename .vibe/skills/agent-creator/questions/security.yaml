@@ -1,0 +1,51 @@
+# Security & Permissions Questions
+
+questions:
+  - id: "auto_approve"
+    header: "Auto-Approval"
+    question: "Should this agent auto-approve tool calls without prompting?"
+    type: "boolean"
+    required: true
+    default: false
+    warning: "Enabling this reduces safety checks. Only enable for trusted agents."
+
+  - id: "bash_permission"
+    header: "Bash Tool Permission"
+    question: "What permission level should the bash tool have?"
+    type: "single_choice"
+    required: false
+    condition: "'bash' in enabled_tools"
+    options:
+      - label: "Always (No prompts - TRUSTED ENVIRONMENTS ONLY)"
+        value: "always"
+        warning: "Allows bash commands to run without confirmation. Use with extreme caution."
+      - label: "Ask (Prompt before each command - RECOMMENDED)"
+        value: "ask"
+        default: true
+      - label: "Never (Disable bash entirely)"
+        value: "never"
+
+  - id: "bash_allowlist"
+    header: "Bash Allowlist"
+    question: "Which bash commands should be allowed? (Comma-separated)"
+    type: "text"
+    required: false
+    condition: "'bash' in enabled_tools and bash_permission != 'never'"
+    default: "git, ls, cat, echo, find, head, tail, wc, which, whoami, pwd, stat"
+    placeholder: "e.g., git, ls, cat, python3"
+
+  - id: "write_file_permission"
+    header: "Write File Permission"
+    question: "What permission level should the write_file tool have?"
+    type: "single_choice"
+    required: false
+    condition: "'write_file' in enabled_tools"
+    options:
+      - label: "Always (No prompts - TRUSTED ONLY)"
+        value: "always"
+        warning: "Allows file writes without confirmation."
+      - label: "Ask (Prompt before each write - RECOMMENDED)"
+        value: "ask"
+        default: true
+      - label: "Never (Disable write_file entirely)"
+        value: "never"

@@ -1,0 +1,19 @@
+# Base Subagent Template
+# Variables: {subagent_id}, {agent_name}, {description}, {safety_level}
+display_name = "{agent_name}"
+description = """{description}"""
+agent_type = "subagent"
+safety = "{safety_level}"
+
+enabled_tools = ["read_file", "grep"]
+disabled_tools = ["write_file", "search_replace", "bash", "task"]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[session_logging]
+session_prefix = "{subagent_id}"
+enabled = true

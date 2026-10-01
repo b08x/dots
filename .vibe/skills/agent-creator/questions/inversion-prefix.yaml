@@ -1,0 +1,122 @@
+# Inversion Prefix Questions
+# Loaded ONLY if user selects Inversion prefix modifier
+# Purpose: gather the 3 Phase 0 discovery questions the new agent will ask ITS users
+
+questions:
+  - id: "inversion_rationale"
+    header: "Inversion Prefix — Discovery"
+    question: |
+      What does your agent need to know from the user before it can begin?
+    type: "text"
+    required: true
+    placeholder: "e.g., 'Before I map your codebase, I need to know the target, audience, and whether qmd is available'"
+
+  - id: "phase0_q1"
+    header: "Question 1"
+    question: |
+      First discovery question — what does it determine?
+      Format: "question text || gates: step/gate it influences || var: {variable_name}"
+    type: "text"
+    required: true
+    placeholder: |
+      e.g., "Target directory (path or . for current) || gates: Step 1 file loading || var: {target_dir}"
+
+  - id: "phase0_q1_type"
+    header: "Question 1 — Answer Type"
+    question: "How does the user answer Question 1?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Free text (open input)"
+        value: "free_text"
+      - label: "Single choice (2–4 options)"
+        value: "single_choice"
+      - label: "Yes/No"
+        value: "boolean"
+
+  - id: "phase0_q1_options"
+    header: "Question 1 — Options"
+    question: "List the options (one per line):"
+    type: "long_text"
+    required: false
+    condition: "phase0_q1_type == 'single_choice'"
+    placeholder: |
+      1. Option A — consequence A
+      2. Option B — consequence B
+      3. Option C — consequence C
+
+  - id: "phase0_q2"
+    header: "Question 2"
+    question: |
+      Second discovery question — what does it determine?
+      Format: "question text || gates: step/gate || var: {variable_name}"
+    type: "text"
+    required: true
+    placeholder: |
+      e.g., "Primary audience || gates: Step 3 generation depth || var: {audience}"
+
+  - id: "phase0_q2_type"
+    header: "Question 2 — Answer Type"
+    question: "How does the user answer Question 2?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Free text"
+        value: "free_text"
+      - label: "Single choice (2–4 options)"
+        value: "single_choice"
+      - label: "Yes/No"
+        value: "boolean"
+
+  - id: "phase0_q2_options"
+    header: "Question 2 — Options"
+    question: "List the options (one per line):"
+    type: "long_text"
+    required: false
+    condition: "phase0_q2_type == 'single_choice'"
+    placeholder: |
+      1. Option A — consequence A
+      2. Option B — consequence B
+
+  - id: "phase0_q3_needed"
+    header: "Question 3"
+    question: "Do you need a third discovery question?"
+    type: "boolean"
+    required: true
+    default: false
+
+  - id: "phase0_q3"
+    header: "Question 3 — Text"
+    question: |
+      Third discovery question — what does it determine?
+      Format: "question text || gates: step/gate || var: {variable_name}"
+    type: "text"
+    required: false
+    condition: "phase0_q3_needed == true"
+    placeholder: |
+      e.g., "Is qmd indexed? || gates: Step 2 enrichment block || var: {qmd_mode}"
+
+  - id: "phase0_q3_type"
+    header: "Question 3 — Answer Type"
+    question: "How does the user answer Question 3?"
+    type: "single_choice"
+    required: false
+    condition: "phase0_q3_needed == true"
+    options:
+      - label: "Free text"
+        value: "free_text"
+      - label: "Single choice (2–4 options)"
+        value: "single_choice"
+      - label: "Yes/No"
+        value: "boolean"
+
+  - id: "phase0_q3_options"
+    header: "Question 3 — Options"
+    question: "List the options (one per line):"
+    type: "long_text"
+    required: false
+    condition: "phase0_q3_needed == true and phase0_q3_type == 'single_choice'"
+    placeholder: |
+      1. Option A
+      2. Option B
+      3. Option C

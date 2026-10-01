@@ -1,0 +1,91 @@
+# Pattern Registry: Metadata only (no details)
+# Each entry = ~5 lines. Total = ~35 lines for all patterns.
+#
+# modifier: true  →  not standalone; always paired with another pattern
+# compatible_with →  patterns this modifier can be added to
+
+patterns:
+  single-agent:
+    name: "Single Agent"
+    description: "Simple, self-contained tasks"
+    file: "patterns/single-agent.md"
+    template: "templates/single-agent.toml"
+    complexity: "low"
+    default: true
+
+  multi-agent-debate:
+    name: "Multi-Agent Debate"
+    description: "Complex reviews with multiple judges"
+    file: "patterns/multi-agent-debate.md"
+    template: "templates/multi-agent-debate.toml"
+    complexity: "high"
+    default_tools: ["read_file", "grep", "task", "ask_user_question"]
+    required_tools: ["task"]
+
+  subagent-delegation:
+    name: "Subagent Delegation"
+    description: "Parent agent with specialized subagents"
+    file: "patterns/subagent-delegation.md"
+    template: "templates/subagent-delegation.toml"
+    complexity: "high"
+    default_tools: ["read_file", "task"]
+    required_tools: ["task"]
+
+  cove:
+    name: "Chain-of-Verification"
+    description: "Structured validation with self-checking"
+    file: "patterns/cove.md"
+    template: "templates/cove.toml"
+    complexity: "medium"
+    default_tools: ["read_file", "grep"]
+
+  tool-orchestrator:
+    name: "Tool Orchestrator"
+    description: "Coordinates external tools/APIs"
+    file: "patterns/tool-orchestrator.md"
+    template: "templates/tool-orchestrator.toml"
+    complexity: "medium"
+    default_tools: ["bash", "read_file"]
+
+  stateful-agent:
+    name: "Stateful Agent"
+    description: "Maintains context across interactions"
+    file: "patterns/stateful-agent.md"
+    template: "templates/stateful-agent.toml"
+    complexity: "medium"
+    default_tools: ["todo", "ask_user_question"]
+
+  hybrid-pipeline:
+    name: "Hybrid Pipeline"
+    description: "Custom combination of patterns"
+    file: "patterns/hybrid-pipeline.md"
+    template: "templates/hybrid-pipeline.toml"
+    complexity: "variable"
+    customizable: true
+
+# --- Modifiers ---
+# Modifiers augment a base pattern's system prompt; they produce no TOML changes.
+# Present these AFTER Gate 1 (base pattern confirmed), not as standalone choices.
+
+modifiers:
+  inversion-prefix:
+    name: "Inversion Prefix"
+    description: "Phase 0 discovery — 3 questions before the pipeline starts"
+    file: "patterns/inversion-prefix.md"
+    template: null                    # prompt-only; no TOML output
+    questions: "questions/inversion-prefix.yaml"
+    complexity: "low"
+    modifier: true
+    compatible_with:
+      - single-agent
+      - multi-agent-debate
+      - subagent-delegation
+      - cove
+      - tool-orchestrator
+      - stateful-agent
+      - hybrid-pipeline
+    adds_to_prompt: "## Phase 0 — Discovery section before ## Pipeline"
+    when_to_suggest: |
+      Suggest automatically when purpose is Orchestrate or Generate/Create,
+      or when the user's agent description implies scope/audience variation
+      between different users of the agent.

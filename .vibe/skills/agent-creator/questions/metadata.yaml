@@ -1,0 +1,61 @@
+# Agent Metadata Questions
+# Loaded after purpose classification
+
+questions:
+  - id: "agent_name"
+    header: "Agent Identity"
+    question: "What is your agent's name (human-readable)?"
+    type: "text"
+    required: true
+    validation:
+      min_length: 2
+      max_length: 50
+    example: "Code Review Coordinator"
+
+  - id: "agent_id"
+    header: "Agent ID"
+    question: "What is the agent's ID (filename-safe, lowercase with hyphens/underscores)?"
+    type: "text"
+    required: true
+    validation:
+      regex: "^[a-z0-9_-]+$"
+      min_length: 2
+      max_length: 30
+    default: "{agent_name_lowercase_hyphenated}"
+    example: "code-review-coordinator"
+
+  - id: "agent_description"
+    header: "Agent Description"
+    question: "Describe what this agent does:"
+    type: "long_text"
+    required: true
+    validation:
+      min_length: 10
+    example: "Conducts comprehensive multi-perspective code reviews using specialized judge subagents to assess requirements alignment, solution architecture, and code quality."
+
+  - id: "user_invocable"
+    header: "User Invocable"
+    question: "Should users be able to invoke this agent directly (e.g., `/agent-id`)?"
+    type: "boolean"
+    required: true
+    default: true
+
+  - id: "safety_level"
+    header: "Safety Level"
+    question: "What safety level should this agent have?"
+    type: "single_choice"
+    required: true
+    options:
+      - label: "Safe"
+        value: "safe"
+        description: "Read-only, no side effects (e.g., documentation generators)"
+      - label: "Neutral"
+        value: "neutral"
+        description: "Mostly safe, minimal side effects (e.g., file readers)"
+      - label: "Destructive"
+        value: "destructive"
+        description: "Can modify files or system state (e.g., code refactorers)"
+      - label: "YOLO"
+        value: "yolo"
+        description: "No restrictions - use with extreme caution"
+    default: "neutral"
