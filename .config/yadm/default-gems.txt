@@ -1,0 +1,5 @@
+# Gems installed by bootstrap.d/30-ruby.sh. Blank lines and # comments are ignored.
+pry
+solargraph
+ruby-lsp
+rubocop
