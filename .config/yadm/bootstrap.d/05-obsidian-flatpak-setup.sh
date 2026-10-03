@@ -6,9 +6,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source gum helpers
+# Source the Syncopated theme and gum helpers
 export GUM_HELPERS_NO_TRAP=1
-source "$(dirname "${BASH_SOURCE[0]}")/../scripts/gum-helpers.sh"
+# shellcheck source=../scripts/syncopated-theme.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
+# shellcheck source=../scripts/gum-helpers.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/gum-helpers.sh"
 
 USE_FLATPAK=""
 INIT_GIT=""
@@ -319,7 +322,7 @@ fi
 TOTAL=${#PLUGINS[@]}
 CURRENT=0
 
-gum style --border normal --margin "1" --padding "1 2" --border-foreground 212 "Bootstrapping Obsidian Vault" "Vault: $(pwd)"
+gum style --border normal --margin "1" --padding "1 2" --border-foreground "${VIOLET[0]}" "Bootstrapping Obsidian Vault" "Vault: $(pwd)"
 
 for plugin in "${PLUGINS[@]}"; do
     CURRENT=$((CURRENT + 1))
@@ -338,6 +341,6 @@ done
 gum log --level info "Disabled sync plugin"
 obsidian plugin:disable id="sync" || true
 
-gum style --foreground 212 "Bootstrap complete!"
+ok "Obsidian vault bootstrapped"
 
 clear

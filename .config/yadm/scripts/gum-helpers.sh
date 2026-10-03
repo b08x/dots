@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034  # palette variables are consumed by scripts that source this file
+# Syncopated palette, typewriter and output helpers.
+# shellcheck source=syncopated-theme.sh
+source "$(dirname "${BASH_SOURCE[0]}")/syncopated-theme.sh"
+
 # Setup logging
 SCRIPT_LOG_DIR="${PWD}/logs"
 mkdir -p "${SCRIPT_LOG_DIR}"
@@ -27,42 +32,23 @@ fi
 GUM_VERSION="2.0.0"
 : "${GUM:=/usr/bin/gum}" # GUM=/usr/bin/gum ./your_script.sh
 
-# COLORS
+# COLORS (Syncopated palette)
 COLOR_WHITE=251
-COLOR_GREEN=36
-COLOR_PURPLE=212
-COLOR_YELLOW=221
-COLOR_RED=9
+COLOR_GREEN=${EMBER[0]}
+COLOR_PURPLE=${VIOLET[0]}
+COLOR_YELLOW=${EMBER[0]}
+COLOR_RED='#D03030'
 
-# Color palette - warm, inviting colors
 declare -A COLORS=(
-  [primary]="#FA8072"
-  [secondary]="#FFD700"
-  [success]="#90EE90"
-  [error]="#FF6B6B"
-  [warning]="#FFA07A"
-  [info]="#87CEFA"
-  [muted]="#D3D3D3"
-  [border]="#FFE4B5"
+  [primary]="${VIOLET[0]}"
+  [secondary]="${EMBER[0]}"
+  [success]="${EMBER[0]}"
+  [error]="#D03030"
+  [warning]="#E0A030"
+  [info]="${VIOLET_LIGHT[0]}"
+  [muted]="${VIOLET_DIM[0]}"
+  [border]="${VIOLET_DIM[0]}"
 )
-
-typewriter() {
-  local in_esc=0
-  while IFS= read -r -N1 char; do
-    if [[ "$char" == $'\e' ]]; then
-      in_esc=1
-    fi
-    echo -n "$char"
-    if [[ $in_esc -eq 1 ]]; then
-      if [[ "$char" == "m" || "$char" == "K" || "$char" == "H" || "$char" == "J" ]]; then
-        in_esc=0
-      fi
-    else
-      sleep 0.001 2>/dev/null || true
-    fi
-  done
-  echo
-}
 
 section_header() {
   local title="$1"
@@ -91,23 +77,23 @@ cup 1
 !
 }
 
-# FIELD NOTE COLOR PALETTE (from b08x.github.io theme-tokens.html)
+# FIELD NOTE COLOR NAMES (values re-pointed to the Syncopated palette)
 FN_BG="#EDE6D6"
 FN_BG2="#E3DBC8"
-FN_BORDER="#D2C7B4"
-FN_BORDER2="#C9B8A0"
-FN_AMBER="#B5654A"
-FN_AMBER_HI="#C97A5E"
-FN_TEXT="#2A2420"
-FN_TEXT2="#5C5248"
-FN_MUTED="#8A7F72"
-FN_DIM="#B0A492"
-FN_RED="#A8453A"
-FN_BADGE_BLUE="#5C7C99"
-FN_BADGE_GREEN="#6B7F52"
-FN_BADGE_RED="#A8453A"
+FN_BORDER="${VIOLET_DIM[0]}"
+FN_BORDER2="${VIOLET_DIM[0]}"
+FN_AMBER="${EMBER[0]}"
+FN_AMBER_HI="${EMBER_DIM[0]}"
+FN_TEXT="${VIOLET_LIGHT[0]}"
+FN_TEXT2="${VIOLET_LIGHT[0]}"
+FN_MUTED="${VIOLET_DIM[0]}"
+FN_DIM="${VIOLET_DIM[0]}"
+FN_RED="#D03030"
+FN_BADGE_BLUE="${VIOLET[0]}"
+FN_BADGE_GREEN="${EMBER[0]}"
+FN_BADGE_RED="#D03030"
 FN_BADGE_TEXT="#F4EFE3"
-FN_BADGE_NEUTRAL="#8A7F72"
+FN_BADGE_NEUTRAL="${VIOLET_DIM[0]}"
 
 SCRIPT_TMP_DIR="$(mktemp -d "/tmp/.tmp.gum_XXXXX")"
 log "INFO" "Created temporary directory: ${SCRIPT_TMP_DIR}"
