@@ -8,7 +8,7 @@
 #
 # Additional overrides: SYNCOPATED_ANSIBLE_PULL_URL,
 # SYNCOPATED_ANSIBLE_PULL_PLAYBOOK, SYNCOPATED_ANSIBLE_PULL_CHECKOUT,
-# SYNCOPATED_ANSIBLE_PULL_BRANCH.
+# SYNCOPATED_ANSIBLE_PULL_BRANCH, SYNCOPATED_ANSIBLE_PULL_INVENTORY.
 
 set -uo pipefail
 
@@ -23,6 +23,13 @@ PLAYBOOK=${SYNCOPATED_ANSIBLE_PULL_PLAYBOOK:-local.yml}
 CHECKOUT=${SYNCOPATED_ANSIBLE_PULL_CHECKOUT:-${XDG_CACHE_HOME:-$HOME/.cache}/syncopated/ansible-pull}
 # Optional branch/tag/commit override.
 BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-}
+# Target inventory for ansible-pull (defaults to local hostname with trailing comma).
+LOCAL_HOSTNAME=${HOSTNAME:-$(hostname 2>/dev/null || uname -n)}
+INVENTORY=${SYNCOPATED_ANSIBLE_PULL_INVENTORY:-"${LOCAL_HOSTNAME},"}
+# Ensure inline inventory has a trailing comma if not an existing file and not already comma-separated.
+if [[ -n $INVENTORY && ! -e $INVENTORY && $INVENTORY != *,* ]]; then
+  INVENTORY="${INVENTORY},"
+fi
 
 # want_ansible_pull : succeed when the user opts in to applying the system playbook.
 # Defaults to no; without a terminal or gum there is no one to ask.
@@ -51,10 +58,14 @@ main() {
   fi
   info "Applying $PLAYBOOK from $PLAYBOOK_URL"
   export ANSIBLE_STDOUT_CALLBACK=default
+  export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   local -a pull_args=(
     --url "$PLAYBOOK_URL"
     --directory "$CHECKOUT"
   )
+  if [[ -n $INVENTORY ]]; then
+    pull_args+=(--inventory "$INVENTORY")
+  fi
   if [[ -n $BRANCH ]]; then
     pull_args+=(--checkout "$BRANCH")
   fi

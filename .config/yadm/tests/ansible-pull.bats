@@ -8,8 +8,8 @@ setup() {
   stub gum 'echo "gum $*" >>"$T/calls"
 case $1 in confirm) exit 1 ;; esac
 exit 0'
-  stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "ansible-pull $*" >>"$T/calls"; exit "${ANSIBLE_PULL_RC:-0}"'
-  unset SYNCOPATED_ANSIBLE_PULL SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH
+  stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "${ANSIBLE_INVENTORY_ENABLED:-unset}" >>"$T/inv_enabled"; echo "ansible-pull $*" >>"$T/calls"; exit "${ANSIBLE_PULL_RC:-0}"'
+  unset SYNCOPATED_ANSIBLE_PULL SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH SYNCOPATED_ANSIBLE_PULL_INVENTORY
 }
 teardown() { cleanup_env; }
 
@@ -79,4 +79,27 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
   run_pull
   [ "$status" -eq 0 ]
   [ "$(cat "$T/cb")" = "default" ]
+}
+
+@test "sets inventory flag to local hostname by default" {
+  export SYNCOPATED_ANSIBLE_PULL=yes
+  run_pull
+  [ "$status" -eq 0 ]
+  local expected_host
+  expected_host=${HOSTNAME:-$(hostname 2>/dev/null || uname -n)}
+  grep -q -- "--inventory ${expected_host}," "$T/calls"
+}
+
+@test "supports inventory override with trailing comma appended when needed" {
+  export SYNCOPATED_ANSIBLE_PULL=yes SYNCOPATED_ANSIBLE_PULL_INVENTORY="custom-host"
+  run_pull
+  [ "$status" -eq 0 ]
+  grep -q -- "--inventory custom-host," "$T/calls"
+}
+
+@test "exports ANSIBLE_INVENTORY_ENABLED with host_list" {
+  export SYNCOPATED_ANSIBLE_PULL=yes
+  run_pull
+  [ "$status" -eq 0 ]
+  grep -q "host_list" "$T/inv_enabled"
 }
