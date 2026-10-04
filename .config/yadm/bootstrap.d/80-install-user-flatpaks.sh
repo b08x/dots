@@ -18,6 +18,14 @@ USER_FLATPAKS=(
   "org.pipewire.Helvum"
   "io.podman_desktop.PodmanDesktop"
   "io.dbeaver.DBeaverCommunity"
+  "io.github.tanaybhomia.Whisp"
+  "com.discordapp.Discord"
+  "com.saivert.pwvucontrol"
+  "io.github.ltiber.Pwall"
+  "org.cutwire.Drift"
+  "org.darktable.Darktable"
+  "org.remmina.Remmina"
+  "app.devsuite.Ptyxis"
 )
 
 DID_WORK=0
