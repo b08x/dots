@@ -2,10 +2,11 @@
 # 01-ansible-pull.sh: apply the Syncopated system playbook with ansible-pull
 # (system tuning and other system-level settings).
 #
-# Runs ansible-pull against the repository and exits 0 on success, 1 on failure,
-# 2 when ansible-pull is not installed or when skipped.
+# Optional bootstrap step: asks before doing anything and exits 2 (skipped)
+# when declined or when no terminal is attached.
+# Override: SYNCOPATED_ANSIBLE_PULL=yes|no answers the opt-in prompt.
 #
-# Overrides (used by the bats tests): SYNCOPATED_ANSIBLE_PULL_URL,
+# Additional overrides: SYNCOPATED_ANSIBLE_PULL_URL,
 # SYNCOPATED_ANSIBLE_PULL_PLAYBOOK, SYNCOPATED_ANSIBLE_PULL_CHECKOUT,
 # SYNCOPATED_ANSIBLE_PULL_BRANCH.
 
@@ -23,7 +24,23 @@ CHECKOUT=${SYNCOPATED_ANSIBLE_PULL_CHECKOUT:-${XDG_CACHE_HOME:-$HOME/.cache}/syn
 # Optional branch/tag/commit override.
 BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-}
 
+# want_ansible_pull : succeed when the user opts in to applying the system playbook.
+# Defaults to no; without a terminal or gum there is no one to ask.
+want_ansible_pull() {
+  case ${SYNCOPATED_ANSIBLE_PULL:-} in
+    yes|true|1) return 0 ;;
+    no|false|0) return 1 ;;
+  esac
+  [[ -t 0 && -t 1 ]] && have_gum || return 1
+  gum confirm --default=false --prompt.foreground "${VIOLET[0]}" \
+    "Apply system configuration playbook via ansible-pull (requires sudo)?"
+}
+
 main() {
+  if ! want_ansible_pull; then
+    info "ansible-pull: system playbook skipped"
+    return "$RC_SKIPPED"
+  fi
   if [[ -z $PLAYBOOK_URL ]]; then
     info "ansible-pull: no system playbook configured yet"
     return "$RC_SKIPPED"
