@@ -2,25 +2,26 @@
 # 01-ansible-pull.sh: apply the Syncopated system playbook with ansible-pull
 # (system tuning and other system-level settings).
 #
-# Placeholder: the playbook is not published yet. Until PLAYBOOK_URL is set,
-# this step exits 2 (skipped). Once set, it runs ansible-pull against the
-# repository and exits 0 on success, 1 on failure, 2 when ansible-pull is not
-# installed.
+# Runs ansible-pull against the repository and exits 0 on success, 1 on failure,
+# 2 when ansible-pull is not installed or when skipped.
 #
 # Overrides (used by the bats tests): SYNCOPATED_ANSIBLE_PULL_URL,
-# SYNCOPATED_ANSIBLE_PULL_PLAYBOOK, SYNCOPATED_ANSIBLE_PULL_CHECKOUT.
+# SYNCOPATED_ANSIBLE_PULL_PLAYBOOK, SYNCOPATED_ANSIBLE_PULL_CHECKOUT,
+# SYNCOPATED_ANSIBLE_PULL_BRANCH.
 
 set -uo pipefail
 
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
 
-# Repository holding the playbook. Empty until the playbook is ready.
-PLAYBOOK_URL=${SYNCOPATED_ANSIBLE_PULL_URL:-}
+# Repository holding the playbook (defaults to the GitLab workstation remote).
+PLAYBOOK_URL=${SYNCOPATED_ANSIBLE_PULL_URL-https://gitlab.com/syncopatedX/workstation.git}
 # Playbook file inside the repository.
 PLAYBOOK=${SYNCOPATED_ANSIBLE_PULL_PLAYBOOK:-local.yml}
 # Local checkout directory used by ansible-pull.
 CHECKOUT=${SYNCOPATED_ANSIBLE_PULL_CHECKOUT:-${XDG_CACHE_HOME:-$HOME/.cache}/syncopated/ansible-pull}
+# Optional branch/tag/commit override.
+BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-}
 
 main() {
   if [[ -z $PLAYBOOK_URL ]]; then
@@ -32,9 +33,17 @@ main() {
     return "$RC_SKIPPED"
   fi
   info "Applying $PLAYBOOK from $PLAYBOOK_URL"
+  local -a pull_args=(
+    --url "$PLAYBOOK_URL"
+    --directory "$CHECKOUT"
+  )
+  if [[ -n $BRANCH ]]; then
+    pull_args+=(--checkout "$BRANCH")
+  fi
+  pull_args+=(--ask-become-pass "$PLAYBOOK")
+
   # --ask-become-pass: the playbook changes system settings with sudo.
-  if ! ansible-pull --url "$PLAYBOOK_URL" --directory "$CHECKOUT" \
-    --ask-become-pass "$PLAYBOOK"; then
+  if ! ansible-pull "${pull_args[@]}"; then
     err "ansible-pull failed"
     return "$RC_FAILED"
   fi
