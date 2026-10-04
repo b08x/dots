@@ -22,7 +22,7 @@ PLAYBOOK=${SYNCOPATED_ANSIBLE_PULL_PLAYBOOK:-local.yml}
 # Local checkout directory used by ansible-pull.
 CHECKOUT=${SYNCOPATED_ANSIBLE_PULL_CHECKOUT:-${XDG_CACHE_HOME:-$HOME/.cache}/syncopated/ansible-pull}
 # Optional branch/tag/commit override.
-BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-}
+BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-development}
 # Target inventory for ansible-pull (defaults to local hostname with trailing comma).
 LOCAL_HOSTNAME=${HOSTNAME:-$(hostname 2>/dev/null || uname -n)}
 INVENTORY=${SYNCOPATED_ANSIBLE_PULL_INVENTORY:-"${LOCAL_HOSTNAME},"}
