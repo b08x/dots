@@ -270,8 +270,7 @@ main() {
   trap restore_terminal EXIT
 
   ensure_gum
-  [[ -t 1 ]] && clear
-  logo
+  splash
   banner
 
   register_step preflight check_drift_and_collisions

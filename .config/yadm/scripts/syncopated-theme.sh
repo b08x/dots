@@ -232,6 +232,54 @@ banner() {
   fi
 }
 
+# splash : full-screen splash like first-boot: the art centered, revealed row
+# by row, then held with a pulsing "press enter to begin" until Enter. Falls
+# back to logo when stdin or stdout is not a terminal. SYNCOPATED_NO_ANIM=1
+# skips the reveal delay and the wait.
+splash() {
+  if [[ ! -t 0 || ! -t 1 ]] || ! tput cup 0 0 >/dev/null 2>&1; then
+    logo
+    return 0
+  fi
+  local rows cols width=0 height=${#ART[@]} line row top left prompt='press enter to begin' prow pcol lit=1 rc
+  rows=$(tput lines)
+  cols=$(tput cols)
+  for line in "${ART[@]}"; do
+    ((${#line} > width)) && width=${#line}
+  done
+  ((width > cols)) && width=$((ART_SPLIT < cols ? ART_SPLIT : cols))
+  paint_art "$width"
+
+  top=$(((rows - height - 2) / 2))
+  ((top < 0)) && top=0
+  left=$(((cols - width) / 2))
+  prow=$((top + height + 2 < rows ? top + height + 2 : rows - 1))
+  pcol=$(((cols - ${#prompt}) / 2))
+  ((pcol < 0)) && pcol=0
+
+  clear
+  tput civis 2>/dev/null
+  for ((row = 0; row < height; row++)); do
+    tput cup $((top + row)) "$left"
+    printf '%s' "${ART_PAINTED[row]}"
+    [[ -n ${SYNCOPATED_NO_ANIM:-} ]] || sleep 0.03
+  done
+  if [[ -z ${SYNCOPATED_NO_ANIM:-} ]]; then
+    while :; do
+      tput cup "$prow" "$pcol"
+      if ((lit)); then fg "${EMBER[@]}"; else fg "${EMBER_DIM[@]}"; fi
+      printf '%s\e[0m' "$prompt"
+      lit=$((1 - lit))
+      read -r -s -t 0.8 _
+      rc=$?
+      # 0 = Enter, >128 = timeout (pulse again), anything else = EOF/error.
+      ((rc > 128)) || break
+    done
+  fi
+  clear
+  tput cnorm 2>/dev/null
+}
+
 # draw_steps : print STEPS with the state recorded in STEP_STATE.
 draw_steps() {
   local step state icon lines=()
