@@ -105,7 +105,7 @@ style() {
   local color=$1
   shift
   if have_gum; then
-    gum style --foreground "$color" "$@"
+    gum style --foreground "$color" -- "$@"
   else
     printf '%s\n' "$@"
   fi
@@ -246,7 +246,7 @@ draw_steps() {
     lines+=("$icon $step ($state)")
   done
   if have_gum; then
-    gum style --border rounded --border-foreground "${VIOLET_DIM[0]}" --padding "0 2" "${lines[@]}"
+    gum style --border rounded --border-foreground "${VIOLET_DIM[0]}" --padding "0 2" -- "${lines[@]}"
   else
     printf '  %s\n' "${lines[@]}"
   fi

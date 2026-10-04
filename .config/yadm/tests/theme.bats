@@ -69,6 +69,15 @@ teardown() { cleanup_env; }
   [[ $output == *"· d (pending)"* ]]
 }
 
+@test "draw_steps ends gum flags with -- so a skipped step is not parsed as a flag" {
+  printf '#!/bin/bash\nprintf "%%s\\n" "$@"\n' >"$T/bin/gum"
+  chmod +x "$T/bin/gum"
+  run bash -c 'source "$1"; STEPS=(shell); STEP_STATE[shell]=skipped; draw_steps' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "${lines[-2]}" = "--" ]
+  [ "${lines[-1]}" = "- shell (skipped)" ]
+}
+
 @test "gum-helpers colors resolve to the palette and function names survive" {
   run bash -c 'export GUM_HELPERS_NO_TRAP=1; cd "$2"; source "$1" >/dev/null; printf "%s %s\n" "$COLOR_PURPLE" "${COLORS[muted]}"; type section_header slide_transition gum_info fn_step >/dev/null && echo fns' _ "$YADM_SRC/scripts/gum-helpers.sh" "$T"
   [ "${lines[0]}" = "#7B4FE0 #4B3A8C" ]
