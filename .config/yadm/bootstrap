@@ -3,7 +3,9 @@
 # YADM Master Bootstrap Orchestrator (Syncopated user configuration)
 #
 # Runs the preflight, shell, decrypt and alternates steps, then every
-# executable script in bootstrap.d/. A bootstrap.d script returns 0 (ok),
+# executable script in bootstrap.d/ in name order: 01-ansible-pull (system
+# playbook, a placeholder for now) first, 90-obsidian-flatpak-setup
+# (optional) last. A bootstrap.d script returns 0 (ok),
 # 1 (failed) or 2 (skipped). A failed step offers retry / skip / abort when
 # stdin and stdout are terminals; otherwise it is recorded and bootstrap goes on.
 #
@@ -185,6 +187,17 @@ discover_scripts() {
   done < <(find "$BOOTSTRAP_D_DIR" -maxdepth 1 -type f | sort)
 }
 
+# show_steps : draw the step list unless it is identical to the last one
+# drawn (the last step's redraw and the final report would repeat it).
+DRAWN_STATES=
+show_steps() {
+  local states
+  states=$(declare -p STEP_STATE)
+  [[ $states == "$DRAWN_STATES" ]] && return 0
+  DRAWN_STATES=$states
+  draw_steps
+}
+
 report() {
   local step state ok_n=0 skipped_n=0 failed_n=0 pending_n=0
   for step in "${STEPS[@]}"; do
@@ -195,7 +208,7 @@ report() {
       *) pending_n=$((pending_n + 1)) ;;
     esac
   done
-  draw_steps
+  show_steps
   state="$ok_n ok · $skipped_n skipped · $failed_n failed"
   ((pending_n)) && state+=" · $pending_n not run"
   if ((failed_n)); then
@@ -239,7 +252,7 @@ run_step() {
     fi
     break
   done
-  draw_steps
+  show_steps
 }
 
 on_interrupt() {
@@ -266,7 +279,7 @@ main() {
   register_step decrypt step_decrypt
   register_step alternates step_alternates
   discover_scripts
-  draw_steps
+  show_steps
 
   local step
   for step in "${STEPS[@]}"; do

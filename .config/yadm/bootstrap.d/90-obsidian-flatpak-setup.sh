@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# notebook-bootstrap.sh - Bootstrap an Obsidian vault with standard plugins
+# 90-obsidian-flatpak-setup.sh - Bootstrap an Obsidian vault with standard plugins
 # Uses `obsidian` CLI to install and enable plugins, and `gum` for pretty UI.
+#
+# Optional, last bootstrap step: asks before doing anything and exits 2
+# (skipped) when declined, when the vault prompt is cancelled, when aborted
+# at the preflight summary, or when no terminal is attached. Override (used by the bats tests):
+# SYNCOPATED_OBSIDIAN=yes|no answers the opt-in prompt.
 
 # Bash Defensive Patterns
 set -euo pipefail
@@ -152,6 +157,18 @@ init_git() {
     fi
 }
 
+# want_obsidian : succeed when the user opts in to the Obsidian vault setup.
+# Defaults to no; without a terminal or gum there is no one to ask.
+want_obsidian() {
+    case ${SYNCOPATED_OBSIDIAN:-} in
+        yes) return 0 ;;
+        no) return 1 ;;
+    esac
+    [[ -t 0 && -t 1 ]] && command -v gum &> /dev/null || return 1
+    gum confirm --default=false --prompt.foreground "${COLORS[primary]}" \
+        "Set up an Obsidian vault (plugins, optional Flatpak install)?"
+}
+
 # Ensure prerequisites are met
 check_prerequisites() {
     if ! command -v gum &> /dev/null; then
@@ -166,8 +183,8 @@ prompt_vault_location() {
     
     local vault_input
     if ! vault_input=$(gum input --prompt "Vault location [${default_vault}]: " --placeholder "${default_vault}"); then
-        gum log --level error "Vault location input cancelled."
-        exit 1
+        gum log --level warn "Vault location input cancelled."
+        exit "$RC_SKIPPED"
     fi
     
     if [[ -z "${vault_input}" ]]; then
@@ -252,6 +269,11 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+if ! want_obsidian; then
+    info "Obsidian vault setup skipped"
+    exit "$RC_SKIPPED"
+fi
+
 check_prerequisites
 prompt_vault_location
 
@@ -293,8 +315,8 @@ echo "  • Plugins: Install and enable ${#PLUGINS[@]} standard plugins"
 echo ""
 
 if ! gum confirm --prompt.foreground "${COLORS[warning]}" --affirmative "Proceed" --negative "Abort" "Ready to provision Obsidian?"; then
-    gum log --level error "Setup aborted by user."
-    exit 1
+    gum log --level warn "Obsidian vault setup aborted by user."
+    exit "$RC_SKIPPED"
 fi
 
 slide_transition

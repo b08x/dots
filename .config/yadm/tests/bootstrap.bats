@@ -167,3 +167,15 @@ run_pty() {
   [[ $output == *"Bootstrap finished with failures"* ]]
   [[ $output == *"after (pending)"* ]]
 }
+
+@test "the final step list is drawn once, not repeated by the report" {
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  [ "$(grep -c 'one (ok)' <<<"$output")" -eq 1 ]
+}
+
+@test "01-ansible-pull runs first and the obsidian step runs last" {
+  names=$(find "$YADM_SRC/bootstrap.d" -maxdepth 1 -type f -printf '%f\n' | sort)
+  [ "$(head -n 1 <<<"$names")" = 01-ansible-pull.sh ]
+  [ "$(sed -n '$p' <<<"$names")" = 90-obsidian-flatpak-setup.sh ]
+}
