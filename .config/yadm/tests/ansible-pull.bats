@@ -8,7 +8,7 @@ setup() {
   stub gum 'echo "gum $*" >>"$T/calls"
 case $1 in confirm) exit 1 ;; esac
 exit 0'
-  stub ansible-pull 'echo "ansible-pull $*" >>"$T/calls"; exit "${ANSIBLE_PULL_RC:-0}"'
+  stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "ansible-pull $*" >>"$T/calls"; exit "${ANSIBLE_PULL_RC:-0}"'
   unset SYNCOPATED_ANSIBLE_PULL SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH
 }
 teardown() { cleanup_env; }
@@ -72,4 +72,11 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
   run_pull
   [ "$status" -eq 2 ]
   [[ $output == *"ansible-pull is not installed"* ]]
+}
+
+@test "sets ANSIBLE_STDOUT_CALLBACK=default when running ansible-pull" {
+  export SYNCOPATED_ANSIBLE_PULL=yes
+  run_pull
+  [ "$status" -eq 0 ]
+  [ "$(cat "$T/cb")" = "default" ]
 }
