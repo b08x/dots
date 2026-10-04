@@ -4,8 +4,8 @@
 #
 # Runs the preflight, shell, decrypt and alternates steps, then every
 # executable script in bootstrap.d/ in name order: 01-ansible-pull (system
-# playbook, a placeholder for now) first, 90-obsidian-flatpak-setup
-# (optional) last. A bootstrap.d script returns 0 (ok),
+# playbook, a placeholder for now) first, 91-install-vscode-extensions
+# last. A bootstrap.d script returns 0 (ok),
 # 1 (failed) or 2 (skipped). A failed step offers retry / skip / abort when
 # stdin and stdout are terminals; otherwise it is recorded and bootstrap goes on.
 #

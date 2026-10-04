@@ -174,8 +174,8 @@ run_pty() {
   [ "$(grep -c 'one (ok)' <<<"$output")" -eq 1 ]
 }
 
-@test "01-ansible-pull runs first and the obsidian step runs last" {
+@test "01-ansible-pull runs first and 91-install-vscode-extensions runs last" {
   names=$(find "$YADM_SRC/bootstrap.d" -maxdepth 1 -type f -printf '%f\n' | sort)
   [ "$(head -n 1 <<<"$names")" = 01-ansible-pull.sh ]
-  [ "$(sed -n '$p' <<<"$names")" = 90-obsidian-flatpak-setup.sh ]
+  [ "$(sed -n '$p' <<<"$names")" = 91-install-vscode-extensions.sh ]
 }
