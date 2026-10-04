@@ -100,7 +100,7 @@ PLUGINS=(
 usage() {
     echo "Usage: ./notebook-bootstrap.sh [OPTIONS]"
     echo "Options:"
-    echo "  -f, --flatpak    Install and launch Obsidian via Flatpak before configuring"
+    echo "  -f, --flatpak    Launch Obsidian via Flatpak before configuring"
     echo "  -g, --git        Initialize a Git repository and default .gitignore"
     exit 0
 }
@@ -212,7 +212,7 @@ prompt_vault_location() {
     fi
 }
 
-# Handle Flatpak launch/install logic
+# Handle Flatpak launch logic (Obsidian is installed by 80-install-user-flatpaks.sh)
 setup_flatpak() {
     gum log --level info "Flatpak mode enabled. Checking Obsidian installation..."
     
@@ -221,9 +221,8 @@ setup_flatpak() {
         exit 1
     fi
     
-    if ! flatpak list | grep -q md.obsidian.Obsidian; then
-        gum log --level info "Installing Obsidian via Flatpak..."
-        flatpak install -y flathub md.obsidian.Obsidian
+    if ! flatpak list --app --columns=application | grep -qx md.obsidian.Obsidian; then
+        gum log --level warn "Obsidian Flatpak is not installed. Run 80-install-user-flatpaks.sh to install it."
     fi
     
     # Check if Obsidian is running, if not launch it

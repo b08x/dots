@@ -3,3 +3,6 @@ pry
 solargraph
 ruby-lsp
 rubocop
+bubblezone
+huh
+ntcharts

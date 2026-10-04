@@ -206,6 +206,8 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv init - zsh)"
 fi
 
+export UV_PYTHON_PREFERENCE="only-managed"
+
 
 
 {% if HOSTNAME == 'ninjabot' %}

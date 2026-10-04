@@ -56,12 +56,13 @@ teardown() { cleanup_env; }
 
 run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
 
-@test "package list holds exactly the 4 gems" {
-  [ "$(grep -vc '^#' "$YADM_SRC/default-gems.txt")" -eq 4 ]
-  for g in pry solargraph ruby-lsp rubocop; do
+@test "package list holds exactly the 7 gems" {
+  [ "$(grep -vc '^#' "$YADM_SRC/default-gems.txt")" -eq 7 ]
+  for g in pry solargraph ruby-lsp rubocop bubblezone huh ntcharts; do
     grep -qx "$g" "$YADM_SRC/default-gems.txt"
   done
 }
+
 
 @test "rbenv install 4.0.4 runs when 4.0.4 is missing and is skipped when present" {
   : >"$T/versions"
@@ -135,7 +136,7 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   : >"$T/installed"
   GEM_FAIL=solargraph run_ruby
   [ "$status" -eq 1 ]
-  [ "$(grep -c 'gem install' "$T/calls")" -eq 4 ]
+  [ "$(grep -c 'gem install' "$T/calls")" -eq 7 ]
 }
 
 @test "the script fails when rbenv is missing" {
