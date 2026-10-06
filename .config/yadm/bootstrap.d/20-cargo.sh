@@ -12,7 +12,7 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
 RUSTUP_URL=https://sh.rustup.rs
-PACKAGES_FILE=$YADM_CONFIG_DIR/cargo-packages.txt
+PACKAGES_FILE=$YADM_CONFIG_DIR/files/cargo-packages.txt
 CARGO_CONFIG=$HOME/.cargo/config.toml
 
 PATH=$HOME/.cargo/bin:$PATH

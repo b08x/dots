@@ -10,23 +10,14 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
-USER_FLATPAKS=(
-  "md.obsidian.Obsidian"
-  "io.typora.Typora"
-  "org.audacityteam.Audacity"
-  "org.freac.freac"
-  "org.pipewire.Helvum"
-  "io.podman_desktop.PodmanDesktop"
-  "io.dbeaver.DBeaverCommunity"
-  "io.github.tanaybhomia.Whisp"
-  "com.discordapp.Discord"
-  "com.saivert.pwvucontrol"
-  "io.github.ltiber.Pwall"
-  "org.cutwire.Drift"
-  "org.darktable.Darktable"
-  "org.remmina.Remmina"
-  "app.devsuite.Ptyxis"
-)
+PACKAGES_FILE=$YADM_CONFIG_DIR/files/user-flatpaks.txt
+declare -a USER_FLATPAKS=()
+if [[ -r $PACKAGES_FILE ]]; then
+  mapfile -t USER_FLATPAKS < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$PACKAGES_FILE" | grep -v '^$')
+else
+  err "Package list not found: $PACKAGES_FILE"
+  exit 1
+fi
 
 DID_WORK=0
 FAILED=0

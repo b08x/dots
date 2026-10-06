@@ -12,82 +12,11 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
-EXTENSIONS_FILE=${VSCODE_EXTENSIONS_FILE:-$YADM_CONFIG_DIR/vscode-extensions.txt}
+EXTENSIONS_FILE=${VSCODE_EXTENSIONS_FILE:-$YADM_CONFIG_DIR/files/vscode-extensions.txt}
 DID_WORK=0
 FAILED=0
 declare -a CODE_CMD=()
 declare -a EXTENSIONS=()
-
-DEFAULT_EXTENSIONS=(
-  "ahmadawais.shades-of-purple"
-  "anseki.vscode-color"
-  "anthropic.claude-code"
-  "batisteo.vscode-django"
-  "beardedbear.beardedicons"
-  "bierner.markdown-mermaid"
-  "bulletproof-sh.ctrl"
-  "castwide.solargraph"
-  "catppuccin.catppuccin-vsc-icons"
-  "davidanson.vscode-markdownlint"
-  "donjayamanne.python-environment-manager"
-  "donjayamanne.python-extension-pack"
-  "dracula-theme.theme-dracula"
-  "dreamcatcher45.podmanager"
-  "eliverlara.sweet-vscode-icons"
-  "enkia.tokyo-night"
-  "file-icons.file-icons"
-  "github.github-vscode-theme"
-  "github.vscode-github-actions"
-  "google.google-antigravity"
-  "hangxingliu.vscode-systemd-support"
-  "johnpapa.winteriscoming"
-  "kameshkotwani.google-search"
-  "kevinrose.vsc-python-indent"
-  "kuscamara.yamllint-fix"
-  "magicstack.magicpython"
-  "mechatroner.rainbow-csv"
-  "miguelsolorio.fluent-icons"
-  "misogi.ruby-rubocop"
-  "mistralai.mistral-vibe-code"
-  "ms-azuretools.vscode-containers"
-  "ms-python.black-formatter"
-  "ms-python.debugpy"
-  "ms-python.flake8"
-  "ms-python.pylint"
-  "ms-python.python"
-  "ms-python.vscode-pylance"
-  "ms-python.vscode-python-envs"
-  "ms-toolsai.jupyter"
-  "ms-toolsai.jupyter-keymap"
-  "ms-toolsai.jupyter-renderers"
-  "ms-toolsai.vscode-jupyter-cell-tags"
-  "ms-toolsai.vscode-jupyter-slideshow"
-  "ms-vscode-remote.remote-containers"
-  "ms-vscode.makefile-tools"
-  "ms-vscode.vscode-chat-customizations-evaluations"
-  "naumovs.color-highlight"
-  "nefrob.vscode-just-syntax"
-  "njpwerner.autodocstring"
-  "onatm.open-in-new-window"
-  "onlyati.quadlet-lsp"
-  "openai.chatgpt"
-  "redhat.ansible"
-  "redhat.vscode-openshift-connector"
-  "redhat.vscode-redhat-account"
-  "redhat.vscode-yaml"
-  "sdras.night-owl"
-  "shakram02.bash-beautify"
-  "shopify.ruby-lsp"
-  "sst-dev.opencode"
-  "takkao.open-window-tab-context"
-  "tamasfe.even-better-toml"
-  "teabyii.ayu"
-  "tomoki1207.pdf"
-  "vsls-contrib.gistfs"
-  "wholroyd.jinja"
-  "yzane.markdown-pdf"
-  "zhuangtongfa.material-theme"
-)
 
 detect_vscode_cmd() {
   if [[ -n ${VSCODE_CMD:-} ]]; then
@@ -113,7 +42,8 @@ load_extensions() {
     info "Loading VS Code extensions from $EXTENSIONS_FILE"
     mapfile -t EXTENSIONS < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$EXTENSIONS_FILE" | grep -v '^$')
   else
-    EXTENSIONS=("${DEFAULT_EXTENSIONS[@]}")
+    err "Extension list not found: $EXTENSIONS_FILE"
+    return 1
   fi
 }
 
@@ -167,7 +97,9 @@ main() {
     return "$RC_SKIPPED"
   fi
 
-  load_extensions
+  if ! load_extensions; then
+    return "$RC_FAILED"
+  fi
   if ((${#EXTENSIONS[@]} == 0)); then
     info "No VS Code extensions configured"
     return "$RC_SKIPPED"

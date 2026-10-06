@@ -12,7 +12,7 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
 RUBY_VERSION_WANTED=4.0.4
-PACKAGES_FILE=$YADM_CONFIG_DIR/default-gems.txt
+PACKAGES_FILE=$YADM_CONFIG_DIR/files/default-gems.txt
 RBENV_ROOT=${RBENV_ROOT:-$HOME/.rbenv}
 export RUBY_CONFIGURE_OPTS=${RUBY_CONFIGURE_OPTS:---with-openssl-dir=/usr}
 
