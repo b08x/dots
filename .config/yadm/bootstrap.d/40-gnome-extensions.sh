@@ -3,6 +3,8 @@
 #
 # Exits 0 when something was installed or enabled, 2 when everything was
 # already in place, 1 on any failure.
+#
+# bootstrap: needs-sudo
 
 set -uo pipefail
 
@@ -61,12 +63,10 @@ install_system_extensions() {
   done
 
   if ((${#to_install[@]} > 0)); then
-    info "Installing missing GNOME extension packages via sudo dnf: ${to_install[*]}"
-    if sudo dnf install -y "${to_install[@]}"; then
+    # bootstrap runs `sudo -v` first, so the spinner never hides a password prompt.
+    if run_item "GNOME extension packages" sudo dnf install -y "${to_install[@]}"; then
       DID_WORK=1
-      ok "System GNOME extensions installed"
     else
-      err "Failed to install system GNOME extensions"
       FAILED=1
     fi
   else

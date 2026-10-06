@@ -19,29 +19,30 @@ PATH=$HOME/.cargo/bin:$PATH
 DID_WORK=0
 FAILED=0
 
-install_rustup() {
-  if [[ -x $HOME/.cargo/bin/rustup ]]; then
-    info "rustup is already installed"
-    return 0
-  fi
+# rustup_install URL : download the rustup installer and run it. Runs inside
+# run_item, so it must not depend on this script's variables.
+rustup_install() {
   local script rc
-  info "Installing rustup"
   script=$(mktemp) || return 1
-  if ! curl -fsSL --connect-timeout 15 -o "$script" "$RUSTUP_URL"; then
+  if ! curl -fsSL --connect-timeout 15 -o "$script" "$1"; then
     rm -f "$script"
-    err "Could not download the rustup installer"
+    echo "Could not download the rustup installer" >&2
     return 1
   fi
   # --no-modify-path: ~/.zshenv already sources ~/.cargo/env.
   sh "$script" -y --no-modify-path </dev/null
   rc=$?
   rm -f "$script"
-  if ((rc != 0)); then
-    err "The rustup installer failed"
-    return 1
+  return "$rc"
+}
+
+install_rustup() {
+  if [[ -x $HOME/.cargo/bin/rustup ]]; then
+    info "rustup is already installed"
+    return 0
   fi
+  run_item "Rust toolchain" rustup_install "$RUSTUP_URL" || return 1
   DID_WORK=1
-  ok "rustup installed"
 }
 
 configure_cargo() {
@@ -80,12 +81,9 @@ install_crates() {
       continue
     fi
     attempted=$((attempted + 1))
-    info "Installing $crate"
-    if cargo install --locked "$crate" </dev/null; then
+    if run_item "$(item_label "$crate")" cargo install --locked "$crate"; then
       DID_WORK=1
-      ok "$crate installed"
     else
-      err "$crate failed to install"
       FAILED=1
     fi
   done

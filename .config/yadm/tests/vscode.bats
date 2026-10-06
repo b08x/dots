@@ -37,12 +37,10 @@ run_vscode_step() {
 }
 
 @test "exits 2 when all default extensions are already installed" {
-  # Populate $T/installed with all default extensions
-  bash -c '
-    YADM_CONFIG_DIR="$1/yadm"
-    source "$1/yadm/bootstrap.d/91-install-vscode-extensions.sh"
-    printf "%s\n" "${DEFAULT_EXTENSIONS[@]}" >"$2"
-  ' _ "$T" "$T/installed"
+  # Populate $T/installed with every extension in the shipped list
+  mkdir -p "$T/yadm/files"
+  cp "$YADM_SRC/files/vscode-extensions.txt" "$T/yadm/files/"
+  sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' "$YADM_SRC/files/vscode-extensions.txt" >"$T/installed"
 
   run_vscode_step
   [ "$status" -eq 2 ]
@@ -60,7 +58,7 @@ run_vscode_step() {
   [ "$status" -eq 0 ]
   [ "$(grep -c 'code install' "$T/calls")" -eq 1 ]
   grep -qx 'code install shopify.ruby-lsp' "$T/calls"
-  [[ $output == *"Extension shopify.ruby-lsp installed"* ]]
+  [[ $output == *"✓ Ruby-lsp"* ]]
 }
 
 @test "handles case-insensitive extension names without reinstalling" {
@@ -84,7 +82,7 @@ run_vscode_step() {
   grep -qx 'code install ext-a' "$T/calls"
   grep -qx 'code install ext-fail' "$T/calls"
   grep -qx 'code install ext-b' "$T/calls"
-  [[ $output == *"Failed to install VS Code extension: ext-fail"* ]]
+  [[ $output == *"✗ Ext-fail"* ]]
 }
 
 @test "supports VSCODE_CMD override" {

@@ -5,7 +5,7 @@ load helpers
 setup() {
   make_env
   cp "$YADM_SRC/bootstrap.d/20-cargo.sh" "$T/yadm/bootstrap.d/"
-  cp "$YADM_SRC/cargo-packages.txt" "$T/yadm/"
+  mkdir -p "$T/yadm/files"; cp "$YADM_SRC/files/cargo-packages.txt" "$T/yadm/files/"
   mkdir -p "$HOME/.cargo/bin"
   stub curl 'out=; while [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; url=$1; shift; done
 echo "curl $url" >>"$T/calls"; echo "#installer" >"$out"'
@@ -17,18 +17,18 @@ else echo "cargo $*" >>"$T/calls"; [ "$3" = "${CARGO_FAIL:-none}" ] && exit 101;
   printf '#!/bin/sh\n' >"$HOME/.cargo/bin/rustup"
   chmod +x "$HOME/.cargo/bin/rustup"
   printf '[build]\njobs = 4\n' >"$HOME/.cargo/config.toml"
-  grep -v '^#' "$T/yadm/cargo-packages.txt" >"$T/installed"
+  grep -v '^#' "$T/yadm/files/cargo-packages.txt" >"$T/installed"
 }
 teardown() { cleanup_env; }
 
 run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
 
 @test "package list holds the 8 crates and no exa" {
-  [ "$(grep -vc '^#' "$YADM_SRC/cargo-packages.txt")" -eq 8 ]
+  [ "$(grep -vc '^#' "$YADM_SRC/files/cargo-packages.txt")" -eq 8 ]
   for c in bottom choose git-cliff gping ripgrep_all sd gitui eza; do
-    grep -qx "$c" "$YADM_SRC/cargo-packages.txt"
+    grep -qx "$c" "$YADM_SRC/files/cargo-packages.txt"
   done
-  ! grep -qx exa "$YADM_SRC/cargo-packages.txt"
+  ! grep -qx exa "$YADM_SRC/files/cargo-packages.txt"
 }
 
 @test "runs rustup-init -y when rustup is missing" {

@@ -73,13 +73,10 @@ install_extensions() {
     fi
 
     attempted=$((attempted + 1))
-    info "Installing VS Code extension: $ext_clean"
-    if "${CODE_CMD[@]}" --install-extension "$ext_clean" </dev/null; then
+    if run_item "$(item_label "$ext_clean")" "${CODE_CMD[@]}" --install-extension "$ext_clean"; then
       DID_WORK=1
       installed_map["$ext_lower"]=1
-      ok "Extension $ext_clean installed"
     else
-      err "Failed to install VS Code extension: $ext_clean"
       FAILED=1
     fi
   done

@@ -31,14 +31,8 @@ install_ruby() {
     return 0
   fi
 
-  info "Installing Ruby $RUBY_VERSION_WANTED"
-  if rbenv install "$RUBY_VERSION_WANTED" </dev/null; then
-    DID_WORK=1
-    ok "Ruby $RUBY_VERSION_WANTED installed"
-  else
-    err "Failed to install Ruby $RUBY_VERSION_WANTED"
-    return 1
-  fi
+  run_item "Ruby $RUBY_VERSION_WANTED" rbenv install "$RUBY_VERSION_WANTED" || return 1
+  DID_WORK=1
 }
 
 set_global() {
@@ -87,12 +81,9 @@ install_gems() {
       continue
     fi
     attempted=$((attempted + 1))
-    info "Installing $gem"
-    if RBENV_VERSION="$RUBY_VERSION_WANTED" rbenv exec gem install --no-document "$gem" </dev/null; then
+    if run_item "$(item_label "$gem")" env RBENV_VERSION="$RUBY_VERSION_WANTED" rbenv exec gem install --no-document "$gem"; then
       DID_WORK=1
-      ok "$gem installed"
     else
-      err "$gem failed to install"
       FAILED=1
     fi
   done

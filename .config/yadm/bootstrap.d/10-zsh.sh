@@ -27,26 +27,43 @@ download() {
   printf '%s\n' "$tmp"
 }
 
+# Functions run by run_item in a child shell are exported and take their input
+# as arguments.
+export -f download
+
+# omz_install URL : download the oh-my-zsh installer and run it unattended.
+omz_install() {
+  local script rc
+  script=$(download "$1") || {
+    echo "Could not download the oh-my-zsh installer" >&2
+    return 1
+  }
+  ZSH=$HOME/.oh-my-zsh KEEP_ZSHRC=yes CHSH=no RUNZSH=no sh "$script" --unattended </dev/null
+  rc=$?
+  rm -f "$script"
+  return "$rc"
+}
+
+# zoxide_install URL : download the zoxide installer and run it.
+zoxide_install() {
+  local script rc
+  script=$(download "$1") || {
+    echo "Could not download the zoxide installer" >&2
+    return 1
+  }
+  sh "$script" </dev/null
+  rc=$?
+  rm -f "$script"
+  return "$rc"
+}
+
 # install_omz : 0 installed, 2 already present, 1 failed.
 install_omz() {
   if [[ -d $HOME/.oh-my-zsh || -d $SYSTEM_OMZ ]]; then
     info "oh-my-zsh is already installed"
     return "$RC_SKIPPED"
   fi
-  local script rc
-  info "Installing oh-my-zsh to $HOME/.oh-my-zsh"
-  script=$(download "$OMZ_URL") || {
-    err "Could not download the oh-my-zsh installer"
-    return "$RC_FAILED"
-  }
-  ZSH=$HOME/.oh-my-zsh KEEP_ZSHRC=yes CHSH=no RUNZSH=no sh "$script" --unattended </dev/null
-  rc=$?
-  rm -f "$script"
-  if ((rc != 0)); then
-    err "The oh-my-zsh installer failed"
-    return "$RC_FAILED"
-  fi
-  ok "oh-my-zsh installed"
+  run_item "oh-my-zsh" omz_install "$OMZ_URL" || return "$RC_FAILED"
 }
 
 # install_zoxide : 0 installed, 2 already present, 1 failed.
@@ -55,20 +72,7 @@ install_zoxide() {
     info "zoxide is already installed"
     return "$RC_SKIPPED"
   fi
-  local script rc
-  info "Installing zoxide to $HOME/.local/bin"
-  script=$(download "$ZOXIDE_URL") || {
-    warn "Could not download the zoxide installer"
-    return "$RC_FAILED"
-  }
-  sh "$script" </dev/null
-  rc=$?
-  rm -f "$script"
-  if ((rc != 0)); then
-    warn "The zoxide installer failed"
-    return "$RC_FAILED"
-  fi
-  ok "zoxide installed"
+  run_item "zoxide" zoxide_install "$ZOXIDE_URL" || return "$RC_FAILED"
 }
 
 main() {

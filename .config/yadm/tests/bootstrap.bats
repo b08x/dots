@@ -137,7 +137,7 @@ run_pty() {
   local script_bin
   script_bin=$(PATH=$ORIG_PATH type -P script) || skip "script(1) not available"
   ln -sf "$script_bin" "$T/bin/script"
-  run bash -c 'printf "%b" "$1" | script -qec "bash $2" /dev/null' _ "$1" "$T/yadm/bootstrap"
+  run bash -c 'printf "%b" "$1" | script -qec "bash $2 --all" /dev/null' _ "$1" "$T/yadm/bootstrap"
 }
 
 @test "retry reruns a failed step" {
@@ -178,4 +178,93 @@ run_pty() {
   names=$(find "$YADM_SRC/bootstrap.d" -maxdepth 1 -type f -printf '%f\n' | sort)
   [ "$(head -n 1 <<<"$names")" = 01-ansible-pull.sh ]
   [ "$(sed -n '$p' <<<"$names")" = 91-install-vscode-extensions.sh ]
+}
+
+# --- step selection ----------------------------------------------------------
+
+# run_menu ANSWER: run bootstrap as on a terminal, answering the plain menu.
+run_menu() { run bash -c 'printf "%b" "$1" | SYNCOPATED_FORCE_INTERACTIVE=1 bash "$2"' _ "$1" "$T/yadm/bootstrap"; }
+
+@test "--only runs just the named step and reports the rest as not run" {
+  run bash "$T/yadm/bootstrap" --only one </dev/null
+  [ "$status" -eq 0 ]
+  grep -q '^script 10-one' "$T/calls"
+  ! grep -q '^yadm decrypt' "$T/calls"
+  [[ $output == *"shell (pending)"* ]]
+  [[ $output == *"not run"* ]]
+}
+
+@test "--only with an unknown step exits 2 and lists the valid steps" {
+  run bash "$T/yadm/bootstrap" --only nope </dev/null
+  [ "$status" -eq 2 ]
+  [[ $output == *"Unknown step(s): nope"* ]]
+  [[ $output == *"preflight shell decrypt alternates one"* ]]
+  ! grep -q '^script' "$T/calls"
+}
+
+@test "--all runs every step on a terminal without the menu" {
+  run bash -c 'SYNCOPATED_FORCE_INTERACTIVE=1 bash "$1" --all </dev/null' _ "$T/yadm/bootstrap"
+  [ "$status" -eq 0 ]
+  [[ $output != *"Select the steps to run"* ]]
+  grep -q '^yadm decrypt' "$T/calls"
+  grep -q '^script 10-one' "$T/calls"
+}
+
+@test "without a terminal there is no menu and every step runs" {
+  run_bootstrap
+  [[ $output != *"Select the steps to run"* ]]
+  grep -q '^yadm decrypt' "$T/calls"
+}
+
+@test "the menu lists every step by its readable name" {
+  run_menu '\n'
+  for label in Preflight Shell Decrypt Alternates One; do
+    [[ $output == *") $label"* ]]
+  done
+}
+
+@test "an empty menu answer keeps every step selected" {
+  run_menu '\n'
+  [ "$status" -eq 0 ]
+  grep -q '^yadm decrypt' "$T/calls"
+  grep -q '^script 10-one' "$T/calls"
+}
+
+@test "menu numbers pick steps, which run in their normal order" {
+  run_menu '5 3\n'
+  [ "$status" -eq 0 ]
+  d=$(grep -n '^yadm decrypt' "$T/calls" | cut -d: -f1)
+  one=$(grep -n '^script 10-one' "$T/calls" | cut -d: -f1)
+  [ "$d" -lt "$one" ]
+  ! grep -q '^yadm alt' "$T/calls"
+  [[ $output == *"alternates (pending)"* ]]
+}
+
+@test "selecting nothing prints a message and exits 0" {
+  run bash -c 'SYNCOPATED_FORCE_INTERACTIVE=1 bash "$1" </dev/null' _ "$T/yadm/bootstrap"
+  [ "$status" -eq 0 ]
+  [[ $output == *"nothing selected"* ]]
+  ! grep -q '^script' "$T/calls"
+}
+
+@test "sudo -v runs once before the steps when a selected step needs sudo" {
+  run_menu '2 5\n'
+  [ "$(grep -c '^sudo -v' "$T/calls")" -eq 1 ]
+}
+
+@test "sudo -v is skipped when no selected step needs it" {
+  run_menu '5\n'
+  ! grep -q '^sudo -v' "$T/calls"
+}
+
+@test "a script marked needs-sudo triggers sudo -v" {
+  printf '#!/bin/bash\n# bootstrap: needs-sudo\nexit 0\n' >"$T/yadm/bootstrap.d/20-priv.sh"
+  chmod +x "$T/yadm/bootstrap.d/20-priv.sh"
+  run_menu '6\n'
+  [ "$(grep -c '^sudo -v' "$T/calls")" -eq 1 ]
+}
+
+@test "sudo -v is not run without a terminal" {
+  run_bootstrap
+  ! grep -q '^sudo -v' "$T/calls"
 }

@@ -29,12 +29,9 @@ fi
 
 ensure_flathub_remote() {
   if ! flatpak remotes --user | grep -q "^flathub"; then
-    info "Adding Flathub user remote"
-    if flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; then
+    if run_item "Flathub remote" flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; then
       DID_WORK=1
-      ok "Flathub user remote added"
     else
-      err "Failed to add Flathub user remote"
       return 1
     fi
   else
@@ -50,14 +47,8 @@ install_flatpak_app() {
     return 0
   fi
 
-  info "Installing user Flatpak: $app"
-  if flatpak install -y --user flathub "$app"; then
-    DID_WORK=1
-    ok "Flatpak $app installed"
-  else
-    err "Failed to install user Flatpak: $app"
-    return 1
-  fi
+  run_item "$(item_label "$app")" flatpak install -y --user flathub "$app" || return 1
+  DID_WORK=1
 }
 
 main() {

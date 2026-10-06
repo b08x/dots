@@ -327,3 +327,107 @@ choose() {
     printf 'Enter a number from 1 to %d.\n' "$#" >&2
   done
 }
+
+# --- labels ------------------------------------------------------------------
+
+# capitalize WORD : uppercase the first letter, leave the rest as is.
+capitalize() {
+  printf '%s%s\n' "$(printf '%s' "${1:0:1}" | tr '[:lower:]' '[:upper:]')" "${1:1}"
+}
+
+# step_label NAME : human-readable step name. 20-cargo.sh -> Cargo,
+# preflight -> Preflight, 80-install-user-flatpaks.sh -> Install user flatpaks.
+step_label() {
+  local name=${1##*/}
+  name=${name%.sh}
+  name=${name#[0-9][0-9]-}
+  name=${name//[-_]/ }
+  capitalize "$name"
+}
+
+# item_label ID : human-readable item name. org.mozilla.firefox -> Firefox,
+# rubocop -> Rubocop. Dotted ids keep their last segment as written.
+item_label() {
+  local id=$1
+  if [[ $id == *.* ]]; then
+    printf '%s\n' "$(capitalize "${id##*.}")"
+  else
+    capitalize "$id"
+  fi
+}
+
+# --- menus and spinners ------------------------------------------------------
+
+# choose_many HEADER OPTION... : print the selected options, one per line, with
+# every option preselected. Fails on cancel/EOF. The plain prompt takes
+# numbers separated by commas or spaces; an empty line keeps everything.
+choose_many() {
+  local header=$1 reply n i selected=()
+  shift
+  if have_gum; then
+    local IFS=,
+    gum choose --no-limit --ordered --header "$header" --selected "$*" -- "$@"
+    return
+  fi
+  printf '%s\n' "$header" >&2
+  for ((i = 1; i <= $#; i++)); do
+    printf '  %d) %s\n' "$i" "${!i}" >&2
+  done
+  while :; do
+    read -r -p "Choose [numbers, empty for all]: " reply || return 1
+    reply=${reply//,/ }
+    if [[ -z ${reply// /} ]]; then
+      printf '%s\n' "$@"
+      return 0
+    fi
+    selected=()
+    for n in $reply; do
+      if [[ $n =~ ^[0-9]+$ ]] && ((n >= 1 && n <= $#)); then
+        selected+=("${!n}")
+      else
+        printf 'Enter numbers from 1 to %d.\n' "$#" >&2
+        continue 2
+      fi
+    done
+    printf '%s\n' "${selected[@]}"
+    return 0
+  done
+}
+
+# spinner_ok : true when a gum spinner can be shown on this terminal.
+spinner_ok() {
+  have_gum && { [[ -t 1 ]] || [[ -n ${SYNCOPATED_FORCE_INTERACTIVE:-} ]]; }
+}
+
+# run_item LABEL CMD... : run one install under a spinner titled with LABEL.
+# Output goes to a temp file, is appended to the log, and is printed only when
+# the command fails. Returns the command's exit status.
+run_item() {
+  local label=$1 out rc log=${LOG_FILE:-$HOME/.bootstrap.log}
+  shift
+  out=$(mktemp) || return 1
+  if spinner_ok; then
+    # gum starts a new process, so a shell function must be exported first.
+    [[ $(type -t "$1") == function ]] && export -f "${1?}"
+    # shellcheck disable=SC2016  # $1 and $@ belong to the child shell
+    gum spin --spinner dot --title "Installing $label" -- \
+      bash -c 'out=$1; shift; "$@" >"$out" 2>&1 </dev/null' _ "$out" "$@"
+    rc=$?
+  else
+    info "Installing $label"
+    "$@" >"$out" 2>&1 </dev/null
+    rc=$?
+  fi
+  {
+    printf '[%s] %s (exit %d)\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$label" "$rc"
+    cat "$out"
+  } >>"$log" 2>/dev/null
+  if ((rc == 0)); then
+    ok "$label"
+  else
+    err "$label"
+    sed 's/^/    /' "$out" >&2
+  fi
+  rm -f "$out"
+  return "$rc"
+}

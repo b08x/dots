@@ -6,6 +6,9 @@
 # (skipped) when declined, when the vault prompt is cancelled, when aborted
 # at the preflight summary, or when no terminal is attached. Override (used by the bats tests):
 # SYNCOPATED_OBSIDIAN=yes|no answers the opt-in prompt.
+#
+# Runs without a spinner (no run_item): gum spin hides stdin, which would
+# hide the prompts.
 
 # Bash Defensive Patterns
 set -euo pipefail

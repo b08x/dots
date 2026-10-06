@@ -9,8 +9,14 @@
 # 1 (failed) or 2 (skipped). A failed step offers retry / skip / abort when
 # stdin and stdout are terminals; otherwise it is recorded and bootstrap goes on.
 #
+# On a terminal, a multi-select menu picks which steps run (all start
+# selected). Usage: bootstrap [--all | --only STEP[,STEP...]]
+#   --all   run every step without the menu
+#   --only  run just the named steps (names as in the step list)
+#
 # Overrides (used by the bats tests): SYNCOPATED_OS_RELEASE,
-# SYNCOPATED_NO_ANIM=1 (skip the typewriter delay).
+# SYNCOPATED_NO_ANIM=1 (skip the typewriter delay),
+# SYNCOPATED_FORCE_INTERACTIVE=1 (behave as on a terminal).
 # =============================================================================
 
 # shellcheck disable=SC2329  # step functions are invoked indirectly through STEP_CMD
@@ -25,6 +31,10 @@ LOG_FILE=${HOME}/.bootstrap.log
 USER_NAME=${USER:-$(id -un)}
 
 declare -A STEP_CMD=()
+declare -A STEP_LABEL=()
+SELECTED=()
+OPT_ALL=0
+OPT_ONLY=()
 
 # --- helpers -----------------------------------------------------------------
 
@@ -40,7 +50,40 @@ log_line() {
 }
 
 interactive() {
-  [[ -t 0 && -t 1 ]]
+  [[ -n ${SYNCOPATED_FORCE_INTERACTIVE:-} ]] || [[ -t 0 && -t 1 ]]
+}
+
+usage() {
+  printf 'Usage: bootstrap [--all | --only STEP[,STEP...]]\n' >&2
+}
+
+parse_args() {
+  local list
+  while (($#)); do
+    case $1 in
+      --all) OPT_ALL=1 ;;
+      --only)
+        (($# >= 2)) || {
+          usage
+          exit 2
+        }
+        list=$2
+        shift
+        IFS=, read -r -a OPT_ONLY <<<"$list"
+        ;;
+      --only=*) IFS=, read -r -a OPT_ONLY <<<"${1#--only=}" ;;
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      *)
+        err "Unknown option: $1"
+        usage
+        exit 2
+        ;;
+    esac
+    shift
+  done
 }
 
 ensure_gum() {
@@ -170,6 +213,7 @@ step_title() {
 register_step() {
   STEPS+=("$1")
   STEP_CMD[$1]=$2
+  STEP_LABEL[$1]=$(step_label "$1")
 }
 
 discover_scripts() {
@@ -255,6 +299,55 @@ run_step() {
   show_steps
 }
 
+# validate_only : exit 2 when --only names a step that does not exist.
+validate_only() {
+  local name bad=()
+  for name in "${OPT_ONLY[@]}"; do
+    [[ -n ${STEP_CMD[$name]:-} ]] || bad+=("$name")
+  done
+  ((${#bad[@]} == 0)) && return 0
+  err "Unknown step(s): ${bad[*]}"
+  printf 'Valid steps: %s\n' "${STEPS[*]}" >&2
+  exit 2
+}
+
+# select_steps : fill SELECTED with the steps to run, in step order. --only
+# filters, --all and non-interactive runs keep every step, and a terminal
+# gets the multi-select menu. A cancelled menu selects nothing.
+select_steps() {
+  local step label picked=() chosen=() labels=()
+  SELECTED=()
+  if ((${#OPT_ONLY[@]})); then
+    for step in "${STEPS[@]}"; do
+      [[ " ${OPT_ONLY[*]} " == *" $step "* ]] && SELECTED+=("$step")
+    done
+  elif ((OPT_ALL)) || ! interactive; then
+    SELECTED=("${STEPS[@]}")
+  else
+    for step in "${STEPS[@]}"; do
+      labels+=("${STEP_LABEL[$step]}")
+    done
+    mapfile -t picked < <(choose_many "Select the steps to run" "${labels[@]}")
+    for step in "${STEPS[@]}"; do
+      for label in "${picked[@]}"; do
+        [[ $label == "${STEP_LABEL[$step]}" ]] && chosen+=("$step")
+      done
+    done
+    SELECTED=("${chosen[@]}")
+  fi
+}
+
+# needs_sudo : true when a selected step runs sudo. Scripts declare it with a
+# "# bootstrap: needs-sudo" line; the shell step always needs it.
+needs_sudo() {
+  local step
+  for step in "${SELECTED[@]}"; do
+    [[ $step == shell ]] && return 0
+    [[ -f ${STEP_CMD[$step]} ]] && grep -q '^# bootstrap: needs-sudo' "${STEP_CMD[$step]}" && return 0
+  done
+  return 1
+}
+
 on_interrupt() {
   echo
   err "Interrupted"
@@ -264,24 +357,38 @@ on_interrupt() {
 # --- main --------------------------------------------------------------------
 
 main() {
+  parse_args "$@"
   mkdir -p "$(dirname "$LOG_FILE")"
   log_line "Bootstrap script started"
   trap on_interrupt INT TERM
   trap restore_terminal EXIT
-
-  ensure_gum
-  splash
-  banner
 
   register_step preflight check_drift_and_collisions
   register_step shell step_shell
   register_step decrypt step_decrypt
   register_step alternates step_alternates
   discover_scripts
+  validate_only
+
+  ensure_gum
+  splash
+  banner
   show_steps
 
+  select_steps
+  if ((${#SELECTED[@]} == 0)); then
+    info "nothing selected, exiting"
+    log_line "Nothing selected"
+    exit 0
+  fi
+
+  # gum spin hides stdin, so authenticate before any spinner starts.
+  if interactive && needs_sudo; then
+    sudo -v || warn "sudo authentication failed; steps that need it may fail"
+  fi
+
   local step
-  for step in "${STEPS[@]}"; do
+  for step in "${SELECTED[@]}"; do
     run_step "$step"
   done
   finish

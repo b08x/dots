@@ -5,12 +5,12 @@ load helpers
 setup() {
   make_env
   cp "$YADM_SRC/bootstrap.d/30-ruby.sh" "$T/yadm/bootstrap.d/"
-  cp "$YADM_SRC/default-gems.txt" "$T/yadm/"
+  mkdir -p "$T/yadm/files"; cp "$YADM_SRC/files/default-gems.txt" "$T/yadm/files/"
   export RBENV_ROOT=$HOME/.rbenv
   mkdir -p "$RBENV_ROOT/versions/4.0.4/etc"
   echo "4.0.4" >"$T/versions"
   echo "4.0.4" >"$T/global"
-  grep -v '^#' "$T/yadm/default-gems.txt" >"$T/installed"
+  grep -v '^#' "$T/yadm/files/default-gems.txt" >"$T/installed"
   printf -- '---\ninstall: --user-install --bindir ~/.local/bin --env-shebang\nupdate: --user-install --bindir ~/.local/bin --env-shebang\n' >"$RBENV_ROOT/versions/4.0.4/etc/gemrc"
 
   # Stub rbenv
@@ -57,9 +57,9 @@ teardown() { cleanup_env; }
 run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
 
 @test "package list holds exactly the 7 gems" {
-  [ "$(grep -vc '^#' "$YADM_SRC/default-gems.txt")" -eq 7 ]
+  [ "$(grep -vc '^#' "$YADM_SRC/files/default-gems.txt")" -eq 7 ]
   for g in pry solargraph ruby-lsp rubocop bubblezone huh ntcharts; do
-    grep -qx "$g" "$YADM_SRC/default-gems.txt"
+    grep -qx "$g" "$YADM_SRC/files/default-gems.txt"
   done
 }
 

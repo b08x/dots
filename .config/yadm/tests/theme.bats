@@ -94,3 +94,75 @@ teardown() { cleanup_env; }
     grep -q 'syncopated-theme.sh' "$f"
   done
 }
+
+@test "step_label turns step names into readable labels" {
+  run bash -c 'source "$1"; step_label 20-cargo.sh; step_label preflight; step_label bootstrap.d/80-install-user-flatpaks.sh; step_label cargo' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "Cargo" ]
+  [ "${lines[1]}" = "Preflight" ]
+  [ "${lines[2]}" = "Install user flatpaks" ]
+  [ "${lines[3]}" = "Cargo" ]
+}
+
+@test "item_label turns package ids into readable labels" {
+  run bash -c 'source "$1"; item_label org.mozilla.firefox; item_label rubocop; item_label ms-python.python' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "${lines[0]}" = "Firefox" ]
+  [ "${lines[1]}" = "Rubocop" ]
+  [ "${lines[2]}" = "Python" ]
+}
+
+# gum_stub: a gum whose spin records its title and runs the command after --.
+gum_stub() {
+  stub gum 'if [ "$1" = spin ]; then
+  shift; while [ "$1" != -- ]; do [ "$1" = --title ] && echo "title $2" >>"$T/calls"; shift; done
+  shift; "$@"
+else exit 0; fi'
+}
+
+@test "run_item without gum prints info and ok lines and logs the output" {
+  run bash -c 'source "$1"; LOG_FILE=$2/log; run_item "Thing" bash -c "echo noisy; exit 0"' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 0 ]
+  [[ $output == *"➜ Installing Thing"* ]]
+  [[ $output == *"✓ Thing"* ]]
+  [[ $output != *noisy* ]]
+  grep -q noisy "$T/log"
+}
+
+@test "run_item on failure prints the output, an err line and returns the status" {
+  run bash -c 'source "$1"; LOG_FILE=$2/log; run_item "Thing" bash -c "echo boom; exit 7" 2>&1' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 7 ]
+  [[ $output == *"✗ Thing"* ]]
+  [[ $output == *"boom"* ]]
+  grep -q boom "$T/log"
+}
+
+@test "run_item under gum titles the spinner with the label" {
+  gum_stub
+  run bash -c 'source "$1"; LOG_FILE=$2/log; SYNCOPATED_FORCE_INTERACTIVE=1 run_item "Rust toolchain" bash -c "echo hi"' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -qx 'title Installing Rust toolchain' "$T/calls"
+  [[ $output == *"✓ Rust toolchain"* ]]
+  [[ $output != *hi* ]]
+  grep -q hi "$T/log"
+}
+
+@test "run_item under gum preserves a failing status and shows the output" {
+  gum_stub
+  run bash -c 'source "$1"; LOG_FILE=$2/log; SYNCOPATED_FORCE_INTERACTIVE=1 run_item "X" bash -c "echo bad; exit 4" 2>&1' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 4 ]
+  [[ $output == *"✗ X"* && $output == *bad* ]]
+}
+
+@test "run_item runs an exported shell function under gum" {
+  gum_stub
+  run bash -c 'source "$1"; LOG_FILE=$2/log; myfn() { echo "arg $1"; }; SYNCOPATED_FORCE_INTERACTIVE=1 run_item "Fn" myfn 42' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -q 'arg 42' "$T/log"
+}
+
+@test "choose_many keeps everything on an empty answer and honors numbers" {
+  run bash -c 'source "$1"; echo | choose_many H A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$output" = $'A\nB\nC' ]
+  run bash -c 'source "$1"; echo "3,1" | choose_many H A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$output" = $'C\nA' ]
+}

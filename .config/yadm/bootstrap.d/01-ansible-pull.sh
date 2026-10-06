@@ -4,6 +4,8 @@
 #
 # Optional bootstrap step: asks before doing anything and exits 2 (skipped)
 # when declined or when no terminal is attached.
+# Runs without a spinner (no run_item): gum spin hides stdin, which would
+# hide the prompts.
 # Override: SYNCOPATED_ANSIBLE_PULL=yes|no answers the opt-in prompt.
 #
 # Additional overrides: SYNCOPATED_ANSIBLE_PULL_URL,
