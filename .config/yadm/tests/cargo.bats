@@ -23,9 +23,9 @@ teardown() { cleanup_env; }
 
 run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
 
-@test "package list holds the 8 crates and no exa" {
-  [ "$(grep -vc '^#' "$YADM_SRC/files/cargo-packages.txt")" -eq 8 ]
-  for c in bottom choose git-cliff gping ripgrep_all sd gitui eza; do
+@test "package list holds the 9 crates and no exa" {
+  [ "$(grep -vc '^#' "$YADM_SRC/files/cargo-packages.txt")" -eq 9 ]
+  for c in bottom choose du-dust git-cliff gping ripgrep_all sd gitui eza; do
     grep -qx "$c" "$YADM_SRC/files/cargo-packages.txt"
   done
   ! grep -qx exa "$YADM_SRC/files/cargo-packages.txt"
@@ -85,7 +85,7 @@ run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
 @test "attempted installs equal missing crates" {
   : >"$T/installed"
   run_cargo
-  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 8 ]
+  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 9 ]
 }
 
 @test "exits 2 when everything is installed" {
@@ -98,5 +98,23 @@ run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
   : >"$T/installed"
   CARGO_FAIL=bottom run_cargo
   [ "$status" -eq 1 ]
-  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 8 ]
+  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 9 ]
+}
+
+@test "falls back to CARGO_TMPDIR when TMPDIR does not permit execution" {
+  local noexec_tmp="$T/noexec_tmp"
+  mkdir -p "$noexec_tmp"
+  chmod 500 "$noexec_tmp"
+  TMPDIR="$noexec_tmp" run_cargo
+  [ "$status" -eq 2 ]
+  [[ $output == *"Configured TMPDIR="* ]]
+}
+
+@test "unsets CARGO_TARGET_DIR when pointing to non-executable directory" {
+  local noexec_target="$T/noexec_target"
+  mkdir -p "$noexec_target"
+  chmod 500 "$noexec_target"
+  CARGO_TARGET_DIR="$noexec_target" run_cargo
+  [ "$status" -eq 2 ]
+  [[ $output == *"is not executable; unsetting"* ]]
 }

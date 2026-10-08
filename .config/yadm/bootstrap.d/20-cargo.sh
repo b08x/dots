@@ -13,13 +13,71 @@ source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
 : "${SYNCOPATED_STEP:=cargo}"
 
+CARGO_HOME=${CARGO_HOME:-$HOME/.cargo}
+CARGO_TMPDIR=${CARGO_TMPDIR:-$CARGO_HOME/tmp}
 RUSTUP_URL=https://sh.rustup.rs
 PACKAGES_FILE=$YADM_CONFIG_DIR/files/cargo-packages.txt
-CARGO_CONFIG=$HOME/.cargo/config.toml
+CARGO_CONFIG=$CARGO_HOME/config.toml
 
-PATH=$HOME/.cargo/bin:$PATH
+PATH=$CARGO_HOME/bin:$PATH
 DID_WORK=0
 FAILED=0
+CARGO_TMPDIR_CREATED=""
+
+cleanup_tmpdir() {
+  if [[ -n $CARGO_TMPDIR_CREATED && -d $CARGO_TMPDIR_CREATED ]]; then
+    rmdir "$CARGO_TMPDIR_CREATED" 2>/dev/null || true
+  fi
+}
+trap cleanup_tmpdir EXIT
+
+# can_execute_in DIR : verify that binaries or scripts can be executed in DIR.
+# Returns 0 if execution succeeds, 1 if blocked (e.g. noexec mount).
+can_execute_in() {
+  local dir=$1 testfile rc=1
+  [[ -d $dir && -w $dir ]] || return 1
+  testfile=$(mktemp -p "$dir" .can_exec.XXXXXX 2>/dev/null) || return 1
+  chmod 700 "$testfile" 2>/dev/null || { rm -f "$testfile"; return 1; }
+  printf '#!/bin/sh\nexit 0\n' >"$testfile" 2>/dev/null
+  if [[ -x $testfile ]] && "$testfile" 2>/dev/null; then
+    rc=0
+  fi
+  rm -f "$testfile"
+  return "$rc"
+}
+
+# setup_tmpdir : detect whether /tmp (or current TMPDIR) is mounted with noexec.
+# When execution is blocked, configure and export TMPDIR to point to an executable
+# directory under CARGO_HOME so rustup-init, cargo, and build.rs scripts succeed.
+setup_tmpdir() {
+  local current_tmp="${TMPDIR:-/tmp}"
+  if ! can_execute_in "$current_tmp"; then
+    local fallback_tmp="${CARGO_TMPDIR:-$CARGO_HOME/tmp}"
+    if [[ ! -d $fallback_tmp ]]; then
+      mkdir -p "$fallback_tmp" || {
+        err "Could not create temporary directory: $fallback_tmp"
+        return 1
+      }
+      chmod 700 "$fallback_tmp" 2>/dev/null || true
+      CARGO_TMPDIR_CREATED="$fallback_tmp"
+    fi
+
+    if ! can_execute_in "$fallback_tmp"; then
+      err "Temporary directory $fallback_tmp does not permit execution"
+      return 1
+    fi
+
+    export TMPDIR="$fallback_tmp"
+    info "Configured TMPDIR=$TMPDIR ($current_tmp does not permit execution)"
+  fi
+
+  if [[ -n ${CARGO_TARGET_DIR:-} ]] && ! can_execute_in "$CARGO_TARGET_DIR"; then
+    warn "CARGO_TARGET_DIR ($CARGO_TARGET_DIR) is not executable; unsetting"
+    unset CARGO_TARGET_DIR
+  fi
+
+  return 0
+}
 
 # rustup_install URL : download the rustup installer and run it. Runs inside
 # run_item, so it must not depend on this script's variables.
@@ -39,7 +97,7 @@ rustup_install() {
 }
 
 install_rustup() {
-  if [[ -x $HOME/.cargo/bin/rustup ]]; then
+  if [[ -x $CARGO_HOME/bin/rustup ]]; then
     info "rustup is already installed"
     return 0
   fi
@@ -94,6 +152,7 @@ install_crates() {
 }
 
 main() {
+  setup_tmpdir || return "$RC_FAILED"
   install_rustup || return "$RC_FAILED"
   configure_cargo
   install_crates || return "$RC_FAILED"
