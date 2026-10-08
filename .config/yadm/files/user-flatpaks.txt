@@ -16,3 +16,4 @@ app.devsuite.Ptyxis
 page.tesk.Refine
 io.github.getnf.embellish
 org.upscayl.Upscayl
+com.obsproject.Studio
