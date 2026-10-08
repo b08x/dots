@@ -17,3 +17,4 @@ page.tesk.Refine
 io.github.getnf.embellish
 org.upscayl.Upscayl
 com.obsproject.Studio
+io.github.vikdevelop.SaveDesktop
