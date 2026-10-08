@@ -33,10 +33,17 @@ skill_paths = [
 ]
 enabled_skills = []
 disabled_skills = []
-agent_paths = ["~/.vibe/agents", "~/.syncopated/agents"]
+agent_paths = [
+    "~/.vibe/agents",
+    "~/.syncopated/agents",
+]
 enabled_agents = []
 disabled_agents = []
-installed_agents = ["lean", "agent-creator", "sfl-prompt-engineer"]
+installed_agents = [
+    "lean",
+    "agent-creator",
+    "sfl-prompt-engineer",
+]
 default_agent = "accept-edits"
 enable_connectors = true
 system_prompt_id = "cli"
@@ -61,11 +68,15 @@ voice_mode_enabled = false
 narrator_enabled = false
 active_transcribe_model = "voxtral-realtime"
 active_tts_model = "voxtral-tts"
-connectors = [{ name = "my_connector", disabled = false, disabled_tools = [] }]
+connectors = [
+    { name = "my_connector", disabled = false, disabled_tools = [] },
+]
 tts_models = [
     { name = "voxtral-mini-tts-latest", provider = "mistral", alias = "voxtral-tts" },
 ]
-applied_migrations = ["bash_read_only_defaults_v1"]
+applied_migrations = [
+    "bash_read_only_defaults_v1",
+]
 
 [[models]]
 name = "mistral-vibe-cli-latest"
@@ -125,6 +136,9 @@ permission = "ask"
 max_output_bytes = 16000
 default_timeout = 300
 allowlist = [
+    "ansible",
+    "ansible-lint",
+    "ansible-playbook",
     "basename",
     "cat",
     "cd",
@@ -141,8 +155,11 @@ allowlist = [
     "find",
     "fmt",
     "fold",
+    "git add -u",
+    "git add .",
     "git diff",
     "git log",
+    "git rev-parse --abbrev-ref HEAD",
     "git status",
     "grep",
     "head",
@@ -166,6 +183,7 @@ allowlist = [
     "sum",
     "tac",
     "tail",
+    "timeout",
     "tr",
     "tree",
     "uname",
@@ -173,6 +191,7 @@ allowlist = [
     "wc",
     "which",
     "whoami",
+    "yadm",
 ]
 denylist = [
     "gdb",
@@ -206,7 +225,9 @@ denylist_standalone = [
     "nano",
     "su",
 ]
-sensitive_patterns = ["sudo"]
+sensitive_patterns = [
+    "sudo",
+]
 
 [tools.git_bash]
 permission = "ask"
@@ -215,6 +236,12 @@ shell = "C:\\Program Files\\Git\\bin\\bash.exe"
 [tools.powershell]
 permission = "ask"
 shell = "powershell.exe"
+
+[tools.connector_web_search_open_url]
+permission = "always"
+
+[tools.connector_deepwiki_ask_wiki_question]
+permission = "always"
 
 [[mcp_servers]]
 name = "codebase-memory-mcp"
