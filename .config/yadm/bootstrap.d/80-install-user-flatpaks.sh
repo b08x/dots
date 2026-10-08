@@ -10,6 +10,8 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=install-user-flatpaks}"
+
 PACKAGES_FILE=$YADM_CONFIG_DIR/files/user-flatpaks.txt
 declare -a USER_FLATPAKS=()
 if [[ -r $PACKAGES_FILE ]]; then

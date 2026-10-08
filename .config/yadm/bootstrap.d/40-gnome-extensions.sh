@@ -12,6 +12,8 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=gnome-extensions}"
+
 EXTENSIONS_FILE=${GNOME_EXTENSIONS_FILE:-$YADM_CONFIG_DIR/files/gnome-extensions.txt}
 DID_WORK=0
 FAILED=0

@@ -15,6 +15,15 @@ touch "${SCRIPT_LOG}"
 log() {
 	local level="$1"
 	local message="$2"
+	local prio="info"
+	case "${level^^}" in
+		ERR|ERROR) prio="err" ;;
+		WARN|WARNING) prio="warning" ;;
+		NOTICE|SUCCESS) prio="notice" ;;
+		DEBUG) prio="debug" ;;
+		*) prio="info" ;;
+	esac
+	systemd_cat_log "$prio" "[${level}] ${message}"
 	echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${level}] ${message}" | tee -a "${SCRIPT_LOG}"
 }
 
@@ -395,6 +404,26 @@ gum_init() {
 }
 
 gum() {
+	if [[ ${1:-} == "log" ]]; then
+		local lvl="info" shift_n=1
+		if [[ ${2:-} == "--level" ]]; then
+			lvl=${3:-info}
+			shift_n=3
+		elif [[ ${2:-} == --level=* ]]; then
+			lvl=${2#--level=}
+			shift_n=2
+		fi
+		local msg="${*:shift_n+1}"
+		local prio="info"
+		case "${lvl,,}" in
+			error|err) prio="err" ;;
+			warn|warning) prio="warning" ;;
+			notice|success) prio="notice" ;;
+			debug) prio="debug" ;;
+			*) prio="info" ;;
+		esac
+		systemd_cat_log "$prio" "$msg"
+	fi
 	if [ -n "$GUM" ] && [ -x "$GUM" ]; then
 		"$GUM" "$@"
 	else
@@ -493,6 +522,7 @@ fn_open_dashboard() {
 # event is one of: running, success, fail, done
 fn_emit_event() {
 	local state_file="$1" event="$2" label="$3"
+	systemd_cat_log info "event: ${event} - ${label}"
 	echo "${event}|${label}" >>"$state_file"
 }
 

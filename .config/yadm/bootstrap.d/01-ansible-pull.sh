@@ -17,6 +17,8 @@ set -uo pipefail
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=ansible-pull}"
+
 # Repository holding the playbook (defaults to the GitLab workstation remote).
 PLAYBOOK_URL=${SYNCOPATED_ANSIBLE_PULL_URL-https://gitlab.com/syncopatedX/workstation.git}
 # Playbook file inside the repository.
@@ -59,7 +61,7 @@ main() {
     return "$RC_SKIPPED"
   fi
   info "Applying $PLAYBOOK from $PLAYBOOK_URL"
-  #export ANSIBLE_STDOUT_CALLBACK=default
+  export ANSIBLE_STDOUT_CALLBACK=default
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   local -a pull_args=(
     --url "$PLAYBOOK_URL"
@@ -73,8 +75,17 @@ main() {
   fi
   pull_args+=(--ask-become-pass "$PLAYBOOK")
 
+  local pull_rc=0
   # --ask-become-pass: the playbook changes system settings with sudo.
-  if ! ansible-pull "${pull_args[@]}"; then
+  if have_systemd_cat; then
+    ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
+    pull_rc=${PIPESTATUS[0]}
+  else
+    ansible-pull "${pull_args[@]}"
+    pull_rc=$?
+  fi
+
+  if ((pull_rc != 0)); then
     err "ansible-pull failed"
     return "$RC_FAILED"
   fi

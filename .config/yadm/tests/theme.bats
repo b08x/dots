@@ -166,3 +166,79 @@ else exit 0; fi'
   run bash -c 'source "$1"; echo "3,1" | choose_many H A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
   [ "$output" = $'C\nA' ]
 }
+
+# systemd_cat_stub : stub systemd-cat to record calls and standard input
+systemd_cat_stub() {
+  stub systemd-cat 'echo "systemd-cat $*" >>"$T/calls"; cat >>"$T/systemd_cat_in"; exit 0'
+}
+
+@test "systemd_cat_log calls systemd-cat with identifier and priority" {
+  systemd_cat_stub
+  run bash -c 'source "$1"; systemd_cat_log info "hello world"' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p info' "$T/calls"
+  grep -q 'hello world' "$T/systemd_cat_in"
+}
+
+@test "systemd_cat_log supports piped stdin input and step prefix" {
+  systemd_cat_stub
+  run bash -c 'source "$1"; SYNCOPATED_STEP=cargo; printf "line 1\nline 2\n" | systemd_cat_log info' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p info' "$T/calls"
+  grep -q '\[cargo\] line 1' "$T/systemd_cat_in"
+  grep -q '\[cargo\] line 2' "$T/systemd_cat_in"
+}
+
+@test "systemd_cat_log respects SYNCOPATED_LOG_IDENTIFIER override" {
+  systemd_cat_stub
+  run bash -c 'SYNCOPATED_LOG_IDENTIFIER=custom-id; source "$1"; systemd_cat_log warning "caution"' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t custom-id -p warning' "$T/calls"
+  grep -q 'caution' "$T/systemd_cat_in"
+}
+
+@test "info, ok, warn, err forward messages to systemd-cat with appropriate priorities" {
+  systemd_cat_stub
+  run bash -c 'source "$1"; info "step info"; ok "step ok"; warn "step warn" 2>&1; err "step err" 2>&1' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p info' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p notice' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p warning' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p err' "$T/calls"
+  grep -q 'step info' "$T/systemd_cat_in"
+  grep -q 'step ok' "$T/systemd_cat_in"
+  grep -q 'step warn' "$T/systemd_cat_in"
+  grep -q 'step err' "$T/systemd_cat_in"
+}
+
+@test "run_item logs installation start, command output, and exit status to systemd-cat" {
+  systemd_cat_stub
+  run bash -c 'source "$1"; LOG_FILE=$2/log; SYNCOPATED_STEP=test-step; run_item "Rust toolchain" bash -c "echo building crate; exit 0"' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p info' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p notice' "$T/calls"
+  grep -q 'Installing Rust toolchain' "$T/systemd_cat_in"
+  grep -q 'building crate' "$T/systemd_cat_in"
+  grep -q 'Rust toolchain (exit 0)' "$T/systemd_cat_in"
+}
+
+@test "gum-helpers log function logs to systemd-cat with level mapped to priority" {
+  systemd_cat_stub
+  run bash -c 'export GUM_HELPERS_NO_TRAP=1; cd "$2"; source "$1" >/dev/null; log "INFO" "starting up"; log "WARN" "warning alert"; log "ERROR" "something failed"' _ "$YADM_SRC/scripts/gum-helpers.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p info' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p warning' "$T/calls"
+  grep -q 'systemd-cat -t yadm-bootstrap -p err' "$T/calls"
+  grep -q 'starting up' "$T/systemd_cat_in"
+  grep -q 'warning alert' "$T/systemd_cat_in"
+  grep -q 'something failed' "$T/systemd_cat_in"
+}
+
+@test "gum-helpers gum log intercepts and logs to systemd-cat" {
+  systemd_cat_stub
+  stub gum 'echo "gum $*" >>"$T/calls"; exit 0'
+  run bash -c 'export GUM_HELPERS_NO_TRAP=1; cd "$2"; source "$1" >/dev/null; gum log --level error "an error occurred"' _ "$YADM_SRC/scripts/gum-helpers.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p err' "$T/calls"
+  grep -q 'an error occurred' "$T/systemd_cat_in"
+}

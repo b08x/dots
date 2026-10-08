@@ -12,6 +12,8 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=install-vscode-extensions}"
+
 EXTENSIONS_FILE=${VSCODE_EXTENSIONS_FILE:-$YADM_CONFIG_DIR/files/vscode-extensions.txt}
 DID_WORK=0
 FAILED=0

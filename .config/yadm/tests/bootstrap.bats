@@ -268,3 +268,13 @@ run_menu() { run bash -c 'printf "%b" "$1" | SYNCOPATED_FORCE_INTERACTIVE=1 bash
   run_bootstrap
   ! grep -q '^sudo -v' "$T/calls"
 }
+
+@test "bootstrap orchestrator logs lifecycle events and step states to systemd-cat" {
+  stub systemd-cat 'echo "systemd-cat $*" >>"$T/calls"; cat >>"$T/systemd_cat_in"; exit 0'
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  grep -q 'systemd-cat -t yadm-bootstrap -p notice' "$T/calls"
+  grep -q 'Bootstrap script started' "$T/systemd_cat_in"
+  grep -q 'Bootstrap finished' "$T/systemd_cat_in"
+  grep -q 'one ok' "$T/systemd_cat_in"
+}

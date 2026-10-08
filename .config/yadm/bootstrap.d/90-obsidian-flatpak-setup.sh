@@ -21,6 +21,8 @@ source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-th
 # shellcheck source=../scripts/gum-helpers.sh
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/gum-helpers.sh"
 
+: "${SYNCOPATED_STEP:=obsidian}"
+
 USE_FLATPAK=""
 INIT_GIT=""
 
@@ -353,12 +355,18 @@ for plugin in "${PLUGINS[@]}"; do
     if [[ -d ".obsidian/plugins/$plugin" ]]; then
         gum log --level info "Skipping: $plugin (already installed) [$CURRENT/$TOTAL]"
     else
-        # obsidian CLI output is swallowed by gum spin unless it fails
-        if gum spin --spinner dot --title "Installing: $plugin [$CURRENT/$TOTAL]" -- obsidian plugin:install id="$plugin" enable; then
+        systemd_cat_log info "Installing plugin: $plugin [$CURRENT/$TOTAL]"
+        plugin_out=$(mktemp) || continue
+        # shellcheck disable=SC2016  # $1 and $@ belong to the child shell
+        if gum spin --spinner dot --title "Installing: $plugin [$CURRENT/$TOTAL]" -- \
+            bash -c 'out=$1; shift; "$@" >"$out" 2>&1' _ "$plugin_out" obsidian plugin:install id="$plugin" enable; then
+            [[ -s $plugin_out ]] && systemd_cat_log info <"$plugin_out"
             gum log --level info "Successfully installed and enabled $plugin."
         else
+            [[ -s $plugin_out ]] && systemd_cat_log err <"$plugin_out"
             gum log --level error "Failed to install $plugin."
         fi
+        rm -f "$plugin_out"
     fi
 done
 

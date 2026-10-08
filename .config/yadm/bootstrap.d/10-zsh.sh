@@ -12,6 +12,8 @@ set -uo pipefail
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=zsh}"
+
 OMZ_URL=https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 ZOXIDE_URL=https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh
 SYSTEM_OMZ=${SYNCOPATED_SYSTEM_OMZ:-/usr/share/oh-my-zsh}

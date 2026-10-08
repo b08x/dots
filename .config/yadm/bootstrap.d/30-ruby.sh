@@ -11,6 +11,8 @@ YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
 # shellcheck source=../scripts/syncopated-theme.sh
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
+: "${SYNCOPATED_STEP:=ruby}"
+
 RUBY_VERSION_WANTED=4.0.4
 PACKAGES_FILE=$YADM_CONFIG_DIR/files/default-gems.txt
 RBENV_ROOT=${RBENV_ROOT:-$HOME/.rbenv}

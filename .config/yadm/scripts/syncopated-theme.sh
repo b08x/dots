@@ -126,10 +126,51 @@ paint() {
   } >&"$fd"
 }
 
-info() { paint 1 "${VIOLET_LIGHT[@]}" "➜ $*"; }
-ok() { paint 1 "${EMBER[@]}" "✓ $*"; }
-warn() { paint 2 '#E0A030' 214 "! $*"; }
-err() { paint 2 '#D03030' 160 "✗ $*"; }
+# Syslog identifier for systemd-cat (customizable via SYNCOPATED_LOG_IDENTIFIER)
+BOOTSTRAP_LOG_IDENTIFIER=${SYNCOPATED_LOG_IDENTIFIER:-yadm-bootstrap}
+
+have_systemd_cat() {
+  command -v systemd-cat >/dev/null 2>&1
+}
+
+# systemd_cat_log PRIORITY [MESSAGE...] : log to systemd journal via systemd-cat.
+# Supports both message arguments and standard input piping.
+systemd_cat_log() {
+  local priority=${1:-info}
+  shift
+  have_systemd_cat || return 0
+  local prefix=""
+  [[ -n ${SYNCOPATED_STEP:-} ]] && prefix="[${SYNCOPATED_STEP}] "
+  if (($# > 0)); then
+    printf '%s%s\n' "$prefix" "$*" | systemd-cat -t "$BOOTSTRAP_LOG_IDENTIFIER" -p "$priority" 2>/dev/null || true
+  else
+    if [[ -n $prefix ]]; then
+      sed "s/^/$prefix/" | systemd-cat -t "$BOOTSTRAP_LOG_IDENTIFIER" -p "$priority" 2>/dev/null || true
+    else
+      systemd-cat -t "$BOOTSTRAP_LOG_IDENTIFIER" -p "$priority" 2>/dev/null || true
+    fi
+  fi
+}
+
+info() {
+  systemd_cat_log info "➜ $*"
+  paint 1 "${VIOLET_LIGHT[@]}" "➜ $*"
+}
+
+ok() {
+  systemd_cat_log notice "✓ $*"
+  paint 1 "${EMBER[@]}" "✓ $*"
+}
+
+warn() {
+  systemd_cat_log warning "! $*"
+  paint 2 '#E0A030' 214 "! $*"
+}
+
+err() {
+  systemd_cat_log err "✗ $*"
+  paint 2 '#D03030' 160 "✗ $*"
+}
 
 # fg HEX INDEX : print the SGR sequence for a foreground color. Uses 24-bit
 # color when the terminal reports it in COLORTERM, else the 256-color index.
@@ -400,13 +441,14 @@ spinner_ok() {
 }
 
 # run_item LABEL CMD... : run one install under a spinner titled with LABEL.
-# Output goes to a temp file, is appended to the log, and is printed only when
-# the command fails. Returns the command's exit status.
+# Output goes to a temp file, is appended to the log, logged to systemd-cat,
+# and is printed only when the command fails. Returns the command's exit status.
 run_item() {
   local label=$1 out rc log=${LOG_FILE:-$HOME/.bootstrap.log}
   shift
   out=$(mktemp) || return 1
   if spinner_ok; then
+    systemd_cat_log info "Installing $label"
     # gum starts a new process, so a shell function must be exported first.
     [[ $(type -t "$1") == function ]] && export -f "${1?}"
     # shellcheck disable=SC2016  # $1 and $@ belong to the child shell
@@ -417,6 +459,18 @@ run_item() {
     info "Installing $label"
     "$@" >"$out" 2>&1 </dev/null
     rc=$?
+  fi
+  if [[ -s $out ]]; then
+    if ((rc == 0)); then
+      systemd_cat_log info <"$out"
+    else
+      systemd_cat_log err <"$out"
+    fi
+  fi
+  if ((rc == 0)); then
+    systemd_cat_log notice "$label (exit $rc)"
+  else
+    systemd_cat_log err "$label (exit $rc)"
   fi
   {
     printf '[%s] %s (exit %d)\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$label" "$rc"

@@ -46,7 +46,14 @@ restore_terminal() {
 }
 
 log_line() {
-  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$LOG_FILE"
+  local msg="$*" prio="info"
+  if [[ $msg == *" failed"* || $msg == *"with failures"* || $msg == *"aborted"* ]]; then
+    prio="err"
+  elif [[ $msg == *"started"* || $msg == *"finished"* || $msg == *" ok"* ]]; then
+    prio="notice"
+  fi
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$msg" >>"$LOG_FILE"
+  systemd_cat_log "$prio" "$msg"
 }
 
 interactive() {
@@ -101,6 +108,7 @@ ensure_gum() {
 
 # Prompt about tracked-file drift and host files that alternates would replace.
 check_drift_and_collisions() {
+  local SYNCOPATED_STEP=preflight
   info "Checking for configuration drift and potential file collisions"
 
   local modified_files=() alt_targets=() f target action backup_dir
@@ -165,6 +173,7 @@ check_drift_and_collisions() {
 }
 
 step_shell() {
+  local SYNCOPATED_STEP=shell
   local login zsh_path
   login=$(getent passwd "$USER_NAME" | cut -d: -f7)
   if [[ $login == *zsh ]]; then
@@ -181,12 +190,22 @@ step_shell() {
 }
 
 step_decrypt() {
+  local SYNCOPATED_STEP=decrypt
   info "Decrypting secrets"
-  yadm decrypt || return "$RC_FAILED"
+  local rc=0
+  if have_systemd_cat; then
+    yadm decrypt 2>&1 | tee >(systemd_cat_log info)
+    rc=${PIPESTATUS[0]}
+  else
+    yadm decrypt
+    rc=$?
+  fi
+  ((rc == 0)) || return "$RC_FAILED"
   ok "Secrets decrypted"
 }
 
 step_alternates() {
+  local SYNCOPATED_STEP=alternates
   info "Checking for the Jinja2 template engine (jinjanator)"
   if ! command -v j2 >/dev/null 2>&1; then
     if ! command -v uv >/dev/null 2>&1; then
@@ -194,10 +213,26 @@ step_alternates() {
       return "$RC_FAILED"
     fi
     info "j2 not found; installing jinjanator with uv"
-    uv tool install jinjanator || return "$RC_FAILED"
+    local uv_rc=0
+    if have_systemd_cat; then
+      uv tool install jinjanator 2>&1 | tee >(systemd_cat_log info)
+      uv_rc=${PIPESTATUS[0]}
+    else
+      uv tool install jinjanator
+      uv_rc=$?
+    fi
+    ((uv_rc == 0)) || return "$RC_FAILED"
   fi
   info "Processing yadm alternates and templates"
-  yadm alt || return "$RC_FAILED"
+  local alt_rc=0
+  if have_systemd_cat; then
+    yadm alt 2>&1 | tee >(systemd_cat_log info)
+    alt_rc=${PIPESTATUS[0]}
+  else
+    yadm alt
+    alt_rc=$?
+  fi
+  ((alt_rc == 0)) || return "$RC_FAILED"
   ok "Alternates processed"
 }
 
@@ -274,6 +309,7 @@ finish() {
 # run_step NAME : run the command registered for NAME, record the state, redraw.
 run_step() {
   local name=$1 rc choice
+  export SYNCOPATED_STEP=$name
   while :; do
     "${STEP_CMD[$name]}"
     rc=$?
@@ -296,6 +332,7 @@ run_step() {
     fi
     break
   done
+  export SYNCOPATED_STEP="bootstrap"
   show_steps
 }
 
@@ -358,6 +395,7 @@ on_interrupt() {
 
 main() {
   parse_args "$@"
+  export SYNCOPATED_STEP="bootstrap"
   mkdir -p "$(dirname "$LOG_FILE")"
   log_line "Bootstrap script started"
   trap on_interrupt INT TERM
