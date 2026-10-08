@@ -423,12 +423,55 @@ gum() {
 			*) prio="info" ;;
 		esac
 		systemd_cat_log "$prio" "$msg"
+	elif [[ ${1:-} == "spin" ]]; then
+		shift
+		local saved_stty="" tty_device=""
+		if [[ -t 0 ]]; then
+			saved_stty=$(stty -g 2>/dev/null)
+		elif [[ -r /dev/tty ]]; then
+			saved_stty=$(stty -g </dev/tty 2>/dev/null)
+			tty_device="/dev/tty"
+		fi
+
+		if [[ -n $saved_stty ]]; then
+			if [[ -n $tty_device ]]; then
+				stty -echo <"$tty_device" 2>/dev/null
+			else
+				stty -echo 2>/dev/null
+			fi
+		fi
+
+		local rc=0
+		local gum_cmd=(command gum)
+		if [ -n "${GUM:-}" ] && [ -x "$GUM" ]; then
+			gum_cmd=("$GUM")
+		elif command -v gum >/dev/null 2>&1; then
+			gum_cmd=(command gum)
+		fi
+
+		GUM_SPIN_SHOW_OUTPUT=false "${gum_cmd[@]}" spin --show-output=false "$@"
+		rc=$?
+
+		if declare -F drain_tty_input >/dev/null 2>&1; then
+			drain_tty_input
+		fi
+
+		if [[ -n $saved_stty ]]; then
+			if [[ -n $tty_device ]]; then
+				stty "$saved_stty" <"$tty_device" 2>/dev/null
+			else
+				stty "$saved_stty" 2>/dev/null
+			fi
+		fi
+		return "$rc"
 	fi
-	if [ -n "$GUM" ] && [ -x "$GUM" ]; then
+	if [ -n "${GUM:-}" ] && [ -x "$GUM" ]; then
 		"$GUM" "$@"
+	elif command -v gum >/dev/null 2>&1; then
+		command gum "$@"
 	else
-		log "ERROR" "GUM='${GUM}' is not found or executable"
-		echo "Error: GUM='${GUM}' is not found or executable" >&2
+		log "ERROR" "GUM='${GUM:-gum}' is not found or executable"
+		echo "Error: GUM='${GUM:-gum}' is not found or executable" >&2
 		return 1
 	fi
 }

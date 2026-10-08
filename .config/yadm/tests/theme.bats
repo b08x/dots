@@ -242,3 +242,22 @@ systemd_cat_stub() {
   grep -q 'systemd-cat -t yadm-bootstrap -p err' "$T/calls"
   grep -q 'an error occurred' "$T/systemd_cat_in"
 }
+
+@test "run_item under gum disables echo, passes show-output=false, and drains terminal replies" {
+  stub gum 'if [ "$1" = spin ]; then
+  shift; while [ "$1" != -- ]; do [ "$1" = --title ] && echo "title $2" >>"$T/calls"; shift; done
+  shift; "$@"
+else exit 0; fi'
+  run bash -c 'source "$1"; LOG_FILE=$2/log; SYNCOPATED_FORCE_INTERACTIVE=1 run_item "Claude-code" bash -c "echo installed; exit 0"' _ "$YADM_SRC/scripts/syncopated-theme.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -qx 'title Installing Claude-code' "$T/calls"
+  [[ $output == *"✓ Claude-code"* ]]
+}
+
+@test "gum-helpers gum spin intercepts spin and runs with show-output=false" {
+  stub gum 'echo "gum $*" >>"$T/calls"; exit 0'
+  run bash -c 'export GUM=gum GUM_HELPERS_NO_TRAP=1; cd "$2"; source "$1" >/dev/null; gum spin --title "Running" -- sleep 0' _ "$YADM_SRC/scripts/gum-helpers.sh" "$T"
+  [ "$status" -eq 0 ]
+  grep -q 'gum spin --show-output=false --title Running -- sleep 0' "$T/calls"
+}
+

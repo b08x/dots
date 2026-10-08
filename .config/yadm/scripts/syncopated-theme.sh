@@ -440,6 +440,25 @@ spinner_ok() {
   have_gum && { [[ -t 1 ]] || [[ -n ${SYNCOPATED_FORCE_INTERACTIVE:-} ]]; }
 }
 
+# drain_tty_input : discard unconsumed terminal responses (such as DECRQM
+# mode 2026/2027 and kitty keyboard queries sent by gum 2.x) from the
+# terminal input buffer so they do not leak into stdout or future prompts.
+drain_tty_input() {
+  local prev_ttin
+  prev_ttin=$(trap -p SIGTTIN)
+  trap '' SIGTTIN 2>/dev/null
+  if ( : </dev/tty ) 2>/dev/null; then
+    while IFS= read -rs -t 0.05 -N 1000 -u 3 _; do :; done 3</dev/tty 2>/dev/null
+  elif [[ -t 0 ]]; then
+    while IFS= read -rs -t 0.05 -N 1000 _; do :; done 2>/dev/null
+  fi
+  if [[ -n $prev_ttin ]]; then
+    eval "$prev_ttin"
+  else
+    trap - SIGTTIN 2>/dev/null
+  fi
+}
+
 # run_item LABEL CMD... : run one install under a spinner titled with LABEL.
 # Output goes to a temp file, is appended to the log, logged to systemd-cat,
 # and is printed only when the command fails. Returns the command's exit status.
@@ -451,10 +470,38 @@ run_item() {
     systemd_cat_log info "Installing $label"
     # gum starts a new process, so a shell function must be exported first.
     [[ $(type -t "$1") == function ]] && export -f "${1?}"
+
+    local saved_stty="" tty_device=""
+    if [[ -t 0 ]]; then
+      saved_stty=$(stty -g 2>/dev/null)
+    elif [[ -r /dev/tty ]]; then
+      saved_stty=$(stty -g </dev/tty 2>/dev/null)
+      tty_device="/dev/tty"
+    fi
+
+    if [[ -n $saved_stty ]]; then
+      if [[ -n $tty_device ]]; then
+        stty -echo <"$tty_device" 2>/dev/null
+      else
+        stty -echo 2>/dev/null
+      fi
+    fi
+
+    # Disable SHOW_OUTPUT so gum spin does not attach or stream command output to terminal.
     # shellcheck disable=SC2016  # $1 and $@ belong to the child shell
-    gum spin --spinner dot --title "Installing $label" -- \
+    GUM_SPIN_SHOW_OUTPUT=false gum spin --show-output=false --spinner dot --title "Installing $label" -- \
       bash -c 'out=$1; shift; "$@" >"$out" 2>&1 </dev/null' _ "$out" "$@"
     rc=$?
+
+    drain_tty_input
+
+    if [[ -n $saved_stty ]]; then
+      if [[ -n $tty_device ]]; then
+        stty "$saved_stty" <"$tty_device" 2>/dev/null
+      else
+        stty "$saved_stty" 2>/dev/null
+      fi
+    fi
   else
     info "Installing $label"
     "$@" >"$out" 2>&1 </dev/null
