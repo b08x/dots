@@ -13,3 +13,6 @@ org.cutwire.Drift
 org.darktable.Darktable
 org.remmina.Remmina
 app.devsuite.Ptyxis
+page.tesk.Refine
+io.github.getnf.embellish
+org.upscayl.Upscayl
