@@ -61,7 +61,7 @@ main() {
     return "$RC_SKIPPED"
   fi
   info "Applying $PLAYBOOK from $PLAYBOOK_URL"
-  export ANSIBLE_STDOUT_CALLBACK=default
+  #export ANSIBLE_STDOUT_CALLBACK=default
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   local -a pull_args=(
     --url "$PLAYBOOK_URL"
