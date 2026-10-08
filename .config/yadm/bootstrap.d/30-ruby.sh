@@ -16,11 +16,68 @@ source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 RUBY_VERSION_WANTED=4.0.4
 PACKAGES_FILE=$YADM_CONFIG_DIR/files/default-gems.txt
 RBENV_ROOT=${RBENV_ROOT:-$HOME/.rbenv}
+RUBY_TMPDIR=${RUBY_TMPDIR:-$RBENV_ROOT/tmp}
 export RUBY_CONFIGURE_OPTS=${RUBY_CONFIGURE_OPTS:---with-openssl-dir=/usr}
 
 PATH=$RBENV_ROOT/shims:$PATH
 DID_WORK=0
 FAILED=0
+RUBY_TMPDIR_CREATED=""
+
+cleanup_tmpdir() {
+  if [[ -n $RUBY_TMPDIR_CREATED && -d $RUBY_TMPDIR_CREATED ]]; then
+    rmdir "$RUBY_TMPDIR_CREATED" 2>/dev/null || true
+  fi
+}
+trap cleanup_tmpdir EXIT
+
+# can_execute_in DIR : verify that binaries or scripts can be executed in DIR.
+# Returns 0 if execution succeeds, 1 if blocked (e.g. noexec mount).
+can_execute_in() {
+  local dir=$1 testfile rc=1
+  [[ -d $dir && -w $dir ]] || return 1
+  testfile=$(mktemp -p "$dir" .can_exec.XXXXXX 2>/dev/null) || return 1
+  chmod 700 "$testfile" 2>/dev/null || { rm -f "$testfile"; return 1; }
+  printf '#!/bin/sh\nexit 0\n' >"$testfile" 2>/dev/null
+  if [[ -x $testfile ]] && "$testfile" 2>/dev/null; then
+    rc=0
+  fi
+  rm -f "$testfile"
+  return "$rc"
+}
+
+# setup_tmpdir : detect whether /tmp (or current TMPDIR) is mounted with noexec.
+# When execution is blocked, configure and export TMPDIR to point to an executable
+# directory under RBENV_ROOT so ruby-build, configure scripts, and native gem extensions succeed.
+setup_tmpdir() {
+  local current_tmp="${TMPDIR:-/tmp}"
+  if ! can_execute_in "$current_tmp"; then
+    local fallback_tmp="${RUBY_TMPDIR:-$RBENV_ROOT/tmp}"
+    if [[ ! -d $fallback_tmp ]]; then
+      mkdir -p "$fallback_tmp" || {
+        err "Could not create temporary directory: $fallback_tmp"
+        return 1
+      }
+      chmod 700 "$fallback_tmp" 2>/dev/null || true
+      RUBY_TMPDIR_CREATED="$fallback_tmp"
+    fi
+
+    if ! can_execute_in "$fallback_tmp"; then
+      err "Temporary directory $fallback_tmp does not permit execution"
+      return 1
+    fi
+
+    export TMPDIR="$fallback_tmp"
+    info "Configured TMPDIR=$TMPDIR ($current_tmp does not permit execution)"
+  fi
+
+  if [[ -n ${RUBY_BUILD_BUILD_PATH:-} ]] && ! can_execute_in "$RUBY_BUILD_BUILD_PATH"; then
+    warn "RUBY_BUILD_BUILD_PATH ($RUBY_BUILD_BUILD_PATH) is not executable; unsetting"
+    unset RUBY_BUILD_BUILD_PATH
+  fi
+
+  return 0
+}
 
 install_ruby() {
   if ! command -v rbenv >/dev/null 2>&1; then
@@ -98,6 +155,7 @@ install_gems() {
 }
 
 main() {
+  setup_tmpdir || return "$RC_FAILED"
   install_ruby || return "$RC_FAILED"
   set_global || return "$RC_FAILED"
   write_gemrc || return "$RC_FAILED"

@@ -151,3 +151,21 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   run_ruby
   ! grep -q 'update.*--system' "$T/calls"
 }
+
+@test "falls back to RUBY_TMPDIR when TMPDIR does not permit execution" {
+  local noexec_tmp="$T/noexec_tmp"
+  mkdir -p "$noexec_tmp"
+  chmod 500 "$noexec_tmp"
+  TMPDIR="$noexec_tmp" run_ruby
+  [ "$status" -eq 2 ]
+  [[ $output == *"Configured TMPDIR="* ]]
+}
+
+@test "unsets RUBY_BUILD_BUILD_PATH when pointing to non-executable directory" {
+  local noexec_path="$T/noexec_path"
+  mkdir -p "$noexec_path"
+  chmod 500 "$noexec_path"
+  RUBY_BUILD_BUILD_PATH="$noexec_path" run_ruby
+  [ "$status" -eq 2 ]
+  [[ $output == *"is not executable; unsetting"* ]]
+}
