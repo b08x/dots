@@ -177,13 +177,14 @@ run_gnome_step() {
   grep -q 'gnome-extensions install.*ext-b@example.com' "$T/calls"
 }
 
-@test "displays reboot message when system extensions are installed" {
+@test "displays reboot message when extensions are installed without sudo" {
   printf 'test-pkg:test-uuid@example.com\n' >"$T/ext.txt"
   export GNOME_EXTENSIONS_FILE=$T/ext.txt
 
   run_gnome_step
   [ "$status" -eq 0 ]
-  grep -q 'sudo dnf install' "$T/calls"
+  ! grep -q 'sudo' "$T/calls"
+  grep -q 'gnome-extensions install' "$T/calls"
   grep -q 'gnome-extensions enable test-uuid@example.com' "$T/calls"
   [[ $output == *"reboot"* ]]
 }

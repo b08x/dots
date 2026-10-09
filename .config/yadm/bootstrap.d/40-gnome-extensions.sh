@@ -3,8 +3,6 @@
 #
 # Exits 0 when something was installed or enabled, 2 when everything was
 # already in place, 1 on any failure.
-#
-# bootstrap: needs-sudo
 
 set -uo pipefail
 
@@ -19,7 +17,6 @@ DID_WORK=0
 FAILED=0
 EXTENSIONS_INSTALLED=0
 declare -g -A JUST_INSTALLED=()
-declare -g -A PKG_TO_UUID=()
 
 if ! command -v gnome-extensions >/dev/null 2>&1; then
   warn "gnome-extensions command not found; skipping extension management"
@@ -33,26 +30,22 @@ load_extensions() {
   fi
 
   info "Loading GNOME extensions from $EXTENSIONS_FILE"
-  declare -g -a DNF_PACKAGES=()
   declare -g -a ALL_UUIDS=()
   declare -g -a USER_UUIDS=()
 
-  local line pkg uuid
+  local line uuid
   while IFS= read -r line; do
     # Remove comments and whitespace
     line=$(echo "$line" | sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
     [[ -z $line ]] && continue
 
     if [[ $line == *:* ]]; then
-      pkg="${line%%:*}"
       uuid="${line#*:}"
-      DNF_PACKAGES+=("$pkg")
-      ALL_UUIDS+=("$uuid")
-      PKG_TO_UUID["$pkg"]="$uuid"
     else
-      USER_UUIDS+=("$line")
-      ALL_UUIDS+=("$line")
+      uuid="$line"
     fi
+    USER_UUIDS+=("$uuid")
+    ALL_UUIDS+=("$uuid")
   done < "$EXTENSIONS_FILE"
 }
 
@@ -70,36 +63,6 @@ is_extension_installed() {
     return 0
   fi
   return 1
-}
-
-install_system_extensions() {
-  if ((${#DNF_PACKAGES[@]} == 0)); then
-    return 0
-  fi
-
-  local to_install=()
-  for pkg in "${DNF_PACKAGES[@]}"; do
-    if ! rpm -q "$pkg" >/dev/null 2>&1; then
-      to_install+=("$pkg")
-    fi
-  done
-
-  if ((${#to_install[@]} > 0)); then
-    # bootstrap runs `sudo -v` first, so the spinner never hides a password prompt.
-    if run_item "GNOME extension packages" sudo dnf install -y "${to_install[@]}"; then
-      DID_WORK=1
-      EXTENSIONS_INSTALLED=$((EXTENSIONS_INSTALLED + ${#to_install[@]}))
-      for pkg in "${to_install[@]}"; do
-        if [[ -n ${PKG_TO_UUID[$pkg]:-} ]]; then
-          JUST_INSTALLED["${PKG_TO_UUID[$pkg]}"]=1
-        fi
-      done
-    else
-      FAILED=1
-    fi
-  else
-    info "All system GNOME extension packages are already installed"
-  fi
 }
 
 get_shell_version() {
@@ -300,11 +263,7 @@ enable_extensions() {
         fi
       fi
     else
-      if [[ " ${USER_UUIDS[*]} " == *" $uuid "* ]]; then
-        warn "User extension $uuid is not installed even after install step."
-      else
-        warn "System extension $uuid is not installed even after DNF step."
-      fi
+      warn "Extension $uuid is not installed; skipping enable."
     fi
   done
 
@@ -314,7 +273,6 @@ enable_extensions() {
 
 main() {
   load_extensions || return "$RC_FAILED"
-  install_system_extensions
   install_user_extensions
   enable_extensions
 

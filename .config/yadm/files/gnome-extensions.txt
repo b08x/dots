@@ -1,14 +1,5 @@
-# System Extensions (dnf package:UUID)
-gnome-shell-extension-appindicator:appindicatorsupport@rgcjonas.gmail.com
-gnome-shell-extension-apps-menu:apps-menu@gnome-shell-extensions.gcampax.github.com
-gnome-shell-extension-auto-move-windows:auto-move-windows@gnome-shell-extensions.gcampax.github.com
-gnome-shell-extension-dash-to-dock:dash-to-dock@micxgx.gmail.com
-gnome-shell-extension-places-menu:places-menu@gnome-shell-extensions.gcampax.github.com
-gnome-shell-extension-user-theme:user-theme@gnome-shell-extensions.gcampax.github.com
-gnome-shell-extension-launch-new-instance:launch-new-instance@gnome-shell-extensions.gcampax.github.com
-gnome-shell-extension-workspace-indicator:workspace-indicator@gnome-shell-extensions.gcampax.github.com
-
 # User Extensions (UUID only)
+# System extensions are managed by the Ansible desktop role
 notification-timeout@chlumskyvaclav.gmail.com
 notification-configurator@exposedcat
 junk-notification-cleaner@murar8.github.com
