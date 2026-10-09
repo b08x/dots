@@ -1,7 +1,6 @@
 # Crates installed by bootstrap.d/20-cargo.sh. Blank lines and # comments are ignored.
 bottom
 choose
-du-dust
 git-cliff
 gping
 ripgrep_all
@@ -9,3 +8,4 @@ sd
 gitui
 eza
 weathr
+dua-cli
