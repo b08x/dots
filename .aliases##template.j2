@@ -1,11 +1,7 @@
 # =============================================================================
 # yadm managed template (Jinja2 syntax)
 # =============================================================================
-alias vdc="fd -e mp4 | fzf \
-  --bind 'enter:execute(mpv --no-keep-open {})' \
-  --bind 'ctrl-d:execute(rm -i {+})+reload(fd -e mp4)' \
-  --bind 'ctrl-y:execute-silent(echo -n {+} | xclip -selection clipboard)'"
-alias vd="fd -e mp4 | fzf --bind 'enter:execute(mpv {})' --bind 'ctrl-d:execute(rm -i {+})+reload(fd -e mp4)'"
+# alias vd="fd -e mp4 | fzf --bind 'enter:execute(mpv {})' --bind 'ctrl-d:execute(rm -i {+})+reload(fd -e mp4)'"
 # System power
 alias reboot="sudo shutdown -r now"
 alias shutdown="sudo shutdown -h now"
