@@ -1,0 +1,383 @@
+#!/usr/bin/python3
+"""vlm-annotate - Vision-Language Model Image Annotation Tool
+
+Annotates screenshots and images using AI agent harnesses (agy, vibe, claude)
+or LiteLLM / Google GenAI providers (Mistral, OpenRouter, Gemini, Anthropic).
+
+Writes markdown sidecar files (<image>.md) containing image summaries, OCR,
+and tags, or outputs directly to stdout.
+"""
+
+import argparse
+import base64
+import os
+import shutil
+import subprocess
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+import warnings
+
+# Suppress noisy Pydantic / SDK serialization warnings
+warnings.filterwarnings("ignore")
+
+DEFAULT_PROMPT = """Analyze this image in detail and produce a structured Markdown summary.
+Include:
+1. # <Concise descriptive title>
+2. A brief 2-3 sentence summary of what the image depicts.
+3. Key visual components and layout hierarchy.
+4. Extracted text / UI labels / OCR contents (if any).
+5. Relevant categorization tags (e.g. #screenshot, #dashboard, #terminal, #error).
+
+Be factual, crisp, and direct."""
+
+SUPPORTED_IMAGE_EXTS = {
+    ".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".svg",
+    ".tiff", ".tif", ".avif", ".ico", ".heic", ".hdr"
+}
+
+
+def check_tool(name: str) -> bool:
+    return shutil.which(name) is not None
+
+
+def detect_available_engines():
+    engines = {}
+    
+    # CLI Agent Harnesses
+    if check_tool("agy"):
+        engines["agy"] = "Installed (Antigravity CLI)"
+    if check_tool("vibe"):
+        engines["vibe"] = "Installed (Mistral Vibe CLI)"
+    if check_tool("claude"):
+        engines["claude"] = "Installed (Claude Code CLI)"
+
+    # LiteLLM Providers
+    try:
+        import litellm
+        litellm_providers = []
+        if os.getenv("MISTRAL_API_KEY"):
+            litellm_providers.append("Mistral")
+        if os.getenv("OPENROUTER_API_KEY"):
+            litellm_providers.append("OpenRouter")
+        if os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+            litellm_providers.append("Gemini")
+        if os.getenv("ANTHROPIC_API_KEY"):
+            litellm_providers.append("Anthropic")
+        
+        engines["litellm"] = f"Available ({', '.join(litellm_providers) if litellm_providers else 'no API keys set'})"
+    except ImportError:
+        pass
+
+    # Direct Gemini SDK
+    try:
+        import google.genai
+        if os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+            engines["gemini"] = "Available (google.genai SDK)"
+    except ImportError:
+        pass
+
+    return engines
+
+
+def select_default_engine() -> str:
+    env_engine = os.getenv("VLM_ENGINE", "").lower().strip()
+    if env_engine:
+        return env_engine
+
+    # User preference order:
+    # 1. agy
+    # 2. vibe
+    # 3. claude
+    # 4. litellm
+    # 5. gemini
+    if check_tool("agy"):
+        return "agy"
+    if check_tool("vibe"):
+        return "vibe"
+    if check_tool("claude"):
+        return "claude"
+    try:
+        import litellm
+        if any(os.getenv(k) for k in ["MISTRAL_API_KEY", "OPENROUTER_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "ANTHROPIC_API_KEY"]):
+            return "litellm"
+    except ImportError:
+        pass
+    
+    try:
+        import google.genai
+        if os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+            return "gemini"
+    except ImportError:
+        pass
+
+    return "agy"
+
+
+def annotate_with_agy(image_path: Path, prompt: str) -> str:
+    cmd = [
+        "agy", "-p",
+        f"{prompt}\n\nImage file to inspect: {image_path.resolve()}",
+        "--dangerously-skip-permissions"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if res.returncode != 0:
+        raise RuntimeError(f"agy error (code {res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
+    return res.stdout.strip()
+
+
+def annotate_with_vibe(image_path: Path, prompt: str) -> str:
+    cmd = [
+        "vibe", "-p",
+        f"{prompt}\n\nImage file to inspect: {image_path.resolve()}",
+        "--trust", "--auto-approve"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if res.returncode != 0:
+        raise RuntimeError(f"vibe error (code {res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
+    return res.stdout.strip()
+
+
+def annotate_with_claude(image_path: Path, prompt: str) -> str:
+    env = os.environ.copy()
+    # Unset ANTHROPIC_API_KEY if claude.ai login subscription takes precedence
+    # Keep it if user explicitly passes custom key, but unsetting fixes "Invalid API key" on claude login
+    cmd = [
+        "claude", "-p",
+        f"{prompt}\n\nImage file to inspect: {image_path.resolve()}",
+        "--dangerously-skip-permissions"
+    ]
+    # Test if ANTHROPIC_API_KEY causes issues; unset if needed
+    test_env = env.copy()
+    test_env.pop("ANTHROPIC_API_KEY", None)
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=test_env)
+    if res.returncode != 0 and "Invalid API key" in res.stderr:
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+    if res.returncode != 0:
+        raise RuntimeError(f"claude error (code {res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
+    return res.stdout.strip()
+
+
+def annotate_with_litellm(image_path: Path, prompt: str, model_override: str = None) -> str:
+    from litellm import completion
+
+    with open(image_path, "rb") as f:
+        b64_data = base64.b64encode(f.read()).decode("utf-8")
+
+    ext = image_path.suffix.lower().lstrip(".")
+    mime = f"image/{ext}" if ext in ["png", "jpeg", "jpg", "webp", "gif"] else "image/png"
+
+    # User priority: mistral, openrouter, gemini, anthropic
+    models_to_try = []
+    if model_override:
+        models_to_try = [model_override]
+    else:
+        if os.getenv("MISTRAL_API_KEY"):
+            models_to_try.append("mistral/pixtral-12b-2409")
+        if os.getenv("OPENROUTER_API_KEY"):
+            models_to_try.append("openrouter/google/gemini-2.5-flash")
+        if os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+            models_to_try.append("gemini/gemini-2.5-flash")
+        if os.getenv("ANTHROPIC_API_KEY"):
+            models_to_try.append("anthropic/claude-3-5-sonnet-20241022")
+
+    if not models_to_try:
+        raise RuntimeError("No API keys found for LiteLLM (set MISTRAL_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY, or ANTHROPIC_API_KEY)")
+
+    last_error = None
+    for model in models_to_try:
+        try:
+            response = completion(
+                model=model,
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64_data}"}}
+                    ]
+                }]
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            last_error = e
+            continue
+
+    raise RuntimeError(f"LiteLLM failed across all models ({models_to_try}): {last_error}")
+
+
+def annotate_with_gemini(image_path: Path, prompt: str, model_override: str = None) -> str:
+    from google import genai
+    from google.genai import types
+
+    # Suppress dual-key notice if both GOOGLE_API_KEY and GEMINI_API_KEY are present
+    saved_key = None
+    if "GOOGLE_API_KEY" in os.environ and "GEMINI_API_KEY" in os.environ:
+        saved_key = os.environ.pop("GEMINI_API_KEY", None)
+
+    try:
+        client = genai.Client()
+        model = model_override or "gemini-2.5-flash"
+
+        with open(image_path, "rb") as f:
+            image_bytes = f.read()
+
+        ext = image_path.suffix.lower().lstrip(".")
+        mime_map = {
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "png": "image/png",
+            "webp": "image/webp",
+            "gif": "image/gif",
+        }
+        mime = mime_map.get(ext, "image/png")
+
+        part = types.Part.from_bytes(data=image_bytes, mime_type=mime)
+        response = client.models.generate_content(
+            model=model,
+            contents=[part, prompt]
+        )
+        return response.text.strip()
+    finally:
+        if saved_key is not None:
+            os.environ["GEMINI_API_KEY"] = saved_key
+
+
+def run_annotation(image_path: Path, engine: str, prompt: str, model: str = None) -> (str, str):
+    engine = engine.lower().strip()
+
+    if engine in ("agy", "antigravity"):
+        return annotate_with_agy(image_path, prompt), "agy"
+    elif engine in ("vibe", "mistral-vibe"):
+        return annotate_with_vibe(image_path, prompt), "vibe"
+    elif engine in ("claude", "claudecode"):
+        return annotate_with_claude(image_path, prompt), "claude"
+    elif engine in ("mistral", "pixtral"):
+        return annotate_with_litellm(image_path, prompt, model_override="mistral/pixtral-12b-2409"), "mistral"
+    elif engine in ("openrouter",):
+        return annotate_with_litellm(image_path, prompt, model_override="openrouter/google/gemini-2.5-flash"), "openrouter"
+    elif engine in ("litellm",):
+        return annotate_with_litellm(image_path, prompt, model_override=model), "litellm"
+    elif engine in ("gemini", "google"):
+        return annotate_with_gemini(image_path, prompt, model_override=model), "gemini"
+    elif engine == "auto":
+        resolved_engine = select_default_engine()
+        return run_annotation(image_path, resolved_engine, prompt, model)
+    else:
+        raise ValueError(f"Unknown engine '{engine}'. Choose from: agy, vibe, claude, litellm, mistral, gemini, auto")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Annotate images & screenshots using Vision-Language Models (VLM/AGI).",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Engines:
+  agy        Google Antigravity CLI harness (agy -p)
+  vibe       Mistral Vibe CLI harness (vibe -p)
+  claude     Anthropic Claude Code CLI harness (claude -p)
+  litellm    LiteLLM (Mistral -> OpenRouter -> Gemini -> Anthropic)
+  gemini     Direct Google GenAI SDK (gemini-2.5-flash)
+  auto       Automatically select first available engine (default)
+
+Examples:
+  vlm-annotate screenshot.png
+  vlm-annotate -e vibe img1.png img2.png
+  vlm-annotate -e litellm --prompt "Extract all code and errors" app_crash.png
+  vlm-annotate -s banner.png | glow -
+"""
+    )
+    parser.add_argument("images", nargs="*", help="Image file path(s) to annotate")
+    parser.add_argument("-e", "--engine", default="auto", help="VLM engine (agy, vibe, claude, litellm, gemini, auto) [env: VLM_ENGINE]")
+    parser.add_argument("-m", "--model", help="Optional model name override")
+    parser.add_argument("-p", "--prompt", default=DEFAULT_PROMPT, help="Custom prompt / annotation instructions")
+    parser.add_argument("-o", "--output", help="Custom output file (single image) or output directory")
+    parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing .md sidecar files")
+    parser.add_argument("-s", "--stdout", action="store_true", help="Output annotation markdown to stdout only")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode (suppress progress logs)")
+    parser.add_argument("--list-engines", action="store_true", help="List detected engines and exit")
+
+    args = parser.parse_args()
+
+    if args.list_engines:
+        print("\033[1;36mDetected VLM Engines:\033[0m")
+        engines = detect_available_engines()
+        default_eng = select_default_engine()
+        for eng, status in engines.items():
+            is_def = " \033[1;32m(default)\033[0m" if eng == default_eng else ""
+            print(f"  \033[1;33m●\033[0m \033[1;37m{eng:<10}\033[0m : {status}{is_def}")
+        return 0
+
+    if not args.images:
+        parser.print_help()
+        return 1
+
+    engine_to_use = args.engine
+    if engine_to_use == "auto":
+        engine_to_use = select_default_engine()
+
+    success_count = 0
+    total_images = len(args.images)
+
+    for idx, img_str in enumerate(args.images, 1):
+        img_path = Path(img_str).resolve()
+        if not img_path.is_file():
+            if not args.quiet:
+                print(f"\033[1;31m✘ [{idx}/{total_images}] File not found:\033[0m {img_str}", file=sys.stderr)
+            continue
+
+        if img_path.suffix.lower() not in SUPPORTED_IMAGE_EXTS:
+            if not args.quiet:
+                print(f"\033[1;33m⚠ [{idx}/{total_images}] Warning: unusual image extension for\033[0m {img_path.name}", file=sys.stderr)
+
+        # Determine sidecar destination
+        if args.output:
+            out_target = Path(args.output)
+            if out_target.is_dir() or len(args.images) > 1:
+                out_target.mkdir(parents=True, exist_ok=True)
+                sidecar_path = out_target / f"{img_path.stem}.md"
+            else:
+                sidecar_path = out_target
+        else:
+            sidecar_path = img_path.with_name(f"{img_path.name}.md")
+
+        if sidecar_path.is_file() and not args.force and not args.stdout:
+            if not args.quiet:
+                print(f"\033[1;34mℹ [{idx}/{total_images}] Sidecar already exists:\033[0m {sidecar_path.name} (use -f to overwrite)")
+            success_count += 1
+            continue
+
+        if not args.quiet and not args.stdout:
+            print(f"\033[1;36m󰕧 [{idx}/{total_images}] Annotating\033[0m \033[1;37m{img_path.name}\033[0m \033[2musing {engine_to_use}...\033[0m")
+
+        start_t = time.time()
+        try:
+            # Suppress SDK warnings and logs
+            annotation, actual_engine = run_annotation(img_path, engine_to_use, args.prompt, args.model)
+            elapsed = time.time() - start_t
+
+            if args.stdout:
+                # Strip any stray SDK log lines if present
+                clean_lines = [line for line in annotation.splitlines() if not line.startswith("Both GOOGLE_API_KEY")]
+                print("\n".join(clean_lines).strip())
+            else:
+                # Format sidecar markdown with metadata header
+                sidecar_content = f"""<!-- VLM Annotation Sidecar -->
+<!-- Generated by vlm-annotate ({actual_engine}) on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} -->
+<!-- Source: {img_path.resolve()} -->
+
+{annotation}
+"""
+                sidecar_path.write_text(sidecar_content, encoding="utf-8")
+                if not args.quiet:
+                    print(f"\033[1;32m✔ [{idx}/{total_images}] Saved:\033[0m {sidecar_path.name} \033[2m({elapsed:.1f}s)\033[0m")
+            success_count += 1
+
+        except Exception as e:
+            if not args.quiet:
+                print(f"\033[1;31m✘ [{idx}/{total_images}] Failed:\033[0m {img_path.name} - {e}", file=sys.stderr)
+
+    return 0 if success_count == total_images else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
