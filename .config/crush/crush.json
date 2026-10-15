@@ -16,6 +16,7 @@
     "disable_provider_auto_update": false,
     "disable_metrics": false,
     "context_paths": [
+  "/home/b08x/.config/crush/codebase-memory.md"
 ]
   },
   "permissions": {
@@ -85,6 +86,7 @@
         "@upstash/context7-mcp"
       ],
       "env": {}
-    }
+    },
+    "codebase-memory-mcp": {"command":"/home/b08x/.local/bin/codebase-memory-mcp","args":[],"type":"stdio"}
   }
 }

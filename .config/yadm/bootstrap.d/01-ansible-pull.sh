@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 01-ansible-pull.sh: apply the Syncopated system playbook with ansible-pull
-# (system tuning and other system-level settings).
+# 01-ansible-pull.sh: apply the Syncopated user space playbook with ansible-pull
+# (user tools, environment paths, and unprivileged user configuration).
 #
 # Optional bootstrap step: asks before doing anything and exits 2 (skipped)
 # when declined or when no terminal is attached.
@@ -43,24 +43,24 @@ want_ansible_pull() {
     no|false|0) return 1 ;;
   esac
   [[ -t 0 && -t 1 ]] && have_gum || return 1
-  gum confirm --default=false --prompt.foreground "${VIOLET[0]}" \
-    "Apply system configuration playbook via ansible-pull (requires sudo)?"
+  gum confirm --default=true --prompt.foreground "${VIOLET[0]}" \
+    "Apply user configuration playbook via ansible-pull (unprivileged)?"
 }
 
 main() {
   if ! want_ansible_pull; then
-    info "ansible-pull: system playbook skipped"
+    info "ansible-pull: user playbook skipped"
     return "$RC_SKIPPED"
   fi
   if [[ -z $PLAYBOOK_URL ]]; then
-    info "ansible-pull: no system playbook configured yet"
+    info "ansible-pull: no user playbook configured yet"
     return "$RC_SKIPPED"
   fi
   if ! command -v ansible-pull >/dev/null 2>&1; then
-    warn "ansible-pull is not installed; system playbook skipped"
+    warn "ansible-pull is not installed; user playbook skipped"
     return "$RC_SKIPPED"
   fi
-  info "Applying $PLAYBOOK from $PLAYBOOK_URL"
+  info "Applying $PLAYBOOK (user tags) from $PLAYBOOK_URL"
   export ANSIBLE_STDOUT_CALLBACK=default
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   local -a pull_args=(
@@ -73,10 +73,9 @@ main() {
   if [[ -n $BRANCH ]]; then
     pull_args+=(--checkout "$BRANCH")
   fi
-  pull_args+=(--ask-become-pass "$PLAYBOOK")
+  pull_args+=(--tags user "$PLAYBOOK")
 
   local pull_rc=0
-  # --ask-become-pass: the playbook changes system settings with sudo.
   if have_systemd_cat; then
     ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
     pull_rc=${PIPESTATUS[0]}
@@ -89,7 +88,7 @@ main() {
     err "ansible-pull failed"
     return "$RC_FAILED"
   fi
-  ok "System playbook applied"
+  ok "User playbook applied"
 }
 
 main "$@"
