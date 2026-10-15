@@ -23,16 +23,17 @@ teardown() { cleanup_env; }
 
 run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
 
-@test "package list holds the 9 crates and no exa" {
-  [ "$(grep -vc '^#' "$YADM_SRC/files/cargo-packages.txt")" -eq 9 ]
-  for c in bottom choose du-dust git-cliff gping ripgrep_all sd gitui eza; do
+@test "package list holds the 10 crates and no exa" {
+  [ "$(grep -vc '^#' "$YADM_SRC/files/cargo-packages.txt")" -eq 10 ]
+  for c in bottom choose git-cliff gping ripgrep_all sd gitui eza weathr dua-cli; do
     grep -qx "$c" "$YADM_SRC/files/cargo-packages.txt"
   done
   ! grep -qx exa "$YADM_SRC/files/cargo-packages.txt"
 }
 
-@test "runs rustup-init -y when rustup is missing" {
+@test "runs rustup-init -y when rustup is missing and crates need compilation" {
   rm "$HOME/.cargo/bin/rustup"
+  : >"$T/installed"
   run_cargo
   grep -q 'curl https://sh.rustup.rs' "$T/calls"
   grep -q 'sh .* -y --no-modify-path' "$T/calls"
@@ -85,7 +86,7 @@ run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
 @test "attempted installs equal missing crates" {
   : >"$T/installed"
   run_cargo
-  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 9 ]
+  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 10 ]
 }
 
 @test "exits 2 when everything is installed" {
@@ -98,7 +99,7 @@ run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
   : >"$T/installed"
   CARGO_FAIL=bottom run_cargo
   [ "$status" -eq 1 ]
-  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 9 ]
+  [ "$(grep -c '^cargo install --locked' "$T/calls")" -eq 10 ]
 }
 
 @test "falls back to CARGO_TMPDIR when TMPDIR does not permit execution" {
@@ -117,4 +118,70 @@ run_cargo() { run bash "$T/yadm/bootstrap.d/20-cargo.sh" </dev/null; }
   CARGO_TARGET_DIR="$noexec_target" run_cargo
   [ "$status" -eq 2 ]
   [[ $output == *"is not executable; unsetting"* ]]
+}
+
+@test "skips compiling crates when binary is found in PATH" {
+  for b in eza gitui dua; do
+    printf '#!/bin/sh\nexit 0\n' >"$T/bin/$b"
+    chmod +x "$T/bin/$b"
+  done
+  grep -vE '^(eza|gitui|dua-cli)$' "$T/installed" >"$T/installed.new"
+  mv "$T/installed.new" "$T/installed"
+  run_cargo
+  [ "$status" -eq 2 ]
+  ! grep -q 'cargo install' "$T/calls"
+}
+
+@test "detects and installs missing tools via DNF when available" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; if [ "$1" = "dnf" ] && [ "$2" = "install" ]; then shift 3; for pkg in "$@"; do echo "$pkg" >>"$T/rpm_installed"; done; exit 0; fi; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"
+if [ "$1" = "info" ]; then
+  case "$2" in
+    eza|gitui|dua-cli) exit 0 ;;
+    *) exit 1 ;;
+  esac
+fi
+exit 0'
+  grep -vE '^(gitui|eza)$' "$T/installed" >"$T/installed.new"
+  mv "$T/installed.new" "$T/installed"
+
+  run_cargo
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf install -y gitui' "$T/calls"
+  grep -q 'sudo dnf install -y eza' "$T/calls"
+  ! grep -q 'cargo install --locked gitui' "$T/calls"
+  ! grep -q 'cargo install --locked eza' "$T/calls"
+}
+
+@test "only invokes cargo install for tools missing after PATH and DNF checks" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"
+if [ "$1" = "info" ]; then
+  case "$2" in
+    gitui|dua-cli|eza) exit 0 ;;
+    *) exit 1 ;;
+  esac
+fi
+exit 0'
+  grep -vE '^(sd|gitui)$' "$T/installed" >"$T/installed.new"
+  mv "$T/installed.new" "$T/installed"
+
+  run_cargo
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf install -y gitui' "$T/calls"
+  grep -q 'cargo install --locked sd' "$T/calls"
+  ! grep -q 'cargo install --locked gitui' "$T/calls"
+}
+
+@test "exits 2 when all tools are already executable in PATH" {
+  : >"$T/installed"
+  for b in btm choose git-cliff gping rga sd gitui eza weathr dua; do
+    printf '#!/bin/sh\nexit 0\n' >"$T/bin/$b"
+    chmod +x "$T/bin/$b"
+  done
+
+  run_cargo
+  [ "$status" -eq 2 ]
+  ! grep -q 'cargo install' "$T/calls"
+  ! grep -q 'dnf install' "$T/calls"
 }

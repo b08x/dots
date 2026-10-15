@@ -169,3 +169,73 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   [ "$status" -eq 2 ]
   [[ $output == *"is not executable; unsetting"* ]]
 }
+
+@test "defaults to system Ruby when ruby >= 4.0.0 is present and rbenv is not requested" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  run_ruby
+  [ "$status" -eq 2 ]
+  [[ $output == *"Using system Ruby 4.0.7"* ]]
+  ! grep -q 'rbenv' "$T/calls"
+}
+
+@test "skips downloading, compiling, and configuring rbenv when using system Ruby" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  : >"$T/versions"
+  rm -f "$RBENV_ROOT/versions/4.0.4/etc/gemrc"
+  run_ruby
+  [ "$status" -eq 2 ]
+  ! grep -q '^rbenv install' "$T/calls"
+  ! grep -q '^rbenv global' "$T/calls"
+  [ ! -f "$RBENV_ROOT/versions/4.0.4/etc/gemrc" ]
+}
+
+@test "installs missing gems via user-install to ~/.local/bin when using system Ruby" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  grep -vx rubocop "$T/installed" >"$T/installed.new"
+  mv "$T/installed.new" "$T/installed"
+  run_ruby
+  [ "$status" -eq 0 ]
+  [ "$(grep -c 'gem install' "$T/calls")" -eq 1 ]
+  grep -q "gem install --user-install --bindir $HOME/.local/bin --no-document rubocop" "$T/calls"
+}
+
+@test "system Ruby exits 2 when all default gems are already present" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  run_ruby
+  [ "$status" -eq 2 ]
+  ! grep -q 'gem install' "$T/calls"
+}
+
+@test "a failing gem in system Ruby exits 1 and remaining gems are still attempted" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  : >"$T/installed"
+  GEM_FAIL=solargraph run_ruby
+  [ "$status" -eq 1 ]
+  [ "$(grep -c 'gem install' "$T/calls")" -eq 7 ]
+}
+
+@test "USE_RBENV=1 opts into rbenv compilation even when system Ruby >= 4.0.0 is present" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  : >"$T/versions"
+  export USE_RBENV=1
+  run_ruby
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv install 4.0.4' "$T/calls"
+}
+
+@test "--rbenv option opts into rbenv compilation even when system Ruby >= 4.0.0 is present" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  : >"$T/versions"
+  run bash "$T/yadm/bootstrap.d/30-ruby.sh" --rbenv </dev/null
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv install 4.0.4' "$T/calls"
+}
+
+@test "falls back to rbenv when system Ruby is < 4.0.0" {
+  stub ruby 'echo "ruby 3.3.0 (2023-12-25) [x86_64-linux]"'
+  : >"$T/versions"
+  run_ruby
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv install 4.0.4' "$T/calls"
+}
+

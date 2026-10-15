@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# 20-cargo.sh: install rustup, configure cargo, and install the crates listed
-# in cargo-packages.txt that are not installed yet.
+# 20-cargo.sh: install tools via PATH detection, DNF packages, or cargo compilation.
 #
 # Exits 0 when something was done, 2 when everything was already in place,
 # 1 on any failure. Crate failures do not stop the remaining crates.
+# bootstrap: needs-sudo
 
 set -uo pipefail
 
@@ -79,6 +79,41 @@ setup_tmpdir() {
   return 0
 }
 
+crate_to_bin() {
+  case "$1" in
+    bottom) echo "btm" ;;
+    ripgrep_all) echo "rga" ;;
+    dua-cli) echo "dua" ;;
+    du-dust) echo "dust" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+crate_to_dnf() {
+  case "$1" in
+    dua-cli) echo "dua-cli" ;;
+    gitui) echo "gitui" ;;
+    eza) echo "eza" ;;
+    *) echo "" ;;
+  esac
+}
+
+is_bin_in_path() {
+  local bin=$1
+  [[ -n $(type -P "$bin") ]]
+}
+
+is_dnf_available() {
+  command -v dnf >/dev/null 2>&1
+}
+
+is_dnf_package_available() {
+  local pkg=$1
+  [[ -n $pkg ]] || return 1
+  is_dnf_available || return 1
+  dnf info "$pkg" >/dev/null 2>&1
+}
+
 # rustup_install URL : download the rustup installer and run it. Runs inside
 # run_item, so it must not depend on this script's variables.
 rustup_install() {
@@ -97,7 +132,7 @@ rustup_install() {
 }
 
 install_rustup() {
-  if [[ -x $CARGO_HOME/bin/rustup ]]; then
+  if [[ -x $CARGO_HOME/bin/rustup ]] || command -v rustup >/dev/null 2>&1; then
     info "rustup is already installed"
     return 0
   fi
@@ -123,37 +158,72 @@ configure_cargo() {
 }
 
 install_crates() {
-  if ! command -v cargo >/dev/null 2>&1; then
-    err "cargo is not available"
-    return 1
-  fi
   if [[ ! -r $PACKAGES_FILE ]]; then
     err "Package list not found: $PACKAGES_FILE"
     return 1
   fi
 
-  local wanted=() installed crate attempted=0
+  local wanted=() crate bin dnf_pkg
   mapfile -t wanted < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$PACKAGES_FILE" | grep -v '^$')
-  installed=$(cargo install --list 2>/dev/null | awk '/^[^ ]/{print $1}')
 
+  local cargo_installed=""
+  if command -v cargo >/dev/null 2>&1; then
+    cargo_installed=$(cargo install --list 2>/dev/null | awk '/^[^ ]/{print $1}')
+  fi
+
+  local missing_crates=()
   for crate in "${wanted[@]}"; do
-    if grep -qx -- "$crate" <<<"$installed"; then
+    bin=$(crate_to_bin "$crate")
+    if is_bin_in_path "$bin"; then
       continue
     fi
-    attempted=$((attempted + 1))
-    if run_item "$(item_label "$crate")" cargo install --locked "$crate"; then
-      DID_WORK=1
+    if [[ -n $cargo_installed ]] && grep -qx -- "$crate" <<<"$cargo_installed"; then
+      continue
+    fi
+    missing_crates+=("$crate")
+  done
+
+  if ((${#missing_crates[@]} == 0)); then
+    info "All ${#wanted[@]} tools are already installed"
+    return 0
+  fi
+
+  local cargo_needed=()
+  for crate in "${missing_crates[@]}"; do
+    dnf_pkg=$(crate_to_dnf "$crate")
+    if is_dnf_package_available "$dnf_pkg"; then
+      if run_item "$(item_label "$dnf_pkg")" sudo dnf install -y "$dnf_pkg"; then
+        DID_WORK=1
+      else
+        warn "Failed to install $dnf_pkg via DNF; falling back to cargo"
+        cargo_needed+=("$crate")
+      fi
     else
-      FAILED=1
+      cargo_needed+=("$crate")
     fi
   done
-  ((attempted == 0)) && info "All ${#wanted[@]} crates are already installed"
+
+  if ((${#cargo_needed[@]} > 0)); then
+    install_rustup || return 1
+    if ! command -v cargo >/dev/null 2>&1; then
+      err "cargo is not available"
+      return 1
+    fi
+
+    for crate in "${cargo_needed[@]}"; do
+      if run_item "$(item_label "$crate")" cargo install --locked "$crate"; then
+        DID_WORK=1
+      else
+        FAILED=1
+      fi
+    done
+  fi
+
   return 0
 }
 
 main() {
   setup_tmpdir || return "$RC_FAILED"
-  install_rustup || return "$RC_FAILED"
   configure_cargo
   install_crates || return "$RC_FAILED"
   ((FAILED)) && return "$RC_FAILED"

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# 30-ruby.sh: install Ruby through rbenv, configure user-local gemrc for 4.0.4,
-# and install the default gems listed in default-gems.txt.
+# 30-ruby.sh: configure Ruby environment and install default gems.
+#
+# Defaults to system Ruby when Ruby >= 4.0.0 is available, installing
+# gems with --user-install to ~/.local/bin. Opt in to rbenv compilation
+# via USE_RBENV=1 or --rbenv.
 #
 # Exits 0 when something was done, 2 when everything was already in place,
 # 1 on any failure. Gem failures do not stop the remaining gems.
@@ -19,10 +22,10 @@ RBENV_ROOT=${RBENV_ROOT:-$HOME/.rbenv}
 RUBY_TMPDIR=${RUBY_TMPDIR:-$RBENV_ROOT/tmp}
 export RUBY_CONFIGURE_OPTS=${RUBY_CONFIGURE_OPTS:---with-openssl-dir=/usr}
 
-PATH=$RBENV_ROOT/shims:$PATH
 DID_WORK=0
 FAILED=0
 RUBY_TMPDIR_CREATED=""
+OPT_RBENV=0
 
 cleanup_tmpdir() {
   if [[ -n $RUBY_TMPDIR_CREATED && -d $RUBY_TMPDIR_CREATED ]]; then
@@ -79,6 +82,49 @@ setup_tmpdir() {
   return 0
 }
 
+parse_args() {
+  while (($#)); do
+    case "$1" in
+      --rbenv) OPT_RBENV=1 ;;
+    esac
+    shift
+  done
+}
+
+want_rbenv() {
+  ((OPT_RBENV)) && return 0
+  case "${USE_RBENV:-}" in
+    1|true|yes) return 0 ;;
+  esac
+  return 1
+}
+
+version_ge() {
+  local -a v1 v2
+  IFS=. read -r -a v1 <<< "${1%%[^0-9.]*}"
+  IFS=. read -r -a v2 <<< "${2%%[^0-9.]*}"
+  local i
+  for ((i = 0; i < ${#v2[@]} || i < ${#v1[@]}; i++)); do
+    local n1=${v1[i]:-0}
+    local n2=${v2[i]:-0}
+    if ((10#$n1 > 10#$n2)); then return 0; fi
+    if ((10#$n1 < 10#$n2)); then return 1; fi
+  done
+  return 0
+}
+
+get_system_ruby_version() {
+  if command -v ruby >/dev/null 2>&1; then
+    ruby --version 2>/dev/null | awk '{print $2}'
+  fi
+}
+
+has_system_ruby_4() {
+  local ver
+  ver=$(get_system_ruby_version)
+  [[ -n $ver ]] && version_ge "$ver" "4.0.0"
+}
+
 install_ruby() {
   if ! command -v rbenv >/dev/null 2>&1; then
     err "rbenv is not available"
@@ -126,7 +172,7 @@ write_gemrc() {
   fi
 }
 
-install_gems() {
+install_gems_rbenv() {
   if [[ ! -r $PACKAGES_FILE ]]; then
     err "Package list not found: $PACKAGES_FILE"
     return 1
@@ -154,12 +200,53 @@ install_gems() {
   return 0
 }
 
+install_gems_system() {
+  if [[ ! -r $PACKAGES_FILE ]]; then
+    err "Package list not found: $PACKAGES_FILE"
+    return 1
+  fi
+
+  if ! command -v gem >/dev/null 2>&1; then
+    err "gem is not available"
+    return 1
+  fi
+
+  local wanted=() gem attempted=0
+  mapfile -t wanted < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$PACKAGES_FILE" | grep -v '^$')
+
+  for gem in "${wanted[@]}"; do
+    if gem list -i -e "$gem" >/dev/null 2>&1; then
+      continue
+    fi
+    attempted=$((attempted + 1))
+    if run_item "$(item_label "$gem")" gem install --user-install --bindir "$HOME/.local/bin" --no-document "$gem"; then
+      DID_WORK=1
+    else
+      FAILED=1
+    fi
+  done
+
+  ((attempted == 0)) && info "All ${#wanted[@]} gems are already installed"
+  return 0
+}
+
 main() {
+  parse_args "$@"
   setup_tmpdir || return "$RC_FAILED"
-  install_ruby || return "$RC_FAILED"
-  set_global || return "$RC_FAILED"
-  write_gemrc || return "$RC_FAILED"
-  install_gems || return "$RC_FAILED"
+
+  if want_rbenv || ! has_system_ruby_4; then
+    PATH=$RBENV_ROOT/shims:$PATH
+    install_ruby || return "$RC_FAILED"
+    set_global || return "$RC_FAILED"
+    write_gemrc || return "$RC_FAILED"
+    install_gems_rbenv || return "$RC_FAILED"
+  else
+    local sys_ver
+    sys_ver=$(get_system_ruby_version)
+    info "Using system Ruby $sys_ver"
+    install_gems_system || return "$RC_FAILED"
+  fi
+
   ((FAILED)) && return "$RC_FAILED"
   ((DID_WORK)) && return "$RC_OK"
   return "$RC_SKIPPED"
