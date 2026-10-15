@@ -16,7 +16,7 @@ api_write_timeout = 30.0
 api_pool_timeout = 10.0
 vibe_base_url = "https://chat.mistral.ai"
 vibe_code_sessions_base_url = "https://chat.mistral.ai"
-active_model = ""
+active_model = "glm-5-3"
 allowed_models = []
 auto_compact_threshold = 200000
 raise_on_compaction_failure = false
@@ -107,6 +107,7 @@ name = "zai-glm-5-3"
 provider = "mistral"
 alias = "glm-5-3"
 display_name = "glm-5.3 (Mistral Hosted)"
+thinking = "high"
 
 [vision_model]
 name = "mistral-medium-latest"
@@ -153,7 +154,10 @@ allowlist = [
     "fold",
     "git add -u",
     "git add .",
+    "git branch -a",
+    "git checkout -b feature/backlog-remediation development",
     "git diff",
+    "git flow feature start backlog-remediation",
     "git log",
     "git rev-parse --abbrev-ref HEAD",
     "git status",
