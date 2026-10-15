@@ -236,6 +236,54 @@ def load_keywords(keywords_arg: Optional[str], keywords_file: Optional[str]) -> 
     return list(dict.fromkeys(keywords))
 
 
+def apply_two_speaker_fallback(
+    utterances: List[Dict[str, Any]],
+    speaker_1: str = "Speaker 1 (M)",
+    speaker_2: str = "Speaker 2 (F)",
+) -> List[Dict[str, Any]]:
+    """Heuristic fallback to alternate speaker turns for 2-speaker dialogues when diarization fails."""
+    if len(utterances) <= 1:
+        return utterances
+
+    current_spk = speaker_1
+    last_end = 0
+
+    for i, u in enumerate(utterances):
+        t0 = u["start_ms"]
+        t1 = u["end_ms"]
+        gap = t0 - last_end
+
+        prev_q = utterances[i - 1]["text"].strip().endswith("?") if i > 0 else False
+        if i > 0 and (gap >= 350 or prev_q):
+            current_spk = speaker_2 if current_spk == speaker_1 else speaker_1
+
+        u["speaker"] = current_spk
+        last_end = t1
+
+    # If it still produced only 1 speaker (e.g. all gaps < 350ms),
+    # force a split across the top pauses
+    if len(set(u["speaker"] for u in utterances)) == 1 and len(utterances) > 1:
+        gaps = [
+            (i, utterances[i]["start_ms"] - utterances[i - 1]["end_ms"])
+            for i in range(1, len(utterances))
+        ]
+        sorted_gaps = sorted([g for _, g in gaps], reverse=True)
+        split_idx = min(len(sorted_gaps) // 4, 10)
+        threshold = sorted_gaps[split_idx] if sorted_gaps else 100
+        current_spk = speaker_1
+        last_end = 0
+        for i, u in enumerate(utterances):
+            t0 = u["start_ms"]
+            t1 = u["end_ms"]
+            gap = t0 - last_end
+            if i > 0 and gap >= max(threshold, 100):
+                current_spk = speaker_2 if current_spk == speaker_1 else speaker_1
+            u["speaker"] = current_spk
+            last_end = t1
+
+    return utterances
+
+
 # --- TRANSCRIPTION ENGINE LAYER ---
 
 class AudioTranscriber:
@@ -392,11 +440,12 @@ class TranscribeCppBackend(AudioTranscriber):
                     speaker = self.speaker_1
                 elif spk_id == 2:
                     speaker = self.speaker_2
-                elif spk_id is not None:
+                elif spk_id is not None and spk_id > 0:
                     speaker = f"Speaker {spk_id}"
                 else:
                     # Alternating speaker turn heuristic for models without native diarization
-                    if t0_ms - last_end >= 400 and last_end > 0:
+                    prev_q = utterances[-1]["text"].endswith("?") if utterances else False
+                    if (t0_ms - last_end >= 350 or prev_q) and last_end > 0:
                         current_speaker = (
                             self.speaker_2 if current_speaker == self.speaker_1 else self.speaker_1
                         )
@@ -409,6 +458,13 @@ class TranscribeCppBackend(AudioTranscriber):
                     "end_ms": t1_ms,
                     "text": text,
                 })
+
+            if len(utterances) > 1 and len(set(u["speaker"] for u in utterances)) == 1:
+                if self.rich_console and not self.rich_console.quiet:
+                    self.rich_console.print(
+                        "[yellow]⚠️ Local engine output only 1 speaker. Applying 2-speaker turn-taking fallback...[/yellow]"
+                    )
+                utterances = apply_two_speaker_fallback(utterances, self.speaker_1, self.speaker_2)
 
             return utterances
         finally:
@@ -423,6 +479,7 @@ class AssemblyAIBackend(AudioTranscriber):
         self,
         speaker_1: str = "Speaker 1 (M)",
         speaker_2: str = "Speaker 2 (F)",
+        speakers_expected: Optional[int] = 2,
         rich_console: Optional[Console] = None,
     ):
         self.api_key = os.getenv("ASSEMBLYAI_API_KEY")
@@ -432,80 +489,109 @@ class AssemblyAIBackend(AudioTranscriber):
             )
         self.speaker_1 = speaker_1
         self.speaker_2 = speaker_2
+        self.speakers_expected = speakers_expected
         self.rich_console = rich_console
 
     def transcribe(self, audio_path: str) -> List[Dict[str, Any]]:
         import assemblyai as aai
 
         aai.settings.api_key = self.api_key
-        config = aai.TranscriptionConfig(
-            speaker_labels=True,
-            format_text=True,
-            punctuate=True,
-            speech_model=aai.SpeechModel.universal,
-            language_detection=True,
-        )
+        config_kwargs = {
+            "speaker_labels": True,
+            "format_text": True,
+            "punctuate": True,
+            "speech_model": aai.SpeechModel.universal,
+            "language_detection": True,
+        }
+        if self.speakers_expected:
+            config_kwargs["speakers_expected"] = self.speakers_expected
+
+        config = aai.TranscriptionConfig(**config_kwargs)
 
         if self.rich_console and not self.rich_console.quiet:
-            self.rich_console.print("[dim]Submitting audio to AssemblyAI API...[/dim]")
+            spk_info = f" (speakers_expected={self.speakers_expected})" if self.speakers_expected else ""
+            self.rich_console.print(f"[dim]Submitting audio to AssemblyAI API{spk_info}...[/dim]")
 
         transcriber = aai.Transcriber(config=config)
         transcript = transcriber.transcribe(audio_path)
         if transcript.status == aai.TranscriptStatus.error:
             raise RuntimeError(f"AssemblyAI transcription failed: {transcript.error}")
 
-        word_data = [
-            {"text": w.text, "start": w.start, "end": w.end, "speaker": w.speaker}
-            for w in transcript.words
-        ]
-        if not word_data:
-            return []
-
-        gap_threshold = 1000
-        blocks = []
-        current_block = {
-            "speaker": word_data[0]["speaker"],
-            "start": word_data[0]["start"],
-            "end": word_data[0]["end"],
-            "words": [word_data[0]["text"]],
-        }
-
-        for item in word_data[1:]:
-            spk = item.get("speaker", "A")
-            start = item.get("start", 0)
-            end = item.get("end", 0)
-            text = item.get("text", "")
-            time_gap = start - current_block["end"]
-
-            if spk == current_block["speaker"] and time_gap < gap_threshold:
-                current_block["words"].append(text)
-                current_block["end"] = end
-            else:
-                blocks.append(current_block)
-                current_block = {
-                    "speaker": spk,
-                    "start": start,
-                    "end": end,
-                    "words": [text],
-                }
-        blocks.append(current_block)
-
         utterances = []
-        for b in blocks:
-            raw_spk = str(b["speaker"])
-            if raw_spk in ("A", "1"):
-                speaker = self.speaker_1
-            elif raw_spk in ("B", "2"):
-                speaker = self.speaker_2
-            else:
-                speaker = f"Speaker {raw_spk}"
+        if getattr(transcript, "utterances", None):
+            for u in transcript.utterances:
+                raw_spk = str(u.speaker).strip() if u.speaker is not None else "A"
+                if raw_spk in ("A", "1"):
+                    speaker = self.speaker_1
+                elif raw_spk in ("B", "2"):
+                    speaker = self.speaker_2
+                else:
+                    speaker = f"Speaker {raw_spk}"
 
-            utterances.append({
-                "speaker": speaker,
-                "start_ms": b["start"],
-                "end_ms": b["end"],
-                "text": " ".join(b["words"]).strip(),
-            })
+                utterances.append({
+                    "speaker": speaker,
+                    "start_ms": int(u.start),
+                    "end_ms": int(u.end),
+                    "text": u.text.strip(),
+                })
+        elif getattr(transcript, "words", None):
+            words = transcript.words
+            if not words:
+                return []
+
+            gap_threshold = 1000
+            blocks = []
+            first_spk = words[0].speaker or "A"
+            current_block = {
+                "speaker": first_spk,
+                "start": words[0].start,
+                "end": words[0].end,
+                "words": [words[0].text],
+            }
+
+            for w in words[1:]:
+                spk = w.speaker or "A"
+                start = w.start
+                end = w.end
+                text = w.text
+                time_gap = start - current_block["end"]
+
+                if spk == current_block["speaker"] and time_gap < gap_threshold:
+                    current_block["words"].append(text)
+                    current_block["end"] = end
+                else:
+                    blocks.append(current_block)
+                    current_block = {
+                        "speaker": spk,
+                        "start": start,
+                        "end": end,
+                        "words": [text],
+                    }
+            blocks.append(current_block)
+
+            for b in blocks:
+                raw_spk = str(b["speaker"]).strip()
+                if raw_spk in ("A", "1"):
+                    speaker = self.speaker_1
+                elif raw_spk in ("B", "2"):
+                    speaker = self.speaker_2
+                else:
+                    speaker = f"Speaker {raw_spk}"
+
+                utterances.append({
+                    "speaker": speaker,
+                    "start_ms": int(b["start"]),
+                    "end_ms": int(b["end"]),
+                    "text": " ".join(b["words"]).strip(),
+                })
+
+        # Safeguard: if diarization returned only 1 speaker but 2 were expected
+        if len(utterances) > 1 and len(set(u["speaker"] for u in utterances)) == 1 and self.speakers_expected == 2:
+            if self.rich_console and not self.rich_console.quiet:
+                self.rich_console.print(
+                    "[yellow]⚠️ Diarization detected only 1 speaker. Applying 2-speaker turn-taking fallback...[/yellow]"
+                )
+            utterances = apply_two_speaker_fallback(utterances, self.speaker_1, self.speaker_2)
 
         return utterances
 
@@ -999,7 +1085,7 @@ def export_ass_subtitles(
 
     events = []
     for u in utterances:
-        spk = u.get("speaker")
+        spk = u.get("speaker") or speaker_1
         if spk == speaker_1:
             style = "Speaker 1"
         elif spk == speaker_2:
@@ -1007,7 +1093,15 @@ def export_ass_subtitles(
         else:
             style = "Default"
 
-        for s in u.get("sentences", []):
+        sentences = u.get("sentences", [])
+        if not sentences:
+            sentences = [{
+                "text": u.get("refined_text") or u.get("text", ""),
+                "start_ms": u.get("start_ms", 0),
+                "end_ms": u.get("end_ms", 0),
+            }]
+
+        for s in sentences:
             stext = apply_animation(s.get("text", ""), anim)
             event = pysubs2.SSAEvent(
                 start=s.get("start_ms", 0),
@@ -1015,6 +1109,43 @@ def export_ass_subtitles(
                 text=stext,
                 style=style,
                 name=spk,
+            )
+            events.append(event)
+
+    subs.events = events
+    subs.save(output_path, encoding="utf-8")
+
+
+def export_srt_subtitles(
+    utterances: List[Dict[str, Any]],
+    output_path: str,
+    speaker_1: str = "Speaker 1 (M)",
+    speaker_2: str = "Speaker 2 (F)",
+    include_speaker_label: bool = True,
+) -> None:
+    """Exports utterances to SubRip (.srt) subtitle format with speaker attribution tags."""
+    subs = pysubs2.SSAFile()
+    events = []
+    for u in utterances:
+        spk = u.get("speaker") or speaker_1
+        sentences = u.get("sentences", [])
+        if not sentences:
+            sentences = [{
+                "text": u.get("refined_text") or u.get("text", ""),
+                "start_ms": u.get("start_ms", 0),
+                "end_ms": u.get("end_ms", 0),
+            }]
+
+        for s in sentences:
+            stext = s.get("text", "").strip()
+            if not stext:
+                continue
+            if include_speaker_label and spk:
+                stext = f"[{spk}] {stext}"
+            event = pysubs2.SSAEvent(
+                start=s.get("start_ms", 0),
+                end=s.get("end_ms", 0),
+                text=stext,
             )
             events.append(event)
 
@@ -1139,6 +1270,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Export processed dialogue as styled ASS subtitles",
     )
     parser.add_argument(
+        "--export-srt",
+        action="store_true",
+        help="Export processed dialogue as SubRip (.srt) subtitles with speaker labels",
+    )
+    parser.add_argument(
+        "--speakers-expected",
+        type=int,
+        default=2,
+        help="Expected number of speakers for diarization (default: 2)",
+    )
+    parser.add_argument(
+        "--retranscribe-single-speaker",
+        action="store_true",
+        help="When using --skip-existing, re-transcribe if existing output has <= 1 speaker",
+    )
+    parser.add_argument(
         "--in-place",
         action="store_true",
         help="Save output files in the same directory as the input audio file",
@@ -1197,6 +1344,7 @@ def main() -> None:
             transcriber = AssemblyAIBackend(
                 speaker_1=args.speaker_1,
                 speaker_2=args.speaker_2,
+                speakers_expected=args.speakers_expected,
                 rich_console=console,
             )
             model_name = "universal"
@@ -1252,93 +1400,143 @@ def main() -> None:
             console.print(f"📁 Processing File {idx}/{len(args.audio_files)}: {audio_file}")
             console.print(f"{'=' * 60}")
 
-        if args.engine == "transcribe_cpp":
-            duration_ms = get_audio_duration_ms(audio_file)
-            cur_model = resolve_model_path(
-                args.model,
-                duration_ms=duration_ms,
-                backend=args.backend,
-                rich_console=console,
-            )
-            transcriber = TranscribeCppBackend(
-                cli_path=cli_path,
-                model_path=cur_model,
-                backend=args.backend,
-                speaker_1=args.speaker_1,
-                speaker_2=args.speaker_2,
-                rich_console=console,
-            )
-            model_name = cur_model
-            runner.transcriber = transcriber
+        is_json_input = audio_file.lower().endswith(".json")
+        if is_json_input:
+            base_name = os.path.splitext(os.path.basename(audio_file))[0]
+            if base_name.endswith("_nlp"):
+                base_name = base_name[:-4]
+            audio_dir = os.path.dirname(os.path.abspath(audio_file))
+            model_name = "from_json"
+        else:
+            if args.engine == "transcribe_cpp":
+                duration_ms = get_audio_duration_ms(audio_file)
+                cur_model = resolve_model_path(
+                    args.model,
+                    duration_ms=duration_ms,
+                    backend=args.backend,
+                    rich_console=console,
+                )
+                transcriber = TranscribeCppBackend(
+                    cli_path=cli_path,
+                    model_path=cur_model,
+                    backend=args.backend,
+                    speaker_1=args.speaker_1,
+                    speaker_2=args.speaker_2,
+                    rich_console=console,
+                )
+                model_name = cur_model
+                runner.transcriber = transcriber
 
-        base_name = os.path.splitext(os.path.basename(audio_file))[0]
-        audio_dir = os.path.dirname(os.path.abspath(audio_file))
+            base_name = os.path.splitext(os.path.basename(audio_file))[0]
+            audio_dir = os.path.dirname(os.path.abspath(audio_file))
 
         # Determine output file paths
+        need_ass = args.export_ass
+        need_srt = args.export_srt
+
         if args.in_place:
             json_path = os.path.join(audio_dir, f"{base_name}_nlp.json")
             ass_path = os.path.join(audio_dir, f"{base_name}_nlp.ass")
+            srt_path = os.path.join(audio_dir, f"{base_name}_nlp.srt")
             raw_json_path = os.path.join(audio_dir, f"{base_name}_timestamps.json")
-            need_ass = args.export_ass
         elif args.output:
             if len(args.audio_files) == 1:
                 if args.output.lower().endswith(".ass"):
                     ass_path = args.output
+                    srt_path = os.path.splitext(args.output)[0] + ".srt"
                     json_path = os.path.splitext(args.output)[0] + ".json"
                     raw_json_path = os.path.splitext(args.output)[0] + "_timestamps.json"
                     need_ass = True
+                elif args.output.lower().endswith(".srt"):
+                    srt_path = args.output
+                    ass_path = os.path.splitext(args.output)[0] + ".ass"
+                    json_path = os.path.splitext(args.output)[0] + ".json"
+                    raw_json_path = os.path.splitext(args.output)[0] + "_timestamps.json"
+                    need_srt = True
                 elif args.output.lower().endswith(".json"):
                     json_path = args.output
                     ass_path = os.path.splitext(args.output)[0] + ".ass"
+                    srt_path = os.path.splitext(args.output)[0] + ".srt"
                     raw_json_path = os.path.splitext(args.output)[0] + "_timestamps.json"
-                    need_ass = args.export_ass
                 else:
                     if os.path.isdir(args.output):
                         json_path = os.path.join(args.output, f"{base_name}_nlp.json")
                         ass_path = os.path.join(args.output, f"{base_name}_nlp.ass")
+                        srt_path = os.path.join(args.output, f"{base_name}_nlp.srt")
                         raw_json_path = os.path.join(args.output, f"{base_name}_timestamps.json")
                     else:
                         json_path = args.output
                         ass_path = f"{args.output}.ass"
+                        srt_path = f"{args.output}.srt"
                         raw_json_path = f"{args.output}_timestamps.json"
-                    need_ass = args.export_ass
             else:
                 if os.path.isdir(args.output):
                     json_path = os.path.join(args.output, f"{base_name}_nlp.json")
                     ass_path = os.path.join(args.output, f"{base_name}_nlp.ass")
+                    srt_path = os.path.join(args.output, f"{base_name}_nlp.srt")
                     raw_json_path = os.path.join(args.output, f"{base_name}_timestamps.json")
                 else:
                     json_path = f"{base_name}_nlp.json"
                     ass_path = f"{base_name}_optimized.ass"
+                    srt_path = f"{base_name}_optimized.srt"
                     raw_json_path = f"{base_name}_timestamps.json"
-                need_ass = args.export_ass
         else:
             json_path = f"{base_name}_nlp.json"
             ass_path = f"{base_name}_optimized.ass"
+            srt_path = f"{base_name}_optimized.srt"
             raw_json_path = f"{base_name}_timestamps.json"
-            need_ass = args.export_ass
 
         if args.skip_existing and os.path.exists(json_path):
-            if not console.quiet:
-                console.print(
-                    f"[yellow]⏩ Skipping {audio_file}: output already exists ({json_path})[/yellow]"
-                )
-            continue
-
-        try:
-            result = runner.run(
-                audio_path=audio_file,
-                engine_name=args.engine,
-                model_name=model_name,
-                speaker_1=args.speaker_1,
-                speaker_2=args.speaker_2,
-            )
-        except Exception as e:
-            console.print(f"[red]❌ Error processing {audio_file}: {e}[/red]")
-            if args.continue_on_error or len(args.audio_files) > 1:
+            skip = True
+            if args.retranscribe_single_speaker:
+                try:
+                    with open(json_path, "r", encoding="utf-8") as f:
+                        old_data = json.load(f)
+                    old_speakers = set(u.get("speaker") for u in old_data.get("utterances", []))
+                    if len(old_speakers) <= 1:
+                        skip = False
+                        if not console.quiet:
+                            console.print(
+                                f"[yellow]🔄 Re-transcribing {audio_file}: existing output only has 1 speaker ({old_speakers})[/yellow]"
+                            )
+                except Exception:
+                    pass
+            if skip:
+                if not console.quiet:
+                    console.print(
+                        f"[yellow]⏩ Skipping {audio_file}: output already exists ({json_path})[/yellow]"
+                    )
                 continue
-            else:
-                sys.exit(1)
+
+        if is_json_input:
+            with open(audio_file, "r", encoding="utf-8") as f:
+                result = json.load(f)
+            if isinstance(result, list):
+                result = {"utterances": result}
+            speakers = set(u.get("speaker") for u in result.get("utterances", []))
+            if len(speakers) <= 1 and args.speakers_expected == 2:
+                if not console.quiet:
+                    console.print(
+                        f"[yellow]⚠️ Existing JSON has only 1 speaker ({speakers}). Applying 2-speaker turn-taking fallback...[/yellow]"
+                    )
+                result["utterances"] = apply_two_speaker_fallback(
+                    result.get("utterances", []), args.speaker_1, args.speaker_2
+                )
+        else:
+            try:
+                result = runner.run(
+                    audio_path=audio_file,
+                    engine_name=args.engine,
+                    model_name=model_name,
+                    speaker_1=args.speaker_1,
+                    speaker_2=args.speaker_2,
+                )
+            except Exception as e:
+                console.print(f"[red]❌ Error processing {audio_file}: {e}[/red]")
+                if args.continue_on_error or len(args.audio_files) > 1:
+                    continue
+                else:
+                    sys.exit(1)
 
         # Save JSON output
         with open(json_path, "w", encoding="utf-8") as f:
@@ -1364,6 +1562,17 @@ def main() -> None:
             )
             if not console.quiet:
                 console.print(f"✅ Generated ASS Subtitles: [bold green]{ass_path}[/bold green]")
+
+        # Export SRT subtitles if requested
+        if need_srt:
+            export_srt_subtitles(
+                utterances=result["utterances"],
+                output_path=srt_path,
+                speaker_1=args.speaker_1,
+                speaker_2=args.speaker_2,
+            )
+            if not console.quiet:
+                console.print(f"✅ Generated SRT Subtitles: [bold green]{srt_path}[/bold green]")
 
         # Print summary table if not quiet
         if not console.quiet:
