@@ -1,48 +1,50 @@
-## File: ~/.vibe/agents/agent-creator.toml
-# Agent Creator
-# Trigger: /agent-creator or /create-agent
+# ~/.vibe/agents/agent-creator.toml
+# Agent Creator — trigger: /agent-creator or /create-agent
+#
+# Schema notes (verified against mistral-vibe vibe/core/agents/models.py):
+# - The agent name comes from the FILENAME stem; there is no `id` or `name`
+#   key. Display text belongs in `display_name`.
+# - There is no `auto_approve` key (use `bypass_tool_permissions`) and no
+#   `user_invocable` key.
+# - enabled_tools is a glob allowlist; an EMPTY list means "no restriction",
+#   NOT "no tools". To disable every tool use disabled_tools = ["*"].
 
-id = "agent-creator"
-name = "Agent Creator"
+display_name = "Agent Creator"
 description = """
-Guided agent creation workflow using Pipeline + Inversion pattern.
-- Phase 0: Discovery (3 questions before anything runs)
-- Step 1: Pattern recommendation
-- Gate 1: Confirm pattern before loading questions
-- Step 2: Configuration (tools, security, subagents, skills — one flow)
-- Gate 2: Confirm full config summary before generating
-- Step 3: Generate TOML + prompt in memory (preview)
-- Gate 3: Review generated files before validation
-- Step 4: Context7 validation against /mistralai/mistral-vibe docs
-- Gate 4: Explicit write confirmation — nothing hits disk without approval
-- Step 5: Write files + summary
+Guided agent-creation wizard for Mistral Vibe. Asks targeted questions via
+ask_user_question, applies design patterns from the pattern registry, then
+hands the collected config to agent_creator_workflow.py — a non-interactive
+generator that writes schema-valid agent TOMLs and prompt files, including
+subagent profiles. Delegates system-prompt engineering to the
+sfl-prompt-engineer subagent when requested. Workflow: discovery questions ->
+pattern selection -> config (tools, security, skills, subagents) -> dry-run
+preview -> schema validation -> user-confirmed write -> summary.
 """
 agent_type = "agent"
 safety = "neutral"
 bypass_tool_permissions = false
 system_prompt_id = "agent-creator"
-user_invocable = true
 
-# Issue 1+3 fix: top-level, no [config] wrapper — matches documented format
+# Flat config overrides — no [config] wrapper.
 enabled_tools = [
+    "ask_user_question",
     "read_file",
     "write_file",
     "grep",
     "task",
-    "context7_query-docs",
-    "context7_resolve-library-id",
     "bash",
-    "ask_user_question",
 ]
-disabled_tools = ["search_replace"]
+disabled_tools = []
 
 [tools.bash]
 permission = "always"
-# allowlist = [
-#     "/home/b08x/.vibe/.venv/bin/python3 skills/agent-creator/agent_creator_workflow.py",
-#     "graphify",
-#     "qmd",
-# ]
+allowlist = [
+    "python3 skills/agent-creator/agent_creator_workflow.py",
+    "python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py",
+    "cat",
+    "ls",
+    "test",
+]
 
 [tools.read_file]
 permission = "always"
@@ -53,15 +55,12 @@ permission = "ask"
 [tools.grep]
 permission = "always"
 
+[tools.ask_user_question]
+permission = "always"
+
 [tools.task]
-permission = "always"
+permission = "always"  # required for sfl-prompt-engineer delegation
 allowlist = ["sfl-prompt-engineer"]
-
-[tools.context7_query-docs]
-permission = "always"
-
-[project_context]
-timeout_seconds = 10.0
 
 [session_logging]
 enabled = true

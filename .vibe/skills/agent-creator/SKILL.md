@@ -243,7 +243,9 @@ purpose_response = ask_user_question({
 ```
 Extract `purpose = purpose_response["questions"][0]["answer"]`
 
-Branch to skill-architect:
+Branch to skill-architect (the target must be a registered
+`agent_type = "subagent"` profile with a non-empty description; if none is
+available, create the skill inline using the skill-creator skill instead):
 ```
 skill_name = task(
   agent="skill-architect",
@@ -323,118 +325,114 @@ If supports_subagents:
 
 ---
 
-## STEP 10: Generate Agent TOML
+## STEP 10: Generate Files via the Workflow Script
 
-Load template:
-```
-template_path = "$BASE/templates/" + pattern_id + ".toml"
-read_file(path=template_path)
-```
+Collect everything into a single answers JSON and hand file generation to
+`agent_creator_workflow.py`. **Never assemble the TOML by hand.** The script
+is a pure non-interactive generator: it never reads stdin (Vibe's bash tool
+is non-interactive, so `input()` would hit end-of-input immediately) and it
+enforces every schema fact below.
 
-If file not found:
-```
-read_file(path="$BASE/templates/agent.toml")
-```
+Write the answers to `~/.vibe/temp/agent-creator/<agent_id>.answers.json`:
 
-Store template content as `template`.
-
-Prepare config for substitution:
-```python
-final_config = config.copy()
-for key, value in final_config.items():
-    if isinstance(value, list):
-        if all(isinstance(v, str) for v in value):
-            final_config[key] = '["' + '", "'.join(value) + '"]'
-        else:
-            final_config[key] = str(value)
-    elif isinstance(value, bool):
-        final_config[key] = str(value).lower()
-    elif value is None:
-        final_config[key] = '""'
-```
-
-Apply substitutions:
-```python
-for key, value in final_config.items():
-    template = template.replace("{" + key + "}", str(value))
+```json
+{
+  "agent_id": "my-agent",
+  "agent_name": "My Agent",
+  "description": "...",
+  "agent_type": "agent",
+  "safety": "neutral",
+  "bypass_tool_permissions": false,
+  "enabled_tools": [],
+  "disabled_tools": [],
+  "enabled_skills": [],
+  "bash_allowlist": [],
+  "delegate_sfl": false,
+  "pattern_name": "Single Agent",
+  "subagents": [
+    {"subagent_id": "my-agent-reader", "description": "Non-empty or it is never advertised."}
+  ]
+}
 ```
 
-Schema notes (verified against mistral-vibe `vibe/core/agents/models.py`):
-- The agent name comes from the FILENAME stem — there is no `id` key.
+The `subagents` array is built from the answers collected in STEP 9: each
+`subagent_ids` entry needs at least a `subagent_id` and a NON-EMPTY
+`description` (the script rejects empty descriptions — such subagents are
+never advertised). Tools default to `["read_file", "grep"]`.
+
+Run `python3 skills/agent-creator/agent_creator_workflow.py --schema` once to
+print the exact answers schema. Then preview with a dry run:
+
+```bash
+bash(command="python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py ~/.vibe/temp/agent-creator/<agent_id>.answers.json --dry-run")
+```
+
+The script writes, all schema-valid:
+- `AGENTS_DIR/<agent_id>.toml` — the agent profile
+- `PROMPTS_DIR/<system_prompt_id>.md` — the prompt `system_prompt_id` points at
+- one TOML + prompt per `subagents` entry, with `agent_type = "subagent"`
+
+Exit codes: `0` = OK (or dry-run complete), `1` = validation error (nothing
+written), `2` = usage error, `3` = SFL delegation requested (see STEP 11).
+All validation happens before any write, so a failed run never leaves partial
+files behind, and existing files are never overwritten without `--force`.
+
+Schema notes (verified against mistral-vibe `vibe/core/agents/models.py`) —
+the script enforces all of these, and you must review against them:
+- The agent name comes from the FILENAME stem — there is no `id` key, and no
+  `name` key. Display text belongs in `display_name`.
 - Profile fields: `display_name`, `description`, `safety`, `agent_type`,
-  `instructions`. Everything else is a config override.
+  `instructions`. Everything else is a config override
+  (`enabled_tools`, `disabled_tools`, `enabled_skills`,
+  `bypass_tool_permissions`, `system_prompt_id`, `[tools.*]`,
+  `[session_logging]`) — all top-level, no `[config]` wrapper.
 - `agent_type = "agent"` (default) = selectable via `vibe --agent`;
-  `agent_type = "subagent"` = spawn-only via agentType, and `--agent`
-  rejects it with an error.
+  `agent_type = "subagent"` = spawn-only via agentType (tools.subagent.spawn),
+  and `--agent` rejects it. Subagents MUST have a non-empty `description`,
+  or they are not advertised to the spawning agent.
 - `enabled_tools` is a glob allowlist. An EMPTY list means "no
   restriction" (all tools stay), NOT "no tools". To disable every tool,
-  use `disabled_tools = ["*"]`.
+  use `disabled_tools = ["*"]`. A tool must never appear in both lists.
 - There is no `auto_approve` key — use `bypass_tool_permissions`.
 - There is no `user_invocable` key.
+- `task` always gets `permission = "always"` when enabled — non-negotiable
+  for delegation (patterns/subagent-delegation.md).
 - `system_prompt_id` resolves to a `.md` file in `~/.vibe/prompts/` or
-  the project's `.vibe/prompts/`.
-
-Write agent file:
-```
-agent_id = config["agent_id"]
-write_file(
-  path=AGENTS_DIR + "/" + agent_id + ".toml",
-  content=template
-)
-```
+  the project's `.vibe/prompts/`. An inline `instructions` value takes
+  precedence over it.
 
 ---
 
-## STEP 11: Generate Prompt File
+## STEP 11: SFL Delegation Handshake (optional)
 
-```python
-prompt_content = "# " + config.get("agent_name", agent_id) + " System Prompt\n\n"
-prompt_content += "## Role\n"
-prompt_content += config.get("description", "A specialized agent for Mistral Vibe.") + "\n\n"
-prompt_content += "## Responsibilities\n"
-prompt_content += config.get("agent_description", "Perform tasks as requested by the user.") + "\n\n"
-prompt_content += "## Pattern\n"
-prompt_content += "This agent implements the **" + pattern_name + "** pattern.\n"
-prompt_content += "See: " + BASE + "/references/Agent Skill Design Patterns.md\n\n"
-prompt_content += "## Workflow\n"
-prompt_content += "1. Analyze the user's request.\n"
-prompt_content += "2. Execute the appropriate action.\n"
-prompt_content += "3. Return results to the user.\n\n"
-prompt_content += "---\n"
-prompt_content += "**Generated by agent-creator**\n"
-prompt_content += "**Pattern:** " + pattern_name + "\n"
-```
+If the answers set `"delegate_sfl": true` and no prompt text is supplied, the
+script prints an `[AGENT_TASK_REQUEST]` block (JSON with `agent` + `task`)
+and exits with code 3 **without writing anything**. When you see it:
 
-Write prompt:
-```
-write_file(
-  path=PROMPTS_DIR + "/" + agent_id + ".md",
-  content=prompt_content
-)
-```
+1. Parse the JSON inside the block.
+2. Delegate with the `task` tool to the requested subagent (e.g.,
+   `sfl-prompt-engineer`), passing the full context of the agent being
+   created (name, purpose, skills). The target must be a registered
+   `agent_type = "subagent"` profile with a non-empty description.
+3. Save the subagent's output to
+   `~/.vibe/temp/agent-creator/<agent_id>.sfl-prompt.md`.
+4. Re-run the script with `--sfl-prompt-file <that path>`.
+
+If the SFL step is skipped, the script generates a full structured prompt
+itself (Role / Responsibilities / Pattern / Skills / Workflow) — there is no
+stub.
 
 ---
 
-## STEP 12: Generate Subagent TOMLs (if applicable)
+## STEP 12: Validate and Write
 
-Check if pattern supports subagents AND config has subagent_ids:
-```python
-if pattern_id in ["multi-agent-debate", "subagent-delegation", "hybrid-pipeline"]:
-    subagent_ids = config.get("subagent_ids", "")
-    if isinstance(subagent_ids, str):
-        subagent_ids = [s.strip() for s in subagent_ids.split(",") if s.strip()]
-    
-    for sa_id in subagent_ids:
-        subagent_template = read_file(path="$BASE/templates/subagent.toml")
-        subagent_content = subagent_template.replace("{subagent_id}", sa_id)
-        # Also substitute the shared placeholders, or they are written literally:
-        subagent_content = subagent_content.replace("{agent_name}", sa_id.replace("-", " ").title())
-        subagent_content = subagent_content.replace("{description}", "Delegated " + sa_id + " task specialist.")
-        subagent_content = subagent_content.replace("{safety_level}", config.get("safety_level", "neutral"))
-        # Each subagent also needs a prompt file if it uses system_prompt_id;
-        # prefer `instructions` inline, or generate a prompt per subagent_id.
-        write_file(path=AGENTS_DIR + "/" + sa_id + ".toml", content=subagent_content)
-```
+1. Review the `--dry-run` output against the schema notes in STEP 10.
+2. Show the user what will be created and get explicit confirmation
+   (ask_user_question) — nothing hits disk without approval.
+3. Re-run the script WITHOUT `--dry-run`. The script refuses to overwrite
+   existing files unless you pass `--force`; confirm with the user before
+   ever using `--force`.
+4. `read_file` the written TOML(s) for a final schema review.
 
 ---
 
@@ -442,14 +440,13 @@ if pattern_id in ["multi-agent-debate", "subagent-delegation", "hybrid-pipeline"
 
 ```python
 skills_str = ", ".join(config.get("enabled_skills", [])) or "None"
-subagents_list = config.get("subagent_ids", "")
-if isinstance(subagents_list, str):
-    subagents_list = [s.strip() for s in subagents_list.split(",") if s.strip()]
+subagents = config.get("subagents") or []
+subagent_names = [sa["subagent_id"] for sa in subagents]
 
 subagents_files = ""
-if subagents_list:
-    for sa in subagents_list:
-        subagents_files += "\n    - " + AGENTS_DIR + "/" + sa + ".toml"
+for sa_name in subagent_names:
+    subagents_files += "\n    - " + AGENTS_DIR + "/" + sa_name + ".toml"
+    subagents_files += "\n    - " + PROMPTS_DIR + "/" + sa_name + ".md"
 
 summary = "✅ Agent creation complete!\n\n"
 summary += "**Agent:** " + agent_id + "\n"
@@ -457,9 +454,13 @@ summary += "**Pattern:** " + pattern_name + "\n"
 summary += "**Skills:** " + skills_str + "\n\n"
 summary += "**Files created:**\n"
 summary += "- " + AGENTS_DIR + "/" + agent_id + ".toml\n"
-summary += "- " + PROMPTS_DIR + "/" + agent_id + ".md"
+summary += "- " + PROMPTS_DIR + "/" + agent_id + ".md\n"
 summary += subagents_files + "\n\n"
-summary += "Test your new agent with: `vibe --agent " + agent_id + "`"
+
+test_cmd = "vibe --agent " + agent_id
+if config.get("agent_type", "agent") == "subagent":
+    test_cmd = "spawn it from another agent via task (agentType: " + agent_id + ")"
+summary += "Test your new agent with: `" + test_cmd + "`"
 ```
 
 ```

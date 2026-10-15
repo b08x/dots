@@ -22,23 +22,21 @@ No subagents, no delegation — just direct execution.
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = {auto_approve}
+bypass_tool_permissions = {bypass_tool_permissions}
 system_prompt_id = "{agent_id}"
-user_invocable = {user_invocable}
 
-[config]
 enabled_tools = {enabled_tools}
 disabled_tools = {disabled_tools}
 
-{tool_permissions}
+[tools.read_file]
+permission = "always"
 
-[project_context]
-timeout_seconds = 5.0
+[tools.grep]
+permission = "always"
 
 [session_logging]
 session_prefix = "{agent_id}"
@@ -56,19 +54,26 @@ enabled = true
 ## Example
 ```toml
 
-id = "readme-generator"
-name = "README Generator"
+display_name = "README Generator"
 description = "Generates production-quality README files"
 agent_type = "agent"
 safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "readme-generator"
 
-[config]
 enabled_tools = ["read_file", "write_file", "grep"]
+disabled_tools = ["bash", "task"]
 
 [tools.read_file]
 permission = "always"
 
+[tools.grep]
+permission = "always"
+
 [tools.write_file]
 permission = "ask"
-denylist = ["~/.vibe/", "~/.ssh/"]
+
+[session_logging]
+session_prefix = "readme-generator"
+enabled = true
 ```

@@ -22,16 +22,13 @@ Acts as a **wrapper** around CLI tools, APIs, or services.
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = {auto_approve}
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
-[config]
 enabled_tools = ["bash", "read_file", "write_file", "ask_user_question"]
 disabled_tools = ["grep", "task"]
 
@@ -48,10 +45,13 @@ permission = "always"
 
 [tools.write_file]
 permission = "ask"
-denylist = ["~/.vibe/", "~/.ssh/", "/etc/"]
 
-[project_context]
-timeout_seconds = 5.0
+[tools.ask_user_question]
+permission = "always"
+
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true
 ```
 
 ## Required Tools
@@ -65,9 +65,14 @@ timeout_seconds = 5.0
 ## Example
 ```toml
 
-id = "github-automation"
-name = "GitHub Automation"
+display_name = "GitHub Automation"
 description = "Automates GitHub repository operations"
+agent_type = "agent"
+safety = "neutral"
+system_prompt_id = "github-automation"
+
+enabled_tools = ["bash", "read_file", "write_file"]
+disabled_tools = ["grep", "task"]
 
 [tools.bash]
 permission = "ask"

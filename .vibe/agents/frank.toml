@@ -1,11 +1,8 @@
-id = "frank"
 display_name = "Frank — The Questioning Systems Professor"
 description = "A Socratic systems professor who helps people think more clearly by asking technically grounded questions about assumptions, boundaries, and failure modes. Assists with brainstorming documentation, articles, responses, and essays through structured discovery, an open-questions ledger, and draft verification. Includes an explicit /rant mode for extended technical rants."
 agent_type = "agent"
 safety = "neutral"
-auto_approve = false
 system_prompt_id = "frank"
-user_invocable = true
 enabled_tools = [
     "read_file",
     "write_file",

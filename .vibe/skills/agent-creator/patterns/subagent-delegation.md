@@ -22,21 +22,15 @@ Subagents handle distinct responsibilities, then return results to the parent.
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = {auto_approve}
+bypass_tool_permissions = {bypass_tool_permissions}
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
-
-
-
-[config]
 enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
-disabled_tools = {disabled_tools}
+disabled_tools = ["write_file", "search_replace"]
 
 [tools.task]
 permission = "always"  # CRITICAL: Required for delegation
@@ -47,10 +41,12 @@ permission = "always"
 [tools.grep]
 permission = "always"
 
-{tool_permissions}
+[tools.ask_user_question]
+permission = "always"
 
-[project_context]
-timeout_seconds = 5.0
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true
 ```
 
 ## Required Tools
@@ -61,11 +57,14 @@ timeout_seconds = 5.0
 ## Example
 ```toml
 
-id = "gir"
-name = "GIR"
+display_name = "GIR"
 description = "Graph Intelligence Runner - creates knowledge graphs"
+agent_type = "agent"
+safety = "neutral"
+system_prompt_id = "gir"
 
-
+enabled_tools = ["read_file", "grep", "task"]
+disabled_tools = ["write_file", "bash"]
 
 [tools.task]
 permission = "always"

@@ -29,22 +29,17 @@ Example: **Multi-Agent Debate + Chain-of-Verification** for ultra-high-confidenc
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+# Pattern 1: Multi-Agent Debate
+# Pattern 2: Chain-of-Verification
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = false
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
-# Pattern 1: Multi-Agent Debate
-
-
-
-# Pattern 2: Chain-of-Verification
-[config]
 enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
+disabled_tools = ["write_file", "search_replace"]
 
 [tools.task]
 permission = "always"
@@ -58,8 +53,9 @@ permission = "always"
 [tools.ask_user_question]
 permission = "always"
 
-[project_context]
-timeout_seconds = 5.0
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true
 ```
 
 ## Required Tools
@@ -69,11 +65,14 @@ timeout_seconds = 5.0
 ## Example: Multi-Agent Debate + CoVe
 ```toml
 
-id = "ultra-reviewer"
-name = "Ultra Reviewer"
+display_name = "Ultra Reviewer"
 description = "Combines Multi-Agent Debate with CoVe for maximum confidence"
+agent_type = "agent"
+safety = "neutral"
+system_prompt_id = "ultra-reviewer"
 
-
+enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
+disabled_tools = ["write_file", "search_replace", "bash"]
 
 [tools.task]
 permission = "always"

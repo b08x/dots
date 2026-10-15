@@ -22,16 +22,13 @@ Uses **todo lists**, **session variables**, or **external storage** for persiste
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = {auto_approve}
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
-[config]
 enabled_tools = ["todo", "ask_user_question", "read_file", "write_file"]
 disabled_tools = ["bash", "task"]
 
@@ -46,9 +43,6 @@ permission = "always"
 
 [tools.write_file]
 permission = "ask"
-
-[project_context]
-timeout_seconds = 5.0
 
 [session_logging]
 session_prefix = "{agent_id}"
@@ -70,9 +64,14 @@ enabled = true
 ## Example
 ```toml
 
-id = "interactive-assistant"
-name = "Interactive Assistant"
+display_name = "Interactive Assistant"
 description = "Assists users with multi-turn conversations"
+agent_type = "agent"
+safety = "neutral"
+system_prompt_id = "interactive-assistant"
+
+enabled_tools = ["todo", "ask_user_question", "read_file"]
+disabled_tools = ["bash", "task", "write_file"]
 
 [tools.todo]
 permission = "always"

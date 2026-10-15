@@ -97,7 +97,7 @@ mkdir -p ~/.vibe/skills/agent-creator/{patterns,questions,templates,references}
 # - Copy question .yaml files to ~/.vibe/skills/agent-creator/questions/
 # - Copy template .toml files to ~/.vibe/skills/agent-creator/templates/
 # - Copy agent-creator.toml to ~/.vibe/agents/
-# - Copy vibe_agent_creator_workflow.py to ~/.vibe/skills/agent-creator/
+# - Copy agent_creator_workflow.py to ~/.vibe/skills/agent-creator/
 ```
 
 ### **3. Enable Required Agents**
@@ -143,126 +143,72 @@ vibe
 vibe --agent agent-creator
 ```
 
-### **Method 3: Standalone Script**
+### **Method 3: Standalone Script (non-interactive generator)**
+The script is a pure generator: it reads an answers JSON file and never reads
+stdin. Collect the answers yourself, then:
 ```bash
-cd ~/.vibe/skills/agent-creator
-python3 agent_creator_workflow.py
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py --schema   # answers schema
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py answers.json --dry-run
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py answers.json            # writes
 ```
 
 ---
 
 ## 🎭 **Example Session**
 
+The wizard asks its questions through the `ask_user_question` UI; the script
+is only invoked at generation time and never prompts.
+
 ```
-user@host:~$ vibe
 > /create-agent
 
-🚀 Agent Creator with Skill Branching
-============================================================
+(Purpose)       What is your agent's PRIMARY purpose?
+                → Analyze/Review
+(Pattern)       Recommended: Multi-Agent Debate. Use this pattern? → Yes
+(Metadata)      Display name → "Ansible Review Coordinator"
+                Agent ID → ansible-review-coordinator
+                Description → "Coordinates multi-perspective Ansible playbook
+                reviews using judge subagents."
+                Agent type → Primary agent (vibe --agent)
+                Safety → neutral
+(Tools)         Enabled: read_file, grep, task, ask_user_question
+                Disabled: (none — an empty enabled list would mean "no
+                restriction", not "no tools")
+(Security)      bypass_tool_permissions → false
+                bash not enabled, so no bash permission questions
+(Skills)        Create a new skill → task-delegate to a skill subagent
+                → enabled_skills: ["ansible-playbook-security-analyzer"]
+(Subagents)     spawns_subagents → yes
+                requirements-validator, playbook-validator, security-scanner
+                (each gets agent_type = "subagent" and a non-empty description)
 
-📝 Purpose Classification
-   What is your agent's PRIMARY purpose?
-   1. Analyze/Review - Evaluate existing work (e.g., code review)
-   2. Generate/Create - Produce new artifacts (e.g., docs, configs)
-   3. Orchestrate/Coordinate - Manage workflows, agents, or multi-step processes
-   4. Interact/Respond - Chat or conversational
-   5. Transform/Process - Modify or process data
-   6. Custom/Other - Doesn't fit the above categories
-   [1-6, default: 1]: 1
+[STEP 10] Write ~/.vibe/temp/agent-creator/ansible-review-coordinator.answers.json
+[STEP 10] python3 .../agent_creator_workflow.py answers.json --dry-run   → exit 0
+[STEP 12] User confirms the preview
+[STEP 12] python3 .../agent_creator_workflow.py answers.json            → exit 0
 
-💡 Based on your purpose, I recommend the **Multi-Agent Debate** pattern.
-   Complex reviews with multiple judges
-
-📝 Pattern Selection
-   Use the Multi-Agent Debate pattern?
-   1. Yes
-   2. No, show other patterns
-   3. No, specify manually
-   [1-3, default: 1]: 1
-
-📝 Multi-Agent Debate Configuration
-   How many judge subagents should this agent spawn?
-   1. 3 (Recommended: Requirements + Solution + Code Quality)
-   2. 4 (Add a Security Judge)
-   3. Custom number
-   [1-3, default: 1]: 1
-
-   What should the judge subagents be named? (comma-separated)
-   [critique__requirements-validator,critique__solution-architect,critique__code-quality-reviewer]:
-   > ansible__requirements-validator,ansible__playbook-validator,ansible__security-scanner
-
-   Should judges run in parallel?
-   1. Yes, parallel (faster)
-   2. No, sequential (controlled)
-   [1-2, default: 1]: 1
-
-📝 Skill Assignment
-   How should this agent handle skills?
-   1. Use existing skills only
-   2. Create new skill(s) for this agent
-   3. Both existing and new skills
-   [1-3]: 2
-
-   What is the PRIMARY purpose of the new skill this agent needs?
-   > Ansible playbook security analysis and compliance checking
-
-🔄 Invoking skill-architect to create skill for: 'Ansible playbook security analysis and compliance checking'
-   ✅ Created skill: ansible-playbook-security-analyzer
-
-✅ Created and assigned new skill: ansible-playbook-security-analyzer
-
-📝 Tool Configuration
-   Which tools does this agent need? (Select all that apply)
-   1. read_file - Read file contents
-   2. write_file - Create/modify files
-   3. grep - Search files with regex
-   4. bash - Execute shell commands
-   5. ask_user_question - Interactive user prompts
-   6. todo - Task management
-   7. task - Delegate to subagents
-   8. search_replace - Modify file contents
-   > 1,3,5,7
-
-📝 Security
-   What safety level should this agent have?
-   1. safe - Read-only, no side effects
-   2. neutral - Mostly safe, minimal side effects
-   3. destructive - Can modify files or system state
-   4. yolo - No restrictions - use with extreme caution
-   [1-4, default: 2]: 2
-
-   Should this agent auto-approve tool calls?
-   [y/N]: n
-
-📝 Subagent Delegation
-   Should this agent spawn subagents?
-   [y/N]: y
-
-   Which subagents should this agent spawn? (Comma-separated)
-   [file-reader-subagent, graphify-subagent]:
-   > ansible__requirements-validator,ansible__playbook-validator,ansible__security-scanner
-
-   What is the maximum recursion depth for subagents?
-   1. 1 (No sub-subagents)
-   2. 2 (One level of sub-subagents - RECOMMENDED)
-   3. 3 (Two levels of sub-subagents)
-   4. 4 (Deep nesting - use with caution)
-   5. 5 (Maximum depth)
-   [1-5, default: 2]: 2
-
-============================================================
 ✅ Agent creation complete!
-   Agent: ansible-review-coordinator
+   Agent: ansible-review-coordinator (agent_type = "agent")
    Pattern: Multi-Agent Debate
    Skills: ansible-playbook-security-analyzer
 
    Files created:
-   - /home/user/.vibe/agents/ansible-review-coordinator.toml
-   - /home/user/.vibe/prompts/ansible-review-coordinator.md
-   - /home/user/.vibe/agents/ansible__requirements-validator.toml
-   - /home/user/.vibe/agents/ansible__playbook-validator.toml
-   - /home/user/.vibe/agents/ansible__security-scanner.toml
+   - ~/.vibe/agents/ansible-review-coordinator.toml
+   - ~/.vibe/prompts/ansible-review-coordinator.md
+   - ~/.vibe/agents/requirements-validator.toml   (agent_type = "subagent")
+   - ~/.vibe/prompts/requirements-validator.md
+   - ~/.vibe/agents/playbook-validator.toml       (agent_type = "subagent")
+   - ~/.vibe/prompts/playbook-validator.md
+   - ~/.vibe/agents/security-scanner.toml         (agent_type = "subagent")
+   - ~/.vibe/prompts/security-scanner.md
+
+   Test with: vibe --agent ansible-review-coordinator
 ```
+
+If SFL prompt engineering was requested, the dry run instead prints an
+`[AGENT_TASK_REQUEST]` block and exits with code 3 (nothing written); the
+orchestrator delegates with the `task` tool, saves the subagent output, and
+re-runs with `--sfl-prompt-file`.
 
 ---
 
@@ -328,10 +274,10 @@ Edit the template files in `templates/` to change the default agent configuratio
 | **"File permission denied"** | Ensure `~/.vibe/agents/` and `~/.vibe/prompts/` are writable |
 
 ### **Debug Mode**
-Run with verbose logging:
+Run with output capture (the script never prompts — all output is logs,
+task-request blocks, and file previews):
 ```bash
-cd ~/.vibe/skills/agent-creator
-python3 vibe_agent_creator_workflow.py 2>&1 | tee debug.log
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py answers.json --dry-run 2>&1 | tee debug.log
 ```
 
 ### **Check Logs**
@@ -345,24 +291,22 @@ tail -f ~/.vibe/temp/agent-creator/agent-creator.log
 
 ### **1. Test Individual Components**
 ```bash
-# Test pattern loading
-python3 -c "from vibe_agent_creator_workflow import load_pattern; print(load_pattern('multi-agent-debate'))"
+# Schema and usage
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py --schema
 
-# Test question loading
-python3 -c "from vibe_agent_creator_workflow import load_questions; print(load_questions('purpose.yaml'))"
-
-# Test template loading
-python3 -c "from vibe_agent_creator_workflow import load_template; print(load_template('agent'))"
+# Validation errors are exit code 1, nothing is written
+python3 ~/.vibe/skills/agent-creator/agent_creator_workflow.py answers.json --dry-run
 ```
 
 ### **2. Full Workflow Test**
 ```bash
-# Run in dry-run mode first
-python3 vibe_agent_creator_workflow.py
+# Preview without writing, then write for real
+python3 agent_creator_workflow.py answers.json --dry-run
+python3 agent_creator_workflow.py answers.json --agents-dir /tmp/test-agents --prompts-dir /tmp/test-prompts
 
 # Check generated files
-ls -la ~/.vibe/agents/*-test.toml
-ls -la ~/.vibe/prompts/*-test.md
+ls -la /tmp/test-agents/
+ls -la /tmp/test-prompts/
 ```
 
 ### **3. Cleanup Test Files**
@@ -389,7 +333,7 @@ rm -f ~/.vibe/prompts/*-test.md
 └── skills/
     └── agent-creator/
         ├── README.md                   # This file
-        ├── vibe_agent_creator_workflow.py  # Main workflow
+        ├── agent_creator_workflow.py  # Main workflow
         │
         ├── patterns/
         │   ├── registry.yaml

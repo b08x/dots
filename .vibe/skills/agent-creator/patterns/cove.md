@@ -23,15 +23,13 @@ Each step generates **questions to verify correctness**, then answers them.
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = false
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
 
-[config]
 enabled_tools = ["read_file", "grep", "ask_user_question"]
 disabled_tools = ["write_file", "search_replace", "bash"]
 
@@ -43,9 +41,6 @@ permission = "always"
 
 [tools.ask_user_question]
 permission = "always"
-
-[project_context]
-timeout_seconds = 5.0
 
 [session_logging]
 session_prefix = "{agent_id}"
@@ -68,10 +63,12 @@ enabled = true
 ## Example
 ```toml
 
-id = "quality-validator"
-name = "Quality Validator"
+display_name = "Quality Validator"
 description = "Validates code against quality standards using CoVe"
+agent_type = "agent"
+safety = "safe"
+system_prompt_id = "quality-validator"
 
-[config]
 enabled_tools = ["read_file", "grep", "ask_user_question"]
+disabled_tools = ["write_file", "search_replace", "bash", "task"]
 ```

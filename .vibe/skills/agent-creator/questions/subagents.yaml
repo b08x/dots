@@ -17,6 +17,11 @@ questions:
     condition: "spawns_subagents == true"
     default: ""
     placeholder: "e.g., file-reader-subagent, graphify-subagent"
+    note: >
+      For each ID also collect a one-line description. Both go into the
+      "subagents" array of the answers JSON (see SKILL.md STEP 10); the
+      generator rejects subagents with an empty description, and generated
+      subagent profiles get agent_type = "subagent" (spawn-only via task).
 
   - id: "max_recursion_depth"
     header: "Recursion Depth"

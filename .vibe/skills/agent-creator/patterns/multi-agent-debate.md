@@ -22,18 +22,13 @@ Each judge operates **independently**, then **debates findings** to reach consen
 ## Configuration Template
 ```toml
 
-id = "{agent_id}"
-name = "{agent_name}"
+display_name = "{agent_name}"
 description = """{description}"""
 agent_type = "agent"
 safety = "neutral"
-auto_approve = false
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
 
-
-
-
-[config]
 enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
 disabled_tools = ["write_file", "search_replace"]
 
@@ -48,6 +43,10 @@ permission = "always"  # CRITICAL: Required to spawn judges
 
 [tools.ask_user_question]
 permission = "always"
+
+[session_logging]
+session_prefix = "{agent_id}"
+enabled = true
 ```
 
 ## Required Tools
