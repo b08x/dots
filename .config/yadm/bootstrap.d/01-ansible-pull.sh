@@ -14,8 +14,24 @@
 
 set -uo pipefail
 
-# shellcheck source=../scripts/syncopated-theme.sh
-source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
+THEME_FILE="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/syncopated-theme.sh"
+if [[ -f "$THEME_FILE" ]]; then
+  # shellcheck source=/dev/null
+  source "$THEME_FILE"
+elif [[ -f "${HOME}/.config/yadm/scripts/syncopated-theme.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "${HOME}/.config/yadm/scripts/syncopated-theme.sh"
+else
+  info() { echo "[INFO] $*"; }
+  warn() { echo "[WARN] $*" >&2; }
+  err() { echo "[ERROR] $*" >&2; }
+  ok() { echo "[OK] $*"; }
+  have_gum() { command -v gum >/dev/null 2>&1; }
+  have_systemd_cat() { command -v systemd-cat >/dev/null 2>&1; }
+  VIOLET=("#7E57C2")
+  RC_SKIPPED=2
+  RC_FAILED=1
+fi
 
 : "${SYNCOPATED_STEP:=ansible-pull}"
 
@@ -35,7 +51,7 @@ if [[ -n $INVENTORY && ! -e $INVENTORY && $INVENTORY != *,* ]]; then
   INVENTORY="${INVENTORY},"
 fi
 
-# want_ansible_pull : succeed when the user opts in to applying the system playbook.
+# want_ansible_pull : succeed when the user opts in to applying the user playbook.
 # Defaults to no; without a terminal or gum there is no one to ask.
 want_ansible_pull() {
   case ${SYNCOPATED_ANSIBLE_PULL:-} in
@@ -50,19 +66,21 @@ want_ansible_pull() {
 main() {
   if ! want_ansible_pull; then
     info "ansible-pull: user playbook skipped"
-    return "$RC_SKIPPED"
+    return "${RC_SKIPPED:-2}"
   fi
   if [[ -z $PLAYBOOK_URL ]]; then
     info "ansible-pull: no user playbook configured yet"
-    return "$RC_SKIPPED"
+    return "${RC_SKIPPED:-2}"
   fi
   if ! command -v ansible-pull >/dev/null 2>&1; then
     warn "ansible-pull is not installed; user playbook skipped"
-    return "$RC_SKIPPED"
+    return "${RC_SKIPPED:-2}"
   fi
   info "Applying $PLAYBOOK (user tags) from $PLAYBOOK_URL"
+  mkdir -p "$CHECKOUT"
   export ANSIBLE_STDOUT_CALLBACK=default
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
+  export ANSIBLE_LOG_PATH="${CHECKOUT}/ansible.log"
   local -a pull_args=(
     --url "$PLAYBOOK_URL"
     --directory "$CHECKOUT"
@@ -86,7 +104,7 @@ main() {
 
   if ((pull_rc != 0)); then
     err "ansible-pull failed"
-    return "$RC_FAILED"
+    return "${RC_FAILED:-1}"
   fi
   ok "User playbook applied"
 }
