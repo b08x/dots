@@ -1,0 +1,28 @@
+display_name = "NotebookLM Assessment"
+description = "Completion endpoint for notebooklm-py DSPy assessment programs. Receives one flattened DSPy prompt, delegates it verbatim to the matching specialist subagent (evaluator, grounded answerer, structurer), and returns that subagent's reply unchanged. Uses no tools other than task."
+agent_type = "agent"
+safety = "safe"
+bypass_tool_permissions = false
+system_prompt_id = "notebooklm-assessment"
+enabled_tools = [
+    "task",
+]
+disabled_tools = [
+    "bash",
+    "read_file",
+    "write_file",
+    "search_replace",
+    "grep",
+    "ask_user_question",
+    "web_fetch",
+    "web_search",
+    "skill",
+]
+
+[tools.task]
+permission = "always"
+allowlist = ["notebooklm-assessment-evaluator", "notebooklm-assessment-answerer", "notebooklm-assessment-structurer"]
+
+[session_logging]
+enabled = true
+session_prefix = "notebooklm-assessment"
