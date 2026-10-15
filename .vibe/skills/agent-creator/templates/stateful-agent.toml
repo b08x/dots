@@ -1,14 +1,17 @@
-# Stateful Agent Template  [NEW — was missing from skillpack]
-# Variables: {agent_id}, {agent_name}, {description}, {safety_level}, {auto_approve}
+# Stateful Agent Template
+# Variables: {agent_id}, {agent_name}, {description}, {safety_level}, {bypass_tool_permissions}
+#
+# Verified against mistral-vibe (vibe/core/agents/models.py AgentProfile.from_toml):
+# - The agent name comes from the FILENAME stem; there is no `id` key.
+# - agent_type omitted = "agent" = selectable via `vibe --agent`.
+# - There is no `auto_approve` key; use bypass_tool_permissions (bool).
+# - There is no `user_invocable` key.
 
-id = "{agent_id}"
 display_name = "{agent_name}"
 description = """{description}"""
-agent_type = "agent"
 safety = "{safety_level}"
-auto_approve = {auto_approve}
+bypass_tool_permissions = {bypass_tool_permissions}
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
 enabled_tools = ["todo", "ask_user_question", "read_file", "write_file"]
 disabled_tools = ["bash", "task"]

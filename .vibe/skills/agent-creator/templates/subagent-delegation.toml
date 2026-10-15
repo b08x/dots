@@ -1,14 +1,19 @@
-# Subagent Delegation Template
+# Subagent Delegation Template (parent agent)
 # Variables: {agent_id}, {agent_name}, {description}
+#
+# Verified against mistral-vibe (vibe/core/agents/models.py AgentProfile.from_toml):
+# - The agent name comes from the FILENAME stem; there is no `id` key.
+# - agent_type omitted = "agent" = selectable via `vibe --agent`. The children
+#   this parent spawns are defined separately with templates/subagent.toml
+#   (agent_type = "subagent").
+# - There is no `auto_approve` key; use bypass_tool_permissions (bool).
+# - There is no `user_invocable` key.
 
-id = "{agent_id}"
 display_name = "{agent_name}"
 description = """{description}"""
-agent_type = "agent"
 safety = "neutral"
-auto_approve = false
+bypass_tool_permissions = false
 system_prompt_id = "{agent_id}"
-user_invocable = true
 
 enabled_tools = ["read_file", "grep", "task", "ask_user_question"]
 disabled_tools = ["write_file", "search_replace"]

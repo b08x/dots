@@ -1,13 +1,17 @@
 # Security & Permissions Questions
 
 questions:
-  - id: "auto_approve"
+  - id: "bypass_tool_permissions"
     header: "Auto-Approval"
     question: "Should this agent auto-approve tool calls without prompting?"
     type: "boolean"
     required: true
     default: false
     warning: "Enabling this reduces safety checks. Only enable for trusted agents."
+    note: >
+      Maps to the `bypass_tool_permissions` config key — the only real
+      auto-approve switch (verified against mistral-vibe config schema).
+      There is no `auto_approve` agent key.
 
   - id: "bash_permission"
     header: "Bash Tool Permission"

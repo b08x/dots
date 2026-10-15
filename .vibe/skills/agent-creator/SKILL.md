@@ -359,6 +359,21 @@ for key, value in final_config.items():
     template = template.replace("{" + key + "}", str(value))
 ```
 
+Schema notes (verified against mistral-vibe `vibe/core/agents/models.py`):
+- The agent name comes from the FILENAME stem — there is no `id` key.
+- Profile fields: `display_name`, `description`, `safety`, `agent_type`,
+  `instructions`. Everything else is a config override.
+- `agent_type = "agent"` (default) = selectable via `vibe --agent`;
+  `agent_type = "subagent"` = spawn-only via agentType, and `--agent`
+  rejects it with an error.
+- `enabled_tools` is a glob allowlist. An EMPTY list means "no
+  restriction" (all tools stay), NOT "no tools". To disable every tool,
+  use `disabled_tools = ["*"]`.
+- There is no `auto_approve` key — use `bypass_tool_permissions`.
+- There is no `user_invocable` key.
+- `system_prompt_id` resolves to a `.md` file in `~/.vibe/prompts/` or
+  the project's `.vibe/prompts/`.
+
 Write agent file:
 ```
 agent_id = config["agent_id"]
@@ -412,6 +427,12 @@ if pattern_id in ["multi-agent-debate", "subagent-delegation", "hybrid-pipeline"
     for sa_id in subagent_ids:
         subagent_template = read_file(path="$BASE/templates/subagent.toml")
         subagent_content = subagent_template.replace("{subagent_id}", sa_id)
+        # Also substitute the shared placeholders, or they are written literally:
+        subagent_content = subagent_content.replace("{agent_name}", sa_id.replace("-", " ").title())
+        subagent_content = subagent_content.replace("{description}", "Delegated " + sa_id + " task specialist.")
+        subagent_content = subagent_content.replace("{safety_level}", config.get("safety_level", "neutral"))
+        # Each subagent also needs a prompt file if it uses system_prompt_id;
+        # prefer `instructions` inline, or generate a prompt per subagent_id.
         write_file(path=AGENTS_DIR + "/" + sa_id + ".toml", content=subagent_content)
 ```
 
