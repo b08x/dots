@@ -26,6 +26,7 @@ disabled_tools = []
 managed_shell_tools_enabled = false
 skill_paths = [
     "~/.agents/skills/",
+    "~/.gemini/skills/",
     "~/.syncopated/skills",
     "~/.vibe/skills",
     ".agents/skills/",
