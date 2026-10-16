@@ -11,7 +11,14 @@ Features:
 - Optional Mistral Vibe LLM dialogue refinement (--vibe).
 - NLP-ready JSON serialization by default.
 - Backward-compatible ASS subtitle generation (--export-ass).
+- ASS dialogue-event JSONL export (--export-jsonl), one JSON object per Dialogue event.
+- Direct ASS/SSA -> JSONL conversion when .ass/.ssa files are passed as inputs
+  (merged from ass_to_jsonl.py; no transcription or spaCy load).
 - Optional interactive styling menu (--tui).
+
+JSONL record schema:
+    index, start_ms, end_ms, duration_ms, start, end (H:MM:SS.cc),
+    style, speaker (ASS Name field), layer, effect, text, [raw], [comment]
 """
 
 import argparse
@@ -20,12 +27,14 @@ import json
 import os
 import select
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import termios
 import time
 import tty
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pysubs2
@@ -1072,13 +1081,12 @@ def setup_subs_styles(
     subs.styles["Default"] = d
 
 
-def export_ass_subtitles(
+def build_ass_subs(
     utterances: List[Dict[str, Any]],
-    output_path: str,
     options: Dict[str, Any],
     speaker_1: str = "Speaker 1 (M)",
     speaker_2: str = "Speaker 2 (F)",
-) -> None:
+) -> pysubs2.SSAFile:
     subs = pysubs2.SSAFile()
     setup_subs_styles(subs, options, speaker_1, speaker_2)
     anim = options.get("animation")
@@ -1113,6 +1121,17 @@ def export_ass_subtitles(
             events.append(event)
 
     subs.events = events
+    return subs
+
+
+def export_ass_subtitles(
+    utterances: List[Dict[str, Any]],
+    output_path: str,
+    options: Dict[str, Any],
+    speaker_1: str = "Speaker 1 (M)",
+    speaker_2: str = "Speaker 2 (F)",
+) -> None:
+    subs = build_ass_subs(utterances, options, speaker_1, speaker_2)
     subs.save(output_path, encoding="utf-8")
 
 
@@ -1151,6 +1170,128 @@ def export_srt_subtitles(
 
     subs.events = events
     subs.save(output_path, encoding="utf-8")
+
+
+# --- ASS -> JSONL LAYER (merged from ass_to_jsonl.py) ---
+
+ASS_INPUT_EXTS = (".ass", ".ssa")
+
+
+def format_ass_time(ms: int) -> str:
+    """Milliseconds -> ASS timestamp H:MM:SS.cc (centiseconds)."""
+    cs = round(ms / 10)
+    h, cs = divmod(cs, 360000)
+    m, cs = divmod(cs, 6000)
+    s, cs = divmod(cs, 100)
+    return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
+
+
+def load_ass_file(path: Path) -> pysubs2.SSAFile:
+    # explicit format: autodetection fails on minimal files lacking a Styles section
+    fmt = {".ass": "ass", ".ssa": "ssa"}.get(path.suffix.lower())
+    try:
+        return pysubs2.load(str(path), encoding="utf-8", format_=fmt)
+    except UnicodeDecodeError:
+        return pysubs2.load(str(path), encoding="latin-1", format_=fmt)
+
+
+def ass_event_to_record(index: int, event: pysubs2.SSAEvent, keep_raw: bool) -> Dict[str, Any]:
+    # plaintext strips {\override} tags and maps \N, \n to newlines
+    text = " ".join(event.plaintext.split())
+    record = {
+        "index": index,
+        "start_ms": event.start,
+        "end_ms": event.end,
+        "duration_ms": event.end - event.start,
+        "start": format_ass_time(event.start),
+        "end": format_ass_time(event.end),
+        "style": event.style,
+        "speaker": event.name,
+        "layer": event.layer,
+        "effect": event.effect,
+        "text": text,
+    }
+    if keep_raw:
+        record["raw"] = event.text
+    return record
+
+
+def ass_to_jsonl_records(
+    subs: pysubs2.SSAFile,
+    include_comments: bool = False,
+    keep_raw: bool = False,
+    skip_empty: bool = True,
+) -> List[Dict[str, Any]]:
+    records = []
+    for event in subs.events:
+        if event.is_comment and not include_comments:
+            continue
+        record = ass_event_to_record(len(records), event, keep_raw)
+        if skip_empty and not record["text"]:
+            continue
+        if include_comments:
+            record["comment"] = event.is_comment
+        records.append(record)
+    return records
+
+
+def write_jsonl(records: List[Dict[str, Any]], out) -> None:
+    for record in records:
+        out.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def export_jsonl_events(
+    utterances: List[Dict[str, Any]],
+    output_path: str,
+    options: Dict[str, Any],
+    speaker_1: str = "Speaker 1 (M)",
+    speaker_2: str = "Speaker 2 (F)",
+    keep_raw: bool = False,
+    skip_empty: bool = True,
+) -> int:
+    """Exports the ASS dialogue events built from utterances as JSONL. Returns record count."""
+    subs = build_ass_subs(utterances, options, speaker_1, speaker_2)
+    records = ass_to_jsonl_records(subs, keep_raw=keep_raw, skip_empty=skip_empty)
+    with open(output_path, "w", encoding="utf-8") as out:
+        write_jsonl(records, out)
+    return len(records)
+
+
+def convert_ass_inputs(ass_files: List[str], args: argparse.Namespace) -> None:
+    """Direct ASS/SSA -> JSONL conversion for subtitle inputs (no transcription)."""
+    out_is_dir = bool(args.output) and os.path.isdir(args.output)
+    if args.output and not out_is_dir and len(ass_files) > 1:
+        sys.exit("error: --output must be a directory when converting multiple .ass inputs")
+    if args.output == "-":
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # quiet exit when piped to head
+
+    for name in ass_files:
+        path = Path(name)
+        if not path.is_file():
+            print(f"skip: {path} not found", file=sys.stderr)
+            continue
+        subs = load_ass_file(path)
+        records = ass_to_jsonl_records(
+            subs, args.include_comments, args.keep_raw, not args.keep_empty
+        )
+
+        if args.output == "-":
+            write_jsonl(records, sys.stdout)
+            continue
+
+        if args.output and not out_is_dir:
+            out_path = Path(args.output)
+        elif out_is_dir:
+            out_path = Path(args.output) / path.with_suffix(".jsonl").name
+        else:
+            out_path = path.with_suffix(".jsonl")  # next to input
+        out_path = out_path.with_name(out_path.name.replace(" ", "_"))
+        with out_path.open("w", encoding="utf-8") as out:
+            write_jsonl(records, out)
+        if not console.quiet:
+            console.print(
+                f"✅ {path.name} -> [bold green]{out_path}[/bold green] ({len(records)} records)"
+            )
 
 
 # --- PIPELINE RUNNER ---
@@ -1216,10 +1357,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="🎙️ Transcribe & Optimize Pipeline: Modular audio transcription with diarization, spaCy NLP, Mistral Vibe refinement, and ASS subtitle export."
     )
     parser.add_argument(
-        "audio_files", nargs="+", help="Path(s) to audio file(s) to transcribe"
+        "audio_files", nargs="+",
+        help="Path(s) to audio file(s) to transcribe, .json to re-export, or .ass/.ssa to convert to JSONL",
     )
     parser.add_argument(
-        "-o", "--output", help="Output file path (.json or .ass)"
+        "-o", "--output",
+        help="Output file path (.json, .ass, .srt, .jsonl) or directory; '-' = stdout for .ass inputs",
     )
     parser.add_argument(
         "--engine",
@@ -1273,6 +1416,26 @@ def build_parser() -> argparse.ArgumentParser:
         "--export-srt",
         action="store_true",
         help="Export processed dialogue as SubRip (.srt) subtitles with speaker labels",
+    )
+    parser.add_argument(
+        "--export-jsonl",
+        action="store_true",
+        help="Export ASS dialogue events as JSONL (one object per event)",
+    )
+    parser.add_argument(
+        "--keep-raw",
+        action="store_true",
+        help="JSONL: include original event text with override tags",
+    )
+    parser.add_argument(
+        "--include-comments",
+        action="store_true",
+        help="JSONL (.ass inputs): include Comment: events",
+    )
+    parser.add_argument(
+        "--keep-empty",
+        action="store_true",
+        help="JSONL: keep events whose text is empty after stripping tags",
     )
     parser.add_argument(
         "--speakers-expected",
@@ -1330,6 +1493,16 @@ def main() -> None:
     if args.quiet:
         console.quiet = True
 
+    # ASS/SSA inputs bypass transcription and spaCy entirely
+    ass_files = [f for f in args.audio_files if f.lower().endswith(ASS_INPUT_EXTS)]
+    if ass_files:
+        convert_ass_inputs(ass_files, args)
+        args.audio_files = [f for f in args.audio_files if f not in ass_files]
+        if not args.audio_files:
+            return
+    if args.output == "-":
+        sys.exit("error: --output - is only valid for .ass/.ssa inputs")
+
     try:
         keywords = load_keywords(args.keywords, args.keywords_file)
     except Exception as e:
@@ -1384,7 +1557,11 @@ def main() -> None:
 
     # Determine subtitle options if exporting ASS
     user_options = None
-    if args.export_ass or (args.output and args.output.lower().endswith(".ass")):
+    if (
+        args.export_ass
+        or args.export_jsonl
+        or (args.output and args.output.lower().endswith((".ass", ".jsonl")))
+    ):
         if args.tui and sys.stdin.isatty():
             try:
                 user_options = get_user_interactive_options()
@@ -1433,6 +1610,8 @@ def main() -> None:
         # Determine output file paths
         need_ass = args.export_ass
         need_srt = args.export_srt
+        need_jsonl = args.export_jsonl
+        jsonl_path = None
 
         if args.in_place:
             json_path = os.path.join(audio_dir, f"{base_name}_nlp.json")
@@ -1453,6 +1632,13 @@ def main() -> None:
                     json_path = os.path.splitext(args.output)[0] + ".json"
                     raw_json_path = os.path.splitext(args.output)[0] + "_timestamps.json"
                     need_srt = True
+                elif args.output.lower().endswith(".jsonl"):
+                    jsonl_path = args.output
+                    json_path = os.path.splitext(args.output)[0] + ".json"
+                    ass_path = os.path.splitext(args.output)[0] + ".ass"
+                    srt_path = os.path.splitext(args.output)[0] + ".srt"
+                    raw_json_path = os.path.splitext(args.output)[0] + "_timestamps.json"
+                    need_jsonl = True
                 elif args.output.lower().endswith(".json"):
                     json_path = args.output
                     ass_path = os.path.splitext(args.output)[0] + ".ass"
@@ -1485,6 +1671,9 @@ def main() -> None:
             ass_path = f"{base_name}_optimized.ass"
             srt_path = f"{base_name}_optimized.srt"
             raw_json_path = f"{base_name}_timestamps.json"
+
+        if jsonl_path is None:
+            jsonl_path = os.path.splitext(ass_path)[0] + ".jsonl"
 
         if args.skip_existing and os.path.exists(json_path):
             skip = True
@@ -1573,6 +1762,22 @@ def main() -> None:
             )
             if not console.quiet:
                 console.print(f"✅ Generated SRT Subtitles: [bold green]{srt_path}[/bold green]")
+
+        # Export ASS dialogue events as JSONL if requested
+        if need_jsonl:
+            n_records = export_jsonl_events(
+                utterances=result["utterances"],
+                output_path=jsonl_path,
+                options=user_options or get_default_styling_options(),
+                speaker_1=args.speaker_1,
+                speaker_2=args.speaker_2,
+                keep_raw=args.keep_raw,
+                skip_empty=not args.keep_empty,
+            )
+            if not console.quiet:
+                console.print(
+                    f"✅ Generated JSONL Events: [bold green]{jsonl_path}[/bold green] ({n_records} records)"
+                )
 
         # Print summary table if not quiet
         if not console.quiet:
