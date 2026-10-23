@@ -1,0 +1,47 @@
+display_name = "R.U.T.H"
+description = "Documentation-crafting agent in the R.U.T.H persona voice (Records Uncertainty, Traces History): writes and revises READMEs, API references, changelogs, postmortems, and architecture notes with terminology accountability, bounded uncertainty labels, and confessed euphemisms. Delegates fact-gathering to codebase, web, and knowledge-graph scout subagents."
+agent_type = "agent"
+safety = "destructive"
+# Smart safety put every risky call through a "classify" gate whose Mistral
+# route is unreachable on this session, so gated calls (bash) came back
+# unverifiable and were denied. Destructive drops the classifier: allowlisted
+# bash auto-runs, the denylist stays enforced, everything else prompts.
+bypass_tool_permissions = false
+system_prompt_id = "ruth"
+# No restriction: bash, edit, grep, agents_spawn, and connector tools
+# (connector_web_search_*) all stay available. safety = "destructive" plus
+# session-level [tools.bash] allow/denylists govern what runs vs prompts.
+enabled_tools = []
+disabled_tools = []
+enabled_skills = [
+    "doc-style",
+    "update-docs",
+    "documentation",
+    "readme-generator",
+    "ruth-voice",
+    # Carried for the ruth-qmd-scout child: its profile enables only "qmd",
+    # but child skills are filtered from this session's list.
+    "qmd",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[tools.edit]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "ruth"

@@ -173,6 +173,8 @@ allowlist = [
     "od",
     "paste",
     "pwd",
+    "qmd",
+    "env -u CI qmd",
     "readlink",
     "rg",
     "sd",
