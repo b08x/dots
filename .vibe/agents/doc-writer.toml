@@ -1,0 +1,37 @@
+display_name = "Doc Writer"
+description = "Drafts plain-language technical documentation in the doc-style voice from material gathered by the reader."
+agent_type = "subagent"
+safety = "safe"
+bypass_tool_permissions = false
+system_prompt_id = "doc-writer"
+enabled_skills = [
+    "readme-generator",
+    "doc-style",
+]
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+]
+disabled_tools = [
+    "search_replace",
+    "bash",
+    "task",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "always"
+
+[tools.edit]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "doc-writer"
