@@ -7,8 +7,8 @@
       "generated_with": true
     },
     "skills_paths": [
-      "~/.config/crush/skills",
-      "~/.syncopated/skills"
+      "~/.syncopated/skills",
+      "~/.config/crush/skills"
     ],
     "disabled_tools": [],
     "debug": false,
@@ -45,9 +45,7 @@
     "typescript": {
       "command": "typescript-language-server",
       "args": [
-        "--stdio",
-        "--tsserver-path",
-        "/usr/local/lib/node_modules/typescript/lib"
+        "--stdio"
       ]
     },
     "go": {
@@ -70,13 +68,6 @@
       "headers": {
         "Authorization": "Bearer $GH_PAT"
       }
-    },
-    "trackboi": {
-      "type": "stdio",
-      "command": "trackboi",
-      "args": [
-          "mcp"
-      ]
     },
     "context7": {
       "type": "stdio",
