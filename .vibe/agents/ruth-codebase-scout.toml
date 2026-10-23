@@ -7,11 +7,11 @@ system_prompt_id = "ruth-codebase-scout"
 enabled_tools = [
     "read_file",
     "grep",
+    "bash",
 ]
 disabled_tools = [
     "write_file",
     "search_replace",
-    "bash",
     "task",
 ]
 
@@ -20,6 +20,35 @@ permission = "always"
 
 [tools.grep]
 permission = "always"
+
+# Read-only repository facts only (git metadata, diffs, file listings) so the
+# scout can reconstruct before/after state without asking the parent to re-run
+# git itself. No state-changing git subcommands; anything else prompts.
+[tools.bash]
+permission = "always"
+allowlist = [
+    "git log",
+    "git diff",
+    "git show",
+    "git blame",
+    "git status",
+    "git rev-parse",
+    "git ls-files",
+    "git grep",
+    "git shortlog",
+    "git describe",
+    "git branch",
+    "git tag",
+    "git remote",
+    "ls",
+    "fd",
+    "wc",
+    "head",
+    "tail",
+    "cat",
+    "stat",
+    "file",
+]
 
 [session_logging]
 enabled = true

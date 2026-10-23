@@ -19,6 +19,12 @@ permission = "always"
 [tools.skill]
 permission = "always"
 
+# The qmd CLI needs shell access; allowlist the qmd command only so any other
+# shell call prompts instead of running.
+[tools.bash]
+permission = "always"
+allowlist = ["qmd"]
+
 [session_logging]
 enabled = true
 session_prefix = "ruth-qmd-scout"
