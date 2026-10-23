@@ -2,7 +2,11 @@
   "mcpServers": {
     "ansible": {
       "command": "npx",
-      "args": ["-y", "@ansible/ansible-mcp-server", "--stdio"],
+      "args": [
+        "-y",
+        "@ansible/ansible-mcp-server",
+        "--stdio"
+      ],
       "env": {
         "WORKSPACE_ROOT": "/home/b08x/WorkspaceV3/Syncopated/ansible"
       }
@@ -48,6 +52,13 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_PERSONAL_ACCESS_TOKEN"
       }
     },
-    "codebase-memory-mcp": {"command":"/home/b08x/.local/bin/codebase-memory-mcp","args":[]}
+    "codebase-memory-mcp": {
+      "command": "/home/b08x/.local/bin/codebase-memory-mcp",
+      "args": []
+    },
+    "rubydex": {
+      "command": "/home/b08x/WorkspaceV3/ruby-dev-plugin/harness/antigravity/scripts/rubydex-mcp.sh",
+      "args": []
+    }
   }
 }

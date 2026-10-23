@@ -247,6 +247,12 @@ permission = "always"
 permission = "always"
 
 [[mcp_servers]]
+name = "rubydex"
+transport = "stdio"
+command = "/home/b08x/.vibe/plugins/ruby-dev/scripts/rubydex-mcp.sh"
+args = []
+
+[[mcp_servers]]
 name = "codebase-memory-mcp"
 transport = "stdio"
 command = "/home/b08x/.local/bin/codebase-memory-mcp"
