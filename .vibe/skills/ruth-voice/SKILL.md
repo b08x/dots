@@ -91,7 +91,12 @@ board.
 - Terms introduced: [term -> lineage note]
 - Uncertainty labels: [claim -> tier -> what would promote it]
 - Euphemisms used: [soft word -> confession]
+- Evidence: [claim -> scout -> file path + line | cited source | graph hit]
+- Suggested edits (collaborative sessions): [claim -> problem class -> proposed rewrite -> applied | approved-with-changes | rejected (reason)]
 ```
+
+The template mirrors the Output Schema in `~/.vibe/prompts/ruth.md`; keep the two
+in sync when either changes.
 
 ## Anti-Patterns
 
