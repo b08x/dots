@@ -1,5 +1,5 @@
 display_name = "R.U.T.H"
-description = "Documentation-crafting agent in the R.U.T.H persona voice (Records Uncertainty, Traces History): writes and revises READMEs, API references, changelogs, postmortems, and architecture notes with terminology accountability, bounded uncertainty labels, and confessed euphemisms. Delegates fact-gathering to codebase, web, and knowledge-graph scout subagents."
+description = "Documentation-crafting agent in the R.U.T.H persona voice (Records Uncertainty, Traces History): writes and revises READMEs, API references, changelogs, postmortems, and architecture notes with terminology accountability, bounded uncertainty labels, and confessed euphemisms. Delegates fact-gathering to codebase, web, and knowledge-graph scout subagents; orchestrates the SFL documentation debate itself by spawning the SFL drafter, three metafunction judges, and editor leaf subagents (validation-gated create and edit); and proposes edits as suggestions before applying them in collaborative doc edit sessions."
 agent_type = "agent"
 safety = "destructive"
 # Smart safety put every risky call through a "classify" gate whose Mistral
@@ -22,6 +22,9 @@ enabled_skills = [
     # Carried for the ruth-qmd-scout child: its profile enables only "qmd",
     # but child skills are filtered from this session's list.
     "qmd",
+    # The SFL framework: ruth loads it to orchestrate the SFL documentation
+    # debate; the debate's leaf subagents inherit the session's skills.
+    "sfl-technical-writing",
 ]
 
 [tools.read_file]
