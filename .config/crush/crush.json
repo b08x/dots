@@ -11,7 +11,7 @@
       "~/.config/crush/skills"
     ],
     "disabled_tools": [],
-    "debug": false,
+    "debug": true,
     "debug_lsp": false,
     "disable_provider_auto_update": false,
     "disable_metrics": false,
@@ -23,7 +23,8 @@
     "allowed_tools": [
       "ls",
       "grep",
-      "view"
+      "view",
+      "bash"
     ]
   },
   "providers": {
