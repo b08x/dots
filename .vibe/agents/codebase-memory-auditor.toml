@@ -1,6 +1,0 @@
-agent_type = "subagent"
-display_name = "Codebase Memory Auditor"
-description = "Bounded-scope graph audit with check_index_coverage and source read/grep fallback."
-safety = "safe"
-system_prompt_id = "codebase-memory-auditor"
-enabled_tools = ["read_file", "grep_search", "codebase-memory-mcp_search_graph", "codebase-memory-mcp_trace_path", "codebase-memory-mcp_get_code_snippet", "codebase-memory-mcp_query_graph", "codebase-memory-mcp_get_architecture", "codebase-memory-mcp_search_code", "codebase-memory-mcp_get_graph_schema", "codebase-memory-mcp_list_projects", "codebase-memory-mcp_index_status", "codebase-memory-mcp_detect_changes", "codebase-memory-mcp_check_index_coverage"]
