@@ -83,6 +83,7 @@ main() {
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   export ANSIBLE_LOG_PATH="${log_dir}/ansible.log"
   local -a pull_args=(
+  	--ask-become-pass
     --url "$PLAYBOOK_URL"
     --directory "$CHECKOUT"
   )
