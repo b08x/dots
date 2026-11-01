@@ -1,7 +1,8 @@
 {
   "version": 2,
   "input_ports": [
-    "PowerMicII-NS Mono:capture_MONO"
+    "Built-in Audio Analog Stereo:capture_FL",
+    "Built-in Audio Analog Stereo:capture_FR"
   ],
   "save_path": "/home/b08x/WorkspaceV3/omega-13",
   "global_hotkey": "<ctrl>+<alt>+space",

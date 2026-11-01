@@ -239,3 +239,39 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   grep -q '^rbenv install 4.0.4' "$T/calls"
 }
 
+@test "prompts interactively when system Ruby >= 4.0.0 is present and skips rbenv if chosen" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  stub gum 'echo "gum $*" >>"$T/calls"
+if [ "$1" = "choose" ]; then
+  echo "Skip rbenv (use system Ruby)"
+fi
+exit 0'
+  export SYNCOPATED_FORCE_INTERACTIVE=1
+  run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null
+  [ "$status" -eq 2 ]
+  grep -q "gum choose --header System Ruby 4.0.7 detected. Select installation mode: Skip rbenv (use system Ruby) Compile Ruby with rbenv" "$T/calls"
+  [[ $output == *"Using system Ruby 4.0.7"* ]]
+  ! grep -q '^rbenv install' "$T/calls"
+}
+
+@test "prompts interactively when system Ruby >= 4.0.0 is present and compiles with rbenv if chosen" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  : >"$T/versions"
+  stub gum 'echo "gum $*" >>"$T/calls"
+if [ "$1" = "choose" ]; then
+  echo "Compile Ruby with rbenv"
+elif [ "$1" = "spin" ]; then
+  shift
+  while [ "$1" != "--" ]; do shift; done
+  shift
+  "$@"
+fi
+exit 0'
+  export SYNCOPATED_FORCE_INTERACTIVE=1
+  run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null
+  [ "$status" -eq 0 ]
+  grep -q "gum choose --header System Ruby 4.0.7 detected. Select installation mode: Skip rbenv (use system Ruby) Compile Ruby with rbenv" "$T/calls"
+  grep -q '^rbenv install 4.0.4' "$T/calls"
+}
+
+

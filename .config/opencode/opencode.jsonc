@@ -16,10 +16,6 @@
       "type": "remote",
       "url": "https://mcp.deepwiki.com/mcp"
     },
-    "trackboi": {
-      "type": "local",
-      "command": ["trackboi", "mcp"],
-    },
     "codebase-memory-mcp": {"command":["/home/b08x/.local/bin/codebase-memory-mcp"],"type":"local"},
   }
 }

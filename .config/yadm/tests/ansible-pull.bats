@@ -18,7 +18,7 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
 @test "without a terminal the step is skipped without prompting" {
   run_pull
   [ "$status" -eq 2 ]
-  [[ $output == *"system playbook skipped"* ]]
+  [[ $output == *"user playbook skipped"* ]]
   ! grep -q '^gum confirm' "$T/calls"
   ! grep -q '^ansible-pull ' "$T/calls"
 }
@@ -27,7 +27,7 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
   export SYNCOPATED_ANSIBLE_PULL=no
   run_pull
   [ "$status" -eq 2 ]
-  [[ $output == *"system playbook skipped"* ]]
+  [[ $output == *"user playbook skipped"* ]]
   ! grep -q '^ansible-pull ' "$T/calls"
 }
 
@@ -35,14 +35,14 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
   export SYNCOPATED_ANSIBLE_PULL=yes
   run_pull
   [ "$status" -eq 0 ]
-  grep -q '^ansible-pull --url https://gitlab.com/syncopatedX/workstation.git --directory .* --ask-become-pass local.yml$' "$T/calls"
+  grep -q '^ansible-pull --ask-become-pass --url https://gitlab.com/syncopatedX/workstation.git --directory .* --tags user local.yml$' "$T/calls"
 }
 
 @test "opting in with empty repository url skips the step" {
   export SYNCOPATED_ANSIBLE_PULL=yes SYNCOPATED_ANSIBLE_PULL_URL=""
   run_pull
   [ "$status" -eq 2 ]
-  [[ $output == *"no system playbook configured"* ]]
+  [[ $output == *"no user playbook configured"* ]]
   ! grep -q '^ansible-pull ' "$T/calls"
 }
 
@@ -50,14 +50,14 @@ run_pull() { run bash "$T/yadm/bootstrap.d/01-ansible-pull.sh" </dev/null; }
   export SYNCOPATED_ANSIBLE_PULL=yes SYNCOPATED_ANSIBLE_PULL_URL=https://example.com/playbook.git
   run_pull
   [ "$status" -eq 0 ]
-  grep -q '^ansible-pull --url https://example.com/playbook.git --directory .* --ask-become-pass local.yml$' "$T/calls"
+  grep -q '^ansible-pull --ask-become-pass --url https://example.com/playbook.git --directory .* --tags user local.yml$' "$T/calls"
 }
 
 @test "supports branch checkout override" {
   export SYNCOPATED_ANSIBLE_PULL=yes SYNCOPATED_ANSIBLE_PULL_BRANCH=development
   run_pull
   [ "$status" -eq 0 ]
-  grep -q '^ansible-pull --url https://gitlab.com/syncopatedX/workstation.git --directory .* --checkout development --ask-become-pass local.yml$' "$T/calls"
+  grep -q '^ansible-pull --ask-become-pass --url https://gitlab.com/syncopatedX/workstation.git --directory .* --checkout development --tags user local.yml$' "$T/calls"
 }
 
 @test "a failing ansible-pull fails the step" {

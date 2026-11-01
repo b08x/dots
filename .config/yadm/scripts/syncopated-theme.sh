@@ -258,17 +258,114 @@ logo() {
   printf '\n%s%s\e[0m\n' "$(fg "${VIOLET_LIGHT[@]}")" "$caption"
 }
 
+interactive() {
+  [[ -n ${SYNCOPATED_FORCE_INTERACTIVE:-} ]] || [[ -t 0 && -t 1 ]]
+}
+
+# detect_desktop : identify the desktop environment (cosmic, gnome, sway, or shell).
+# Checks SYNCOPATED_DESKTOP override first, then active session variables
+# ($XDG_CURRENT_DESKTOP, $DESKTOP_SESSION), then installed session desktop files
+# and binaries, defaulting to shell when headless or unrecognized.
+detect_desktop() {
+  if [[ -n ${SYNCOPATED_DESKTOP:-} ]]; then
+    printf '%s\n' "$SYNCOPATED_DESKTOP"
+    return 0
+  fi
+
+  local active="${XDG_CURRENT_DESKTOP:-}:${DESKTOP_SESSION:-}"
+  active=$(printf '%s' "$active" | tr '[:upper:]' '[:lower:]')
+  if [[ $active == *cosmic* ]]; then
+    printf '%s\n' "cosmic"
+    return 0
+  elif [[ $active == *gnome* ]]; then
+    printf '%s\n' "gnome"
+    return 0
+  elif [[ $active == *sway* ]]; then
+    printf '%s\n' "sway"
+    return 0
+  fi
+
+  local session_dirs=()
+  if [[ -n ${SYNCOPATED_SESSION_DIRS:-} ]]; then
+    IFS=: read -r -a session_dirs <<< "$SYNCOPATED_SESSION_DIRS"
+  else
+    session_dirs=(
+      "${SYNCOPATED_WAYLAND_SESSIONS_DIR:-/usr/share/wayland-sessions}"
+      "${SYNCOPATED_XSESSIONS_DIR:-/usr/share/xsessions}"
+      /usr/local/share/wayland-sessions
+      /usr/local/share/xsessions
+    )
+    if [[ -n ${XDG_DATA_DIRS:-} ]]; then
+      local d _data_dirs=()
+      IFS=: read -r -a _data_dirs <<< "$XDG_DATA_DIRS"
+      for d in "${_data_dirs[@]}"; do
+        session_dirs+=("$d/wayland-sessions" "$d/xsessions")
+      done
+    fi
+  fi
+
+  local dir f
+  for dir in "${session_dirs[@]}"; do
+    [[ -d $dir ]] || continue
+    for f in "$dir"/*cosmic*.desktop; do
+      if [[ -f $f ]]; then
+        printf '%s\n' "cosmic"
+        return 0
+      fi
+    done
+  done
+
+  for dir in "${session_dirs[@]}"; do
+    [[ -d $dir ]] || continue
+    for f in "$dir"/*gnome*.desktop; do
+      if [[ -f $f ]]; then
+        printf '%s\n' "gnome"
+        return 0
+      fi
+    done
+  done
+
+  for dir in "${session_dirs[@]}"; do
+    [[ -d $dir ]] || continue
+    for f in "$dir"/*sway*.desktop; do
+      if [[ -f $f ]]; then
+        printf '%s\n' "sway"
+        return 0
+      fi
+    done
+  done
+
+  if command -v cosmic-session >/dev/null 2>&1; then
+    printf '%s\n' "cosmic"
+    return 0
+  fi
+
+  if command -v gnome-shell >/dev/null 2>&1; then
+    printf '%s\n' "gnome"
+    return 0
+  fi
+
+  if command -v sway >/dev/null 2>&1; then
+    printf '%s\n' "sway"
+    return 0
+  fi
+
+  printf '%s\n' "shell"
+  return 0
+}
+
 banner() {
-  local label
+  local label desktop
   label=$(os_label)
+  desktop=${SYNCOPATED_DESKTOP:-$(detect_desktop)}
   if have_gum; then
     gum style --border double --border-foreground "${EMBER[0]}" --foreground "${VIOLET[0]}" \
       --align center --width 60 --padding "1 2" \
-      "SYNCOPATED" "$label" "User configuration"
+      "SYNCOPATED" "$label ($desktop)" "User configuration"
   else
     printf '%s\n' \
       "============================================================" \
-      "  SYNCOPATED  |  $label  |  User configuration" \
+      "  SYNCOPATED  |  $label ($desktop)  |  User configuration" \
       "============================================================"
   fi
 }

@@ -4,6 +4,7 @@ load helpers
 
 setup() {
   make_env
+  export SYNCOPATED_DESKTOP=gnome
   cp "$YADM_SRC/bootstrap.d/40-gnome-extensions.sh" "$T/yadm/bootstrap.d/"
   : >"$T/installed_exts"
   : >"$T/enabled_exts"
@@ -187,4 +188,28 @@ run_gnome_step() {
   grep -q 'gnome-extensions install' "$T/calls"
   grep -q 'gnome-extensions enable test-uuid@example.com' "$T/calls"
   [[ $output == *"reboot"* ]]
+}
+
+@test "skips with exit 2 when running under cosmic desktop" {
+  export SYNCOPATED_DESKTOP=cosmic
+  run_gnome_step
+  [ "$status" -eq 2 ]
+  [[ $output == *"Skipping GNOME extensions (detected desktop: cosmic)"* ]]
+  ! grep -q 'gnome-extensions' "$T/calls"
+}
+
+@test "skips with exit 2 when running under sway desktop" {
+  export SYNCOPATED_DESKTOP=sway
+  run_gnome_step
+  [ "$status" -eq 2 ]
+  [[ $output == *"Skipping GNOME extensions (detected desktop: sway)"* ]]
+  ! grep -q 'gnome-extensions' "$T/calls"
+}
+
+@test "skips with exit 2 when running under headless shell" {
+  export SYNCOPATED_DESKTOP=shell
+  run_gnome_step
+  [ "$status" -eq 2 ]
+  [[ $output == *"Skipping GNOME extensions (detected desktop: shell)"* ]]
+  ! grep -q 'gnome-extensions' "$T/calls"
 }

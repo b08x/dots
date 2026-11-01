@@ -12,6 +12,12 @@ source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
 : "${SYNCOPATED_STEP:=gnome-extensions}"
 
+DESKTOP_ENV=${SYNCOPATED_DESKTOP:-$(detect_desktop)}
+if [[ $DESKTOP_ENV != "gnome" ]]; then
+  info "Skipping GNOME extensions (detected desktop: $DESKTOP_ENV)"
+  exit "$RC_SKIPPED"
+fi
+
 EXTENSIONS_FILE=${GNOME_EXTENSIONS_FILE:-$YADM_CONFIG_DIR/files/gnome-extensions.txt}
 DID_WORK=0
 FAILED=0

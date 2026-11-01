@@ -234,7 +234,23 @@ main() {
   parse_args "$@"
   setup_tmpdir || return "$RC_FAILED"
 
-  if want_rbenv || ! has_system_ruby_4; then
+  local use_rbenv=0
+  if want_rbenv; then
+    use_rbenv=1
+  elif ! has_system_ruby_4; then
+    use_rbenv=1
+  elif interactive; then
+    local sys_ver choice
+    sys_ver=$(get_system_ruby_version)
+    choice=$(choose "System Ruby $sys_ver detected. Select installation mode:" \
+      "Skip rbenv (use system Ruby)" \
+      "Compile Ruby with rbenv") || choice="Skip rbenv (use system Ruby)"
+    if [[ $choice == "Compile Ruby with rbenv" ]]; then
+      use_rbenv=1
+    fi
+  fi
+
+  if ((use_rbenv)); then
     PATH=$RBENV_ROOT/shims:$PATH
     install_ruby || return "$RC_FAILED"
     set_global || return "$RC_FAILED"
