@@ -180,6 +180,18 @@ else exit 0; fi'
   [ "$output" = "" ]
 }
 
+@test "choose_selected respects default on empty answer and supports numbers or names" {
+  run bash -c 'source "$1"; echo | choose_selected H B A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "B" ]
+  run bash -c 'source "$1"; echo "1" | choose_selected H B A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "A" ]
+  run bash -c 'source "$1"; echo "C" | choose_selected H B A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "C" ]
+}
+
 # systemd_cat_stub : stub systemd-cat to record calls and standard input
 systemd_cat_stub() {
   stub systemd-cat 'echo "systemd-cat $*" >>"$T/calls"; cat >>"$T/systemd_cat_in"; exit 0'

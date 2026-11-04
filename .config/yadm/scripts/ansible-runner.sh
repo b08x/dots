@@ -38,12 +38,13 @@ BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-development}
 LOCAL_HOSTNAME=${HOSTNAME:-$(hostname 2>/dev/null || uname -n)}
 INVENTORY=${SYNCOPATED_ANSIBLE_PULL_INVENTORY:-"${LOCAL_HOSTNAME},"}
 
-# run_ansible_tags STEP_NAME TAGS_CSV [NEEDS_SUDO]
+# run_ansible_tags STEP_NAME TAGS_CSV [NEEDS_SUDO] [EXTRA_VARS]
 # Runs ansible-pull with the specified tags against local.yml.
 run_ansible_tags() {
   local step_name=$1
   local tags_csv=$2
   local needs_sudo=${3:-0}
+  local extra_vars=${4:-}
 
   if ! command -v ansible-pull >/dev/null 2>&1; then
     warn "ansible-pull is not installed; $step_name playbook skipped"
@@ -99,16 +100,26 @@ run_ansible_tags() {
   if [[ -n $branch ]]; then
     pull_args+=(--checkout "$branch")
   fi
+  if [[ -n ${SYNCOPATED_ANSIBLE_EXTRA_VARS:-} ]]; then
+    if [[ -n $extra_vars ]]; then
+      extra_vars="$extra_vars ${SYNCOPATED_ANSIBLE_EXTRA_VARS}"
+    else
+      extra_vars="${SYNCOPATED_ANSIBLE_EXTRA_VARS}"
+    fi
+  fi
+  if [[ -n $extra_vars ]]; then
+    pull_args+=(--extra-vars "$extra_vars")
+  fi
   pull_args+=(--tags "$tags_csv" "$playbook")
 
   info "Applying $playbook (tags: $tags_csv) from $repo_url"
 
   local pull_rc=0
   if have_systemd_cat; then
-    ansible-pull -K "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
+    ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
     pull_rc=${PIPESTATUS[0]}
   else
-    ansible-pull -K "${pull_args[@]}"
+    ansible-pull "${pull_args[@]}"
     pull_rc=$?
   fi
 

@@ -519,6 +519,59 @@ choose() {
   done
 }
 
+# choose_selected HEADER DEFAULT OPTION... : print the selected option, with
+# DEFAULT pre-selected. Fails on cancel/EOF unless DEFAULT is non-empty.
+choose_selected() {
+  local header=$1 default=$2 reply opt i
+  shift 2
+  if have_gum; then
+    if [[ -n $default ]]; then
+      gum choose --header "$header" --selected "$default" -- "$@"
+    else
+      gum choose --header "$header" -- "$@"
+    fi
+    return
+  fi
+  printf '%s\n' "$header" >&2
+  for ((i = 1; i <= $#; i++)); do
+    opt="${!i}"
+    if [[ -n $default && $opt == "$default" ]]; then
+      printf '  %d) [*] %s\n' "$i" "$opt" >&2
+    else
+      printf '  %d) [ ] %s\n' "$i" "$opt" >&2
+    fi
+  done
+  while :; do
+    if [[ -n $default ]]; then
+      read -r -p "Choose [1-$#, empty for default ($default)]: " reply || {
+        printf '%s\n' "$default"
+        return 0
+      }
+      if [[ -z $reply ]]; then
+        printf '%s\n' "$default"
+        return 0
+      fi
+    else
+      read -r -p "Choose [1-$#]: " reply || return 1
+    fi
+    if [[ $reply =~ ^[0-9]+$ ]] && ((reply >= 1 && reply <= $#)); then
+      printf '%s\n' "${!reply}"
+      return 0
+    fi
+    for opt in "$@"; do
+      [[ $reply == "$opt" ]] && {
+        printf '%s\n' "$opt"
+        return 0
+      }
+    done
+    if [[ -n $default ]]; then
+      printf 'Enter a number from 1 to %d, or press Enter for default (%s).\n' "$#" "$default" >&2
+    else
+      printf 'Enter a number from 1 to %d.\n' "$#" >&2
+    fi
+  done
+}
+
 # --- labels ------------------------------------------------------------------
 
 # capitalize WORD : uppercase the first letter, leave the rest as is.

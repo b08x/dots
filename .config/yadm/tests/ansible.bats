@@ -28,6 +28,7 @@ exit 0'
   unset SYNCOPATED_ANSIBLE_TAGS SYNCOPATED_ANSIBLE_SYSTEM_TAGS SYNCOPATED_ANSIBLE_DESKTOP_TAGS SYNCOPATED_ANSIBLE_TOOLS_TAGS SYNCOPATED_ANSIBLE_USER_TAGS
   unset SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH SYNCOPATED_ANSIBLE_PULL_INVENTORY
   unset SYNCOPATED_ANSIBLE_ASK_BECOME_PASS SYNCOPATED_GPU_DETECTED SYNCOPATED_KVM_DETECTED SYNCOPATED_DESKTOP
+  unset SYNCOPATED_DESKTOP_UI_ENVIRONMENT SYNCOPATED_ANSIBLE_EXTRA_VARS SYNCOPATED_ANSIBLE_DESKTOP_EXTRA_VARS
 }
 
 teardown() { cleanup_env; }
@@ -115,6 +116,19 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   ! grep -q -- "--ask-become-pass" "$T/calls"
 }
 
+@test "ansible-runner passes --extra-vars when extra_vars is provided" {
+  run bash -c 'source "$1"; run_ansible_tags "test" "common" 0 "desktop_ui_environment=gnome"' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=gnome --tags common local.yml" "$T/calls"
+}
+
+@test "ansible-runner respects SYNCOPATED_ANSIBLE_EXTRA_VARS override" {
+  export SYNCOPATED_ANSIBLE_EXTRA_VARS="custom_var=1"
+  run bash -c 'source "$1"; run_ansible_tags "test" "common" 0' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars custom_var=1 --tags common local.yml" "$T/calls"
+}
+
 # --- 01-ansible-system tests ---
 
 @test "ansible-system runs with full hardware defaults when GPU and KVM detected" {
@@ -160,6 +174,7 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   export SYNCOPATED_DESKTOP=gnome
   run_desktop
   [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=gnome" "$T/calls"
   grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
 }
 
@@ -167,6 +182,7 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   export SYNCOPATED_DESKTOP=shell
   run_desktop
   [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=none" "$T/calls"
   grep -q -- "--tags desktop local.yml" "$T/calls"
 }
 
@@ -175,6 +191,40 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   run_desktop
   [ "$status" -eq 0 ]
   grep -q -- "--tags desktop_ui local.yml" "$T/calls"
+}
+
+@test "ansible-desktop passes desktop_ui_environment=cosmic when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is cosmic" {
+  export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=cosmic
+  run_desktop
+  [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=cosmic" "$T/calls"
+  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
+}
+
+@test "ansible-desktop passes desktop_ui_environment=sway when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is sway" {
+  export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=sway
+  run_desktop
+  [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=sway" "$T/calls"
+  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
+}
+
+@test "ansible-desktop passes desktop_ui_environment=none and deselects desktop_ui when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is none" {
+  export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=none
+  run_desktop
+  [ "$status" -eq 0 ]
+  grep -q -- "--extra-vars desktop_ui_environment=none" "$T/calls"
+  grep -q -- "--tags desktop local.yml" "$T/calls"
+}
+
+@test "ansible-desktop prompts for desktop environment menu choice with cosmic, gnome, sway, none when interactive" {
+  export SYNCOPATED_FORCE_INTERACTIVE=1 SYNCOPATED_DESKTOP=gnome
+  run_desktop
+  [ "$status" -eq 0 ]
+  grep -q "gum choose --header Select desktop environment to configure --selected gnome -- cosmic gnome sway none" "$T/calls"
+  grep -q "gum choose --no-limit --ordered --header Select Ansible desktop tags to apply --selected desktop_ui,desktop -- desktop_ui desktop" "$T/calls"
+  grep -q -- "--extra-vars desktop_ui_environment=gnome" "$T/calls"
+  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
 }
 
 # --- 03-ansible-tools tests ---

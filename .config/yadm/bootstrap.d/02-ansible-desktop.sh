@@ -28,11 +28,27 @@ fi
 : "${SYNCOPATED_STEP:=ansible-desktop}"
 
 main() {
+  local default_de="none"
+  local detected_env=${SYNCOPATED_DESKTOP:-$(detect_desktop)}
+  case $detected_env in
+    cosmic|gnome|sway) default_de="$detected_env" ;;
+    *) default_de="none" ;;
+  esac
+
+  local desktop_env=""
+  if [[ -n ${SYNCOPATED_DESKTOP_UI_ENVIRONMENT:-} ]]; then
+    desktop_env="$SYNCOPATED_DESKTOP_UI_ENVIRONMENT"
+  elif interactive; then
+    desktop_env=$(choose_selected "Select desktop environment to configure" "$default_de" "cosmic" "gnome" "sway" "none") || desktop_env="$default_de"
+  else
+    desktop_env="$default_de"
+  fi
+  [[ -z $desktop_env ]] && desktop_env="$default_de"
+
   local all_tags=(desktop_ui desktop)
-  local desktop_env=${SYNCOPATED_DESKTOP:-$(detect_desktop)}
   local default_tags=()
 
-  if [[ $desktop_env != "shell" ]]; then
+  if [[ $desktop_env != "none" && $desktop_env != "shell" ]]; then
     default_tags=(desktop_ui desktop)
   else
     default_tags=(desktop)
@@ -55,7 +71,13 @@ main() {
     tags_csv="$defaults_csv"
   fi
 
-  run_ansible_tags "ansible-desktop" "$tags_csv" 1
+  local extra_vars="desktop_ui_environment=$desktop_env"
+  if [[ -n ${SYNCOPATED_ANSIBLE_DESKTOP_EXTRA_VARS:-} ]]; then
+    extra_vars="$SYNCOPATED_ANSIBLE_DESKTOP_EXTRA_VARS"
+  fi
+
+  info "Configuring desktop environment: $desktop_env"
+  run_ansible_tags "ansible-desktop" "$tags_csv" 1 "$extra_vars"
 }
 
 main "$@"
