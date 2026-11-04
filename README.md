@@ -7,7 +7,7 @@
 [![yadm](https://img.shields.io/badge/managed%20by-yadm-2f2f2f?logo=git&logoColor=white)][yadm-overview]
 [![shell](https://img.shields.io/badge/shell-Bash%20%2F%20Zsh-4EAA25?logo=gnu-bash&logoColor=white)](https://www.zsh.org)
 [![tests](https://img.shields.io/badge/tests-bats-9B59B6)][bats]
-[![license](https://img.shields.io/badge/license-Proprietary-red)](#license)
+[![license](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 </div>
 
@@ -175,7 +175,7 @@ This is a personal configuration repository, but issues and pull requests are we
 
 ## License
 
-Personal configuration. All rights reserved. Intended for private reference and reproduction.
+[MIT](LICENSE) — see the [LICENSE](LICENSE) file at the repository root.
 
 [bstrap]: https://github.com/b08x/dots/blob/main/.config/yadm/bootstrap
 [files]: https://github.com/b08x/dots/tree/main/.config/yadm/files
