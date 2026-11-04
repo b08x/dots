@@ -7,7 +7,7 @@
                 "origin_hash": "a3bf8e2c1899f396d52967064891bc87"
             }
         ],
-        "target_uinput": "keyboard",
+        "target_uinput": "keyboard + mouse",
         "output_symbol": "Control_L + Alt_L + KEY_SPACE",
         "mapping_type": "key_macro"
     },
@@ -130,5 +130,27 @@
         "target_uinput": "keyboard",
         "output_symbol": "0",
         "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 275,
+                "origin_hash": "476ccb27d1ee51f347e4e19a41112aa3"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "Super_L + h",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 276,
+                "origin_hash": "476ccb27d1ee51f347e4e19a41112aa3"
+            }
+        ],
+        "target_uinput": "keyboard"
     }
 ]
