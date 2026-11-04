@@ -15,7 +15,7 @@
 
 You are reading one of the files this repository manages. The work tree is `$HOME` itself: yadm treats home as a bare repository with origin `git@github.com:b08x/dots.git`, so this README sits at `~/README.md`, tracked by the repository it describes.
 
-The same tree runs on all four hosts, and every host difference lives in two Jinja2 templates rendered by `yadm alt`. The repo tracks 226 files; no tracked file is a symlink, though the bootstrap creates runtime symlinks outside the tracked tree (`85-rubymine.sh` links `~/.local/bin/rubymine`). Every clone carries the full history. This is Layer 2 of the three-layer *Syncopated* stack — see [The three layers](#the-three-layers).
+The same tree runs on all four hosts, and every host difference lives in two Jinja2 templates rendered by `yadm alt`. No tracked file is a symlink — `yadm list -a` shows the full set — though the bootstrap creates runtime symlinks outside the tracked tree (`85-rubymine.sh` links `~/.local/bin/rubymine`). Every clone carries the full history. This is Layer 2 of the three-layer *Syncopated* stack — see [The three layers](#the-three-layers).
 
 ## Requirements
 
@@ -50,7 +50,7 @@ Steps report a three-valued exit convention — **0 ok, 1 failed, 2 skipped**. S
 
 Step selection goes through gum — `gum choose --no-limit --ordered`, a multi-select *Select the steps to run* — or, without gum, a numbered prompt on stdin where an empty line selects every step.
 
-`bootstrap.d/` holds 9 executable scripts on disk; 8 are tracked.
+`bootstrap.d/` holds 9 executable scripts on disk.
 
 | Script | Tracked | Manifest | Does |
 | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Step selection goes through gum — `gum choose --no-limit --ordered`, a multi-s
 | `30-ruby.sh` | yes | `default-gems.txt` | Installs the 8 manifest gems under the system Ruby (requires Ruby >= 4.0.0) via `gem install --user-install --bindir $HOME/.local/bin`, or under rbenv pinned to Ruby 4.0.4 (`rbenv exec gem install`) with `USE_RBENV=1` |
 | `40-gnome-extensions.sh` | yes | `gnome-extensions.txt` | Installs user extension UUIDs; exits 2 when the desktop is not GNOME |
 | `80-install-user-flatpaks.sh` | yes | `user-flatpaks.txt` | Ensures the per-user flathub remote (`flatpak remote-add --user --if-not-exists`), then `flatpak install -y --user flathub` per entry |
-| `85-rubymine.sh` | *untracked* | none | Installs RubyMine from the official JetBrains tarball (releases API) to `~/.local/share/JetBrains/RubyMine`, symlinks `~/.local/bin/rubymine`, writes a `.desktop` launcher |
+| `85-rubymine.sh` | yes | none | Installs RubyMine from the official JetBrains tarball (releases API) to `~/.local/share/JetBrains/RubyMine`, symlinks `~/.local/bin/rubymine`, writes a `.desktop` launcher |
 | `90-obsidian-flatpak-setup.sh` | yes | none | Opt-in (`SYNCOPATED_OBSIDIAN=yes|no` or gum confirm): creates the vault at `~/Notebook` with a `Daily/` directory and enables 68 plugins; does **not** install the Obsidian flatpak — step 80 owns that (`md.obsidian.Obsidian` is line 1 of `user-flatpaks.txt`) |
 | `91-install-vscode-extensions.sh` | yes | `vscode-extensions.txt` | Installs the 68 manifest extensions; target detected in order: `$VSCODE_CMD`, native `code`, then the Flatpak `com.visualstudio.code` |
 
@@ -74,28 +74,27 @@ ansible-pull --ask-become-pass --url https://gitlab.com/syncopatedX/workstation.
 
 ## What's in the repo
 
-The inventory regenerates from one command: `yadm list -a`. Its 226 files distribute as:
+The tracked tree turns a bare host into a working workstation: a shell, a terminal, a file manager, a media player, a dictation pipeline, a synced knowledge base — and the bootstrap that puts every one of them in place. What each area actually gives a machine:
 
-| Category | Count |
-| --- | ---: |
-| shell/zsh — completions, functions, themes, `.zshrc##template.j2`, `.aliases##template.j2`, `.zlogin`, `.zprofile`, `.zshenv`, `.profile` | 47 |
-| Obsidian Notebook vault — `Notebook/**` | 53 |
-| mpv — `.config/mpv/**`: conf, `input.conf`, lua scripts, script-opts, fonts | 24 |
-| GNOME / input-remapper / desktop — presets, `settings.ini`, gowall `schema.yml`, `environment.d/00-arch.conf` | 19 |
-| ranger — `.config/ranger/**` incl. `plugins/zoxide/` | 12 |
-| dev tooling — `.config/{crush,micro,noisetorch,omega13,opencode,pip,qmd,tooling,voxtype,weathr}` | 11 |
-| scripts — `Tools/bin`, `Tools/lib`, `bin` | 9 |
-| top-level / misc — `.gitconfig`, `.ssh/config`, `.cargo/config.toml`, `.gemrc`, `README.md`, `.yadmignore`, etc. | 14 |
-| kitty | 3 |
-| Thunar | 3 |
-| other `.config` — `htoprc`, Obsidian `Custom Dictionary.txt`, `user-dirs.dirs`, `xdg-terminals.list` | 4 |
-| yadm control plane — `.config/yadm/**` | 27 |
+| Area | What you get |
+| --- | --- |
+| shell/zsh | oh-my-zsh with a working plugin set (fzf, docker-compose, podman, ruby, systemd, …), roughly 30 custom functions (`mkcd`, `dd_to_usb`, `rga-fzf`, `yazi`), custom completions for the exact tools this repo standardizes on (`_gh`, `_rspec`, `_fd`, `_ripgrep`), and a homegrown theme (`minimal-terminal-prompt`) |
+| kitty | a themed terminal — `kitty.conf`, `current-theme.conf`, and a `kitty-themes/` directory |
+| ranger | a heavily customized file manager: devicons for file icons, zoxide jump navigation, and ranger-sox audio previews |
+| mpv | a customized media player: nine lua scripts (autoload, playlist management, excerpting, web-download), most with their own `script-opts` conf |
+| dev tooling | configs for crush, micro, noisetorch, opencode, pip, qmd, uv tools, voxtype, weathr — the standout is omega13: a global Ctrl+Alt+Space hotkey records audio and transcribes it locally via Whisper large-v3-turbo, injecting the result into the clipboard or the focused window |
+| desktop | per-device key remaps for the actual keyboards in the house (Dell KB216, PowerMicII, SayoDevice 2x4F), Thunar custom actions, gowall `schema.yml`, GTK `settings.ini`, and `environment.d/00-arch.conf` |
+| Obsidian vault | a full personal knowledge base — daily notes, dashboards, 30+ topic areas — synced as tracked files, so the wiki rides the same clone as the shell config |
+| scripts | tracked automation for real workflows: A/V conversion, subtitle/ASS tooling, docker-volume backup/restore, NotebookLM transcription pipelines |
+| yadm control plane | the machinery that places everything above — the bootstrap orchestrator, the `bootstrap.d/` steps, the manifests, the helpers, and the bats suite |
 
-Of those 226 files, the 27 under `.config/yadm/**` are the control plane: the 440-line `bootstrap` orchestrator, `encrypt`, `.shellcheckrc`, the 8 tracked `bootstrap.d/` scripts, the 5 `files/` manifests, the 2 `scripts/` helpers, and the 9 `tests/` files. The other 199 are payload — files the control plane puts in place and never executes. dots is a configuration that configures itself: the bootstrap installs the shell it next runs in, and the manifests install the tools that read the manifests.
+None of the payload does anything on its own: an inert `.zshrc` becomes a working shell only after a `bootstrap.d/` step installs oh-my-zsh for it to load into. That is the point of the split. dots is a configuration that configures itself — the bootstrap installs the shell it next runs in, and the manifests install the tools that read the manifests. The tree divides by what happens to a file: the `.config/yadm/**` area is the control plane — the 440-line bootstrap orchestrator, the `bootstrap.d/` steps, the manifests, the `scripts/` helpers, and the bats suite — the part of the tree that executes on the machine. Everything else is payload: files the control plane puts in place and never runs.
+
+To see the raw tracked set for yourself, one command regenerates it: `yadm list -a`.
 
 ## Host-specific behavior
 
-Two payload files are templates — `.zshrc##template.j2` and `.aliases##template.j2`, the only `##`-suffixed paths in the tree; the other 197 ship verbatim. Each template renders one concrete file per host from a single source. `.zshrc##template.j2` branches its theme selector on the `HOSTNAME` variable — not `yadm.hostname`, not `YADM_HOSTNAME`:
+Two payload files are templates — `.zshrc##template.j2` and `.aliases##template.j2`, the only `##`-suffixed paths in the tree; every other payload file ships verbatim. Each template renders one concrete file per host from a single source. `.zshrc##template.j2` branches its theme selector on the `HOSTNAME` variable — not `yadm.hostname`, not `YADM_HOSTNAME`:
 
 ```jinja
 {% if HOSTNAME == 'ninjabot' %}
@@ -154,7 +153,7 @@ The loop closes through the bootstrap. workstation's `common` role installs yadm
 
 ## Testing
 
-The control plane ships its own test suite: 10 `.bats` files under `.config/yadm/tests/` alongside the shared `helpers.bash`, named for the components they exercise — `ansible-pull`, `bootstrap`, `cargo`, `desktop`, `gnome-extensions`, `ruby`, `rubymine`, `theme`, `vscode`, `zsh`. Of those 10, 8 are tracked; `desktop.bats` and `rubymine.bats` are untracked — `rubymine.bats` matching the untracked `85-rubymine.sh`. The repo sets `status.showuntrackedfiles=no`, so plain `yadm status` hides them — `yadm status --porcelain -uall` shows the `??` entries. The runner is [bats][bats]: `bats .config/yadm/tests/` executes the suite.
+The control plane ships its own test suite: 10 `.bats` files under `.config/yadm/tests/` alongside the shared `helpers.bash`, named for the components they exercise — `ansible-pull`, `bootstrap`, `cargo`, `desktop`, `gnome-extensions`, `ruby`, `rubymine`, `theme`, `vscode`, `zsh`. Of those 10, 8 are tracked; `desktop.bats` and `rubymine.bats` are untracked — `rubymine.bats` matching the `85-rubymine.sh` step. The repo sets `status.showuntrackedfiles=no`, so plain `yadm status` hides them — `yadm status --porcelain -uall` shows the `??` entries. The runner is [bats][bats]: `bats .config/yadm/tests/` executes the suite.
 
 ## Further reading
 
