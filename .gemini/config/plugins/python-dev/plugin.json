@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "python-dev",
+  "version": "0.1.0",
+  "description": "Task-driven Python development toolkit: project scaffolding (devstart or uv), acceptance tests with pytest-bdd, GenAI components (pydantic-ai, dspy, FastMCP), data and database engineering, classical NLP, TUIs, refactoring, and SIFT quality audits. Routed by the `pythonista` orchestrator, which dispatches 5 phase subagents (specifier, implementer, cleaner, hardener, verifier) that run uv-based quality gates.",
+  "author": {
+    "name": "Syncopated Context"
+  },
+  "license": "MIT",
+  "keywords": [
+    "python",
+    "uv",
+    "pytest",
+    "pytest-bdd",
+    "gherkin",
+    "scaffolding",
+    "refactoring",
+    "mutation-testing",
+    "pydantic",
+    "dspy",
+    "pydantic-ai",
+    "fastmcp",
+    "sqlalchemy",
+    "polars",
+    "tui",
+    "nlp",
+    "agents",
+    "subagents",
+    "orchestrator",
+    "quality-gates",
+    "sift"
+  ]
+}
