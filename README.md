@@ -1,6 +1,6 @@
-<div align="center">
+<div align="left">
 
-# dots
+# dotfiles
 
 **Personal workstation configuration for four hosts — soundbot, ninjabot, gir, tinybot — managed with yadm, Jinja2 multi-host templating, and a Charm Gum TUI.**
 
