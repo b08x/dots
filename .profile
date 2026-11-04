@@ -50,5 +50,3 @@ if [ -n "$(ls "$HOME"/.config/profile.d 2>/dev/null)" ]; then
         . "$f"
     done
 fi
-
-. "$HOME/.local/share/../bin/env"
