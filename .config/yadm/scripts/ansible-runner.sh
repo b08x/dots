@@ -38,6 +38,97 @@ BRANCH=${SYNCOPATED_ANSIBLE_PULL_BRANCH:-development}
 LOCAL_HOSTNAME=${HOSTNAME:-$(hostname 2>/dev/null || uname -n)}
 INVENTORY=${SYNCOPATED_ANSIBLE_PULL_INVENTORY:-"${LOCAL_HOSTNAME},"}
 
+# detect_terminal_emulator : identify installed graphical terminal emulator in priority order.
+detect_terminal_emulator() {
+  if [[ -n ${SYNCOPATED_TERMINAL:-} ]] && command -v "$SYNCOPATED_TERMINAL" >/dev/null 2>&1; then
+    printf '%s\n' "$SYNCOPATED_TERMINAL"
+    return 0
+  fi
+
+  local term
+  for term in ptyxis kitty foot gnome-terminal xterm; do
+    if command -v "$term" >/dev/null 2>&1; then
+      printf '%s\n' "$term"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# launch_terminal TERM TITLE SCRIPT_PATH : execute script inside specified emulator.
+launch_terminal() {
+  local term=$1
+  local title=$2
+  local script_path=$3
+
+  case "$term" in
+    ptyxis)
+      ptyxis -s --title "$title" -- bash "$script_path"
+      ;;
+    kitty)
+      kitty --title "$title" bash "$script_path"
+      ;;
+    foot)
+      foot -T "$title" bash "$script_path"
+      ;;
+    gnome-terminal)
+      gnome-terminal --wait --title="$title" -- bash "$script_path"
+      ;;
+    xterm)
+      xterm -title "$title" -e bash "$script_path"
+      ;;
+    *)
+      "$term" bash "$script_path"
+      ;;
+  esac
+}
+
+# run_in_terminal TERM STEP_NAME CMD_ARGS... : wrapper running ansible-pull in new window.
+run_in_terminal() {
+  local term=$1
+  local step_name=$2
+  shift 2
+  local -a cmd_args=("$@")
+
+  local wrapper_script status_file
+  wrapper_script=$(mktemp -t "ansible-${step_name}-run-XXXXXX.sh")
+  status_file=$(mktemp -t "ansible-${step_name}-status-XXXXXX.txt")
+
+  # shellcheck disable=SC2016
+  {
+    echo "#!/usr/bin/env bash"
+    echo "export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK@Q}"
+    echo "export ANSIBLE_INVENTORY_ENABLED=${ANSIBLE_INVENTORY_ENABLED@Q}"
+    echo "export ANSIBLE_LOG_PATH=${ANSIBLE_LOG_PATH@Q}"
+    echo "cd ${PWD@Q} || true"
+    printf 'ansible-pull %s\n' "$(printf '%q ' "${cmd_args[@]}")"
+    echo 'rc=$?'
+    echo "echo \"\$rc\" > ${status_file@Q}"
+    echo 'if ((rc != 0)); then'
+    echo '  echo ""'
+    echo '  echo "✗ ansible-pull failed with exit code $rc"'
+    echo '  echo "Log file: $ANSIBLE_LOG_PATH"'
+    echo '  echo ""'
+    echo '  read -r -p "Press [Enter] to close this window..." _ || true'
+    echo 'fi'
+    echo 'exit "$rc"'
+  } > "$wrapper_script"
+  chmod +x "$wrapper_script"
+
+  launch_terminal "$term" "Ansible Pull - $step_name" "$wrapper_script"
+  local term_rc=$?
+
+  local pull_rc=1
+  if [[ -s "$status_file" ]]; then
+    pull_rc=$(<"$status_file")
+  elif ((term_rc != 0)); then
+    pull_rc=$term_rc
+  fi
+
+  rm -f "$wrapper_script" "$status_file"
+  return "$pull_rc"
+}
+
 # run_ansible_tags STEP_NAME TAGS_CSV [NEEDS_SUDO] [EXTRA_VARS]
 # Runs ansible-pull with the specified tags against local.yml.
 run_ansible_tags() {
@@ -73,13 +164,11 @@ run_ansible_tags() {
 
   local -a become_args=()
   if [[ $needs_sudo == "1" || $needs_sudo == "true" || $needs_sudo == "yes" ]]; then
-    if [[ ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} == "yes" || ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} == "1" ]]; then
+    if [[ ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} != "no" && ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} != "0" ]]; then
       become_args+=(--ask-become-pass)
-    elif ! sudo -n true 2>/dev/null; then
-      if interactive; then
-        become_args+=(--ask-become-pass)
-      fi
     fi
+  elif [[ ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} == "yes" || ${SYNCOPATED_ANSIBLE_ASK_BECOME_PASS:-} == "1" ]]; then
+    become_args+=(--ask-become-pass)
   fi
 
   local log_dir="${XDG_CACHE_HOME:-$HOME/.cache}/syncopated"
@@ -112,15 +201,25 @@ run_ansible_tags() {
   fi
   pull_args+=(--tags "$tags_csv" "$playbook")
 
-  info "Applying $playbook (tags: $tags_csv) from $repo_url"
+  local term=""
+  if [[ -n ${WAYLAND_DISPLAY:-} || -n ${DISPLAY:-} ]] && [[ ${SYNCOPATED_ANSIBLE_TERMINAL:-1} != "0" && ${SYNCOPATED_ANSIBLE_TERMINAL:-} != "inline" ]]; then
+    term=$(detect_terminal_emulator) || term=""
+  fi
 
   local pull_rc=0
-  if have_systemd_cat; then
-    ansible-pull -K "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
-    pull_rc=${PIPESTATUS[0]}
-  else
-    ansible-pull -K "${pull_args[@]}"
+  if [[ -n $term ]]; then
+    info "Applying $playbook (tags: $tags_csv) in terminal ($term)"
+    run_in_terminal "$term" "$step_name" "${pull_args[@]}"
     pull_rc=$?
+  else
+    info "Applying $playbook (tags: $tags_csv) from $repo_url"
+    if have_systemd_cat; then
+      ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
+      pull_rc=${PIPESTATUS[0]}
+    else
+      ansible-pull "${pull_args[@]}"
+      pull_rc=$?
+    fi
   fi
 
   if ((pull_rc != 0)); then

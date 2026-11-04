@@ -59,51 +59,35 @@ teardown() { cleanup_env; }
   [ "$output" = "sway" ]
 }
 
-@test "detect_desktop falls back to session desktop files" {
-  mkdir -p "$T/wayland-sessions"
-  touch "$T/wayland-sessions/cosmic.desktop"
-  SYNCOPATED_SESSION_DIRS="$T/wayland-sessions" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "cosmic" ]
-
-  rm "$T/wayland-sessions/cosmic.desktop"
-  touch "$T/wayland-sessions/gnome.desktop"
-  SYNCOPATED_SESSION_DIRS="$T/wayland-sessions" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "gnome" ]
-
-  rm "$T/wayland-sessions/gnome.desktop"
-  touch "$T/wayland-sessions/sway.desktop"
-  SYNCOPATED_SESSION_DIRS="$T/wayland-sessions" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "sway" ]
-}
-
-@test "detect_desktop falls back to binaries" {
-  mkdir -p "$T/empty"
-  stub cosmic-session 'true'
-  SYNCOPATED_SESSION_DIRS="$T/empty" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "cosmic" ]
-  rm "$T/bin/cosmic-session"
-
-  stub gnome-shell 'true'
-  SYNCOPATED_SESSION_DIRS="$T/empty" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "gnome" ]
-  rm "$T/bin/gnome-shell"
-
-  stub sway 'true'
-  SYNCOPATED_SESSION_DIRS="$T/empty" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
-  [ "$status" -eq 0 ]
-  [ "$output" = "sway" ]
-}
-
-@test "detect_desktop defaults to shell when headless and unrecognised" {
-  mkdir -p "$T/empty"
-  SYNCOPATED_SESSION_DIRS="$T/empty" run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+@test "detect_desktop defaults to shell when non-interactive and unrecognized" {
+  run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh" </dev/null
   [ "$status" -eq 0 ]
   [ "$output" = "shell" ]
+}
+
+@test "detect_desktop does not probe session desktop files or binaries" {
+  mkdir -p "$T/wayland-sessions"
+  touch "$T/wayland-sessions/cosmic.desktop"
+  stub gnome-shell 'true'
+  run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh" </dev/null
+  [ "$status" -eq 0 ]
+  [ "$output" = "shell" ]
+}
+
+@test "detect_desktop prompts on interactive TTY when unrecognized" {
+  stub gum 'echo "gum $*" >>"$T/calls"; echo "sway"'
+  SYNCOPATED_FORCE_INTERACTIVE=1 run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "sway" ]
+  grep -q "gum choose --header Select desktop environment --selected shell -- cosmic gnome sway shell" "$T/calls"
+}
+
+@test "detect_desktop prompts on interactive TTY and returns shell by default" {
+  stub gum 'echo "gum $*" >>"$T/calls"; echo "shell"'
+  SYNCOPATED_FORCE_INTERACTIVE=1 run bash -c 'source "$1"; detect_desktop' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "shell" ]
+  grep -q "gum choose --header Select desktop environment --selected shell -- cosmic gnome sway shell" "$T/calls"
 }
 
 @test "bootstrap logs and exports SYNCOPATED_DESKTOP to child scripts" {

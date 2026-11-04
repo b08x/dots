@@ -314,8 +314,8 @@ interactive() {
 
 # detect_desktop : identify the desktop environment (cosmic, gnome, sway, or shell).
 # Checks SYNCOPATED_DESKTOP override first, then active session variables
-# ($XDG_CURRENT_DESKTOP, $DESKTOP_SESSION), then installed session desktop files
-# and binaries, defaulting to shell when headless or unrecognized.
+# ($XDG_CURRENT_DESKTOP, $DESKTOP_SESSION), prompting on interactive TTYs
+# and defaulting to shell when headless or unrecognized.
 detect_desktop() {
   if [[ -n ${SYNCOPATED_DESKTOP:-} ]]; then
     printf '%s\n' "$SYNCOPATED_DESKTOP"
@@ -335,68 +335,10 @@ detect_desktop() {
     return 0
   fi
 
-  local session_dirs=()
-  if [[ -n ${SYNCOPATED_SESSION_DIRS:-} ]]; then
-    IFS=: read -r -a session_dirs <<< "$SYNCOPATED_SESSION_DIRS"
-  else
-    session_dirs=(
-      "${SYNCOPATED_WAYLAND_SESSIONS_DIR:-/usr/share/wayland-sessions}"
-      "${SYNCOPATED_XSESSIONS_DIR:-/usr/share/xsessions}"
-      /usr/local/share/wayland-sessions
-      /usr/local/share/xsessions
-    )
-    if [[ -n ${XDG_DATA_DIRS:-} ]]; then
-      local d _data_dirs=()
-      IFS=: read -r -a _data_dirs <<< "$XDG_DATA_DIRS"
-      for d in "${_data_dirs[@]}"; do
-        session_dirs+=("$d/wayland-sessions" "$d/xsessions")
-      done
-    fi
-  fi
-
-  local dir f
-  for dir in "${session_dirs[@]}"; do
-    [[ -d $dir ]] || continue
-    for f in "$dir"/*cosmic*.desktop; do
-      if [[ -f $f ]]; then
-        printf '%s\n' "cosmic"
-        return 0
-      fi
-    done
-  done
-
-  for dir in "${session_dirs[@]}"; do
-    [[ -d $dir ]] || continue
-    for f in "$dir"/*gnome*.desktop; do
-      if [[ -f $f ]]; then
-        printf '%s\n' "gnome"
-        return 0
-      fi
-    done
-  done
-
-  for dir in "${session_dirs[@]}"; do
-    [[ -d $dir ]] || continue
-    for f in "$dir"/*sway*.desktop; do
-      if [[ -f $f ]]; then
-        printf '%s\n' "sway"
-        return 0
-      fi
-    done
-  done
-
-  if command -v cosmic-session >/dev/null 2>&1; then
-    printf '%s\n' "cosmic"
-    return 0
-  fi
-
-  if command -v gnome-shell >/dev/null 2>&1; then
-    printf '%s\n' "gnome"
-    return 0
-  fi
-
-  if command -v sway >/dev/null 2>&1; then
-    printf '%s\n' "sway"
+  if interactive; then
+    local choice
+    choice=$(choose_selected "Select desktop environment" "shell" "cosmic" "gnome" "sway" "shell") || choice="shell"
+    printf '%s\n' "${choice:-shell}"
     return 0
   fi
 

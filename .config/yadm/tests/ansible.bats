@@ -95,15 +95,22 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   [[ $output == *"ansible-pull failed for test"* ]]
 }
 
-@test "ansible-runner passes --ask-become-pass when needs_sudo=1, interactive, and password required" {
-  export SUDO_N_RC=1 SYNCOPATED_FORCE_INTERACTIVE=1
+@test "ansible-runner passes --ask-become-pass when needs_sudo=1" {
+  export SUDO_N_RC=1
   run bash -c 'source "$1"; run_ansible_tags "priv" "system" 1' _ "$T/yadm/scripts/ansible-runner.sh"
   [ "$status" -eq 0 ]
   grep -q "ansible-pull --ask-become-pass --url" "$T/calls"
 }
 
-@test "ansible-runner does NOT pass --ask-become-pass when sudo -n true succeeds" {
-  export SUDO_N_RC=0 SYNCOPATED_FORCE_INTERACTIVE=1
+@test "ansible-runner passes --ask-become-pass when needs_sudo=1 even if sudo -n true succeeds" {
+  export SUDO_N_RC=0
+  run bash -c 'source "$1"; run_ansible_tags "priv" "system" 1' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  grep -q "ansible-pull --ask-become-pass --url" "$T/calls"
+}
+
+@test "ansible-runner respects SYNCOPATED_ANSIBLE_ASK_BECOME_PASS=no override" {
+  export SYNCOPATED_ANSIBLE_ASK_BECOME_PASS=no
   run bash -c 'source "$1"; run_ansible_tags "priv" "system" 1' _ "$T/yadm/scripts/ansible-runner.sh"
   [ "$status" -eq 0 ]
   ! grep -q -- "--ask-become-pass" "$T/calls"
@@ -114,6 +121,46 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   run bash -c 'source "$1"; run_ansible_tags "user" "user" 0' _ "$T/yadm/scripts/ansible-runner.sh"
   [ "$status" -eq 0 ]
   ! grep -q -- "--ask-become-pass" "$T/calls"
+}
+
+@test "detect_terminal_emulator prioritizes ptyxis over kitty and foot" {
+  stub ptyxis 'true'
+  stub kitty 'true'
+  stub foot 'true'
+  run bash -c 'source "$1"; detect_terminal_emulator' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "ptyxis" ]
+}
+
+@test "detect_terminal_emulator falls back down priority list" {
+  stub foot 'true'
+  run bash -c 'source "$1"; detect_terminal_emulator' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "foot" ]
+}
+
+@test "detect_terminal_emulator respects SYNCOPATED_TERMINAL override" {
+  stub myterm 'true'
+  SYNCOPATED_TERMINAL="myterm" run bash -c 'source "$1"; detect_terminal_emulator' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" = "myterm" ]
+}
+
+@test "ansible-runner runs in separate terminal window when display and emulator present" {
+  stub ptyxis 'echo "ptyxis $*" >>"$T/calls"; shift 4; "$@"'
+  WAYLAND_DISPLAY="wayland-0" run bash -c 'source "$1"; run_ansible_tags "termtest" "common" 0' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  grep -q "ptyxis -s --title Ansible Pull - termtest -- bash " "$T/calls"
+  grep -q "ansible-pull --url https://gitlab.com/syncopatedX/workstation.git" "$T/calls"
+}
+
+@test "ansible-runner falls back inline when headless" {
+  stub ptyxis 'echo "ptyxis $*" >>"$T/calls"'
+  unset WAYLAND_DISPLAY DISPLAY
+  run bash -c 'source "$1"; run_ansible_tags "inlinetest" "common" 0' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  ! grep -q "ptyxis" "$T/calls"
+  grep -q "ansible-pull --url https://gitlab.com/syncopatedX/workstation.git" "$T/calls"
 }
 
 @test "ansible-runner passes --extra-vars when extra_vars is provided" {
@@ -178,12 +225,11 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
 }
 
-@test "ansible-desktop deselects desktop_ui when desktop environment is shell" {
+@test "ansible-desktop skips with RC_SKIPPED when desktop environment is shell" {
   export SYNCOPATED_DESKTOP=shell
   run_desktop
-  [ "$status" -eq 0 ]
-  grep -q -- "--extra-vars desktop_ui_environment=none" "$T/calls"
-  grep -q -- "--tags desktop local.yml" "$T/calls"
+  [ "$status" -eq 2 ]
+  ! grep -q "ansible-pull" "$T/calls"
 }
 
 @test "ansible-desktop respects SYNCOPATED_ANSIBLE_DESKTOP_TAGS override" {
@@ -209,12 +255,11 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
 }
 
-@test "ansible-desktop passes desktop_ui_environment=none and deselects desktop_ui when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is none" {
+@test "ansible-desktop skips with RC_SKIPPED when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is none" {
   export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=none
   run_desktop
-  [ "$status" -eq 0 ]
-  grep -q -- "--extra-vars desktop_ui_environment=none" "$T/calls"
-  grep -q -- "--tags desktop local.yml" "$T/calls"
+  [ "$status" -eq 2 ]
+  ! grep -q "ansible-pull" "$T/calls"
 }
 
 @test "ansible-desktop prompts for desktop environment menu choice with cosmic, gnome, sway, none when interactive" {

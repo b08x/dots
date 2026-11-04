@@ -38,12 +38,21 @@ main() {
   local desktop_env=""
   if [[ -n ${SYNCOPATED_DESKTOP_UI_ENVIRONMENT:-} ]]; then
     desktop_env="$SYNCOPATED_DESKTOP_UI_ENVIRONMENT"
+  elif [[ $detected_env == "shell" || $detected_env == "none" ]]; then
+    desktop_env="$detected_env"
   elif interactive; then
     desktop_env=$(choose_selected "Select desktop environment to configure" "$default_de" "cosmic" "gnome" "sway" "none") || desktop_env="$default_de"
   else
     desktop_env="$default_de"
   fi
   [[ -z $desktop_env ]] && desktop_env="$default_de"
+
+  if [[ $desktop_env == "none" || $desktop_env == "shell" ]]; then
+    if [[ -z ${SYNCOPATED_ANSIBLE_DESKTOP_TAGS:-} && -z ${SYNCOPATED_ANSIBLE_TAGS:-} ]]; then
+      info "Desktop environment is $desktop_env; skipping desktop UI provisioning"
+      return "${RC_SKIPPED:-2}"
+    fi
+  fi
 
   local all_tags=(desktop_ui desktop)
   local default_tags=()
