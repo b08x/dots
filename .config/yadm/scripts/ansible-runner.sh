@@ -105,10 +105,10 @@ run_ansible_tags() {
 
   local pull_rc=0
   if have_systemd_cat; then
-    ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
+    ansible-pull -K "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
     pull_rc=${PIPESTATUS[0]}
   else
-    ansible-pull "${pull_args[@]}"
+    ansible-pull -K "${pull_args[@]}"
     pull_rc=$?
   fi
 
