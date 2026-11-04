@@ -14,3 +14,5 @@
 .config/Claude/claude_desktop_config.json
 .config/copr
 .gemini/config/mcp_config.json
+.config/kitty/manage-controller.conf
+.config/kitty/manage-controller.passwd
