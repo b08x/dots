@@ -3,9 +3,8 @@
 # YADM Master Bootstrap Orchestrator (Syncopated user configuration)
 #
 # Runs the preflight, shell, decrypt and alternates steps, then every
-# executable script in bootstrap.d/ in name order: 01-ansible-pull (system
-# playbook, a placeholder for now) first, 91-install-vscode-extensions
-# last. A bootstrap.d script returns 0 (ok),
+# executable script in bootstrap.d/ in name order: 01-ansible-system (system
+# playbook) first, 91-install-vscode-extensions last. A bootstrap.d script returns 0 (ok),
 # 1 (failed) or 2 (skipped). A failed step offers retry / skip / abort when
 # stdin and stdout are terminals; otherwise it is recorded and bootstrap goes on.
 #
@@ -402,8 +401,13 @@ main() {
   trap on_interrupt INT TERM
   trap restore_terminal EXIT
 
+  SYNCOPATED_DISTRO=$(detect_distro)
+  export SYNCOPATED_DISTRO
+  SYNCOPATED_DISTRO_FAMILY=$(detect_distro_family)
+  export SYNCOPATED_DISTRO_FAMILY
   SYNCOPATED_DESKTOP=$(detect_desktop)
   export SYNCOPATED_DESKTOP
+  log_line "Detected distribution: $SYNCOPATED_DISTRO (family: $SYNCOPATED_DISTRO_FAMILY)"
   log_line "Detected desktop environment: $SYNCOPATED_DESKTOP"
 
   register_step preflight check_drift_and_collisions

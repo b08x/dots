@@ -174,10 +174,17 @@ run_pty() {
   [ "$(grep -c 'one (ok)' <<<"$output")" -eq 1 ]
 }
 
-@test "01-ansible-pull runs first and 91-install-vscode-extensions runs last" {
+@test "01-ansible-system runs first and 91-install-vscode-extensions runs last" {
   names=$(find "$YADM_SRC/bootstrap.d" -maxdepth 1 -type f -printf '%f\n' | sort)
-  [ "$(head -n 1 <<<"$names")" = 01-ansible-pull.sh ]
+  [ "$(head -n 1 <<<"$names")" = 01-ansible-system.sh ]
   [ "$(sed -n '$p' <<<"$names")" = 91-install-vscode-extensions.sh ]
+}
+
+@test "needs-sudo correctly detects ansible-system, ansible-desktop, and ansible-tools" {
+  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/01-ansible-system.sh"
+  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/02-ansible-desktop.sh"
+  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/03-ansible-tools.sh"
+  ! grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/04-ansible-user.sh"
 }
 
 # --- step selection ----------------------------------------------------------
@@ -275,6 +282,8 @@ run_menu() { run bash -c 'printf "%b" "$1" | SYNCOPATED_FORCE_INTERACTIVE=1 bash
   [ "$status" -eq 0 ]
   grep -q 'systemd-cat -t yadm-bootstrap -p notice' "$T/calls"
   grep -q 'Bootstrap script started' "$T/systemd_cat_in"
+  grep -q 'Detected distribution: fedora (family: redhat)' "$T/systemd_cat_in"
+  grep -q 'Detected desktop environment:' "$T/systemd_cat_in"
   grep -q 'Bootstrap finished' "$T/systemd_cat_in"
   grep -q 'one ok' "$T/systemd_cat_in"
 }

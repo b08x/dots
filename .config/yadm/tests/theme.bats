@@ -96,12 +96,16 @@ teardown() { cleanup_env; }
 }
 
 @test "step_label turns step names into readable labels" {
-  run bash -c 'source "$1"; step_label 20-cargo.sh; step_label preflight; step_label bootstrap.d/80-install-user-flatpaks.sh; step_label cargo' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  run bash -c 'source "$1"; step_label 20-cargo.sh; step_label preflight; step_label bootstrap.d/80-install-user-flatpaks.sh; step_label cargo; step_label 01-ansible-system.sh; step_label 02-ansible-desktop.sh; step_label 03-ansible-tools.sh; step_label 04-ansible-user.sh' _ "$YADM_SRC/scripts/syncopated-theme.sh"
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "Cargo" ]
   [ "${lines[1]}" = "Preflight" ]
   [ "${lines[2]}" = "Install user flatpaks" ]
   [ "${lines[3]}" = "Cargo" ]
+  [ "${lines[4]}" = "Ansible System" ]
+  [ "${lines[5]}" = "Ansible Desktop" ]
+  [ "${lines[6]}" = "Ansible Tools" ]
+  [ "${lines[7]}" = "Ansible User" ]
 }
 
 @test "item_label turns package ids into readable labels" {
@@ -165,6 +169,15 @@ else exit 0; fi'
   [ "$output" = $'A\nB\nC' ]
   run bash -c 'source "$1"; echo "3,1" | choose_many H A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
   [ "$output" = $'C\nA' ]
+}
+
+@test "choose_many_selected respects defaults on empty answer and supports numbers or none" {
+  run bash -c 'source "$1"; echo | choose_many_selected H "B,C" A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$output" = $'B\nC' ]
+  run bash -c 'source "$1"; echo "1" | choose_many_selected H "B,C" A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$output" = $'A' ]
+  run bash -c 'source "$1"; echo "none" | choose_many_selected H "B,C" A B C 2>/dev/null' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  [ "$output" = "" ]
 }
 
 # systemd_cat_stub : stub systemd-cat to record calls and standard input

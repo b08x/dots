@@ -17,6 +17,10 @@ make_env() {
   export SYNCOPATED_NO_ANIM=1
   : >"$T/calls"
   cp "$YADM_SRC/scripts/syncopated-theme.sh" "$YADM_SRC/scripts/gum-helpers.sh" "$T/yadm/scripts/"
+  if [[ -f "$YADM_SRC/scripts/ansible-runner.sh" ]]; then
+    cp "$YADM_SRC/scripts/ansible-runner.sh" "$T/yadm/scripts/"
+  fi
+  return 0
 }
 
 # stub NAME BODY: create an executable stub in $T/bin.

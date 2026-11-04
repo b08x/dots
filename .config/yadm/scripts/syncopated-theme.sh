@@ -205,6 +205,56 @@ os_label() {
   printf '%s\n' "$name${version:+ $version}"
 }
 
+# detect_distro : identify normalized Linux distribution (fedora, rocky, almalinux, arch, ubuntu, debian, etc.).
+# Checks SYNCOPATED_DISTRO override first, then ID from os-release, defaulting to linux.
+detect_distro() {
+  if [[ -n ${SYNCOPATED_DISTRO:-} ]]; then
+    printf '%s\n' "$SYNCOPATED_DISTRO"
+    return 0
+  fi
+
+  local id
+  id=$(os_field ID 2>/dev/null) || id=""
+  if [[ -z $id ]]; then
+    local name
+    name=$(os_field NAME 2>/dev/null) || name=""
+    id=${name%% *}
+  fi
+  id=$(printf '%s' "$id" | tr '[:upper:]' '[:lower:]')
+  if [[ -n $id ]]; then
+    printf '%s\n' "$id"
+  else
+    printf 'linux\n'
+  fi
+}
+
+# detect_distro_family : classify OS into redhat, debian, arch, or linux.
+# Checks SYNCOPATED_DISTRO_FAMILY override first, then ID and ID_LIKE from os-release.
+detect_distro_family() {
+  if [[ -n ${SYNCOPATED_DISTRO_FAMILY:-} ]]; then
+    printf '%s\n' "$SYNCOPATED_DISTRO_FAMILY"
+    return 0
+  fi
+
+  local distro id_like combined
+  distro=$(detect_distro)
+  id_like=$(os_field ID_LIKE 2>/dev/null) || id_like=""
+  id_like=$(printf '%s' "$id_like" | tr '[:upper:]' '[:lower:]')
+  combined=" $distro $id_like "
+  if [[ $combined == *" fedora "* || $combined == *" rhel "* || $combined == *" centos "* || $combined == *" rocky "* || $combined == *" almalinux "* || $combined == *" redhat "* ]]; then
+    printf 'redhat\n'
+    return 0
+  elif [[ $combined == *" debian "* || $combined == *" ubuntu "* ]]; then
+    printf 'debian\n'
+    return 0
+  elif [[ $combined == *" arch "* || $combined == *" archlinux "* ]]; then
+    printf 'arch\n'
+    return 0
+  fi
+  printf 'linux\n'
+  return 0
+}
+
 # paint_art WIDTH : fill ART_PAINTED with the ART lines cut to WIDTH columns.
 # The palette is swapped relative to first-boot: the mark is ember and the
 # wordmark is violet, each glyph in the dim or full tone.
@@ -355,17 +405,20 @@ detect_desktop() {
 }
 
 banner() {
-  local label desktop
+  local label desktop distro arch info_line
   label=$(os_label)
   desktop=${SYNCOPATED_DESKTOP:-$(detect_desktop)}
+  distro=${SYNCOPATED_DISTRO:-$(detect_distro)}
+  arch=$(uname -m 2>/dev/null || echo "unknown")
+  info_line="$label ($arch) · Desktop: $desktop · Distro: $distro"
   if have_gum; then
     gum style --border double --border-foreground "${EMBER[0]}" --foreground "${VIOLET[0]}" \
-      --align center --width 60 --padding "1 2" \
-      "SYNCOPATED" "$label ($desktop)" "User configuration"
+      --align center --width 68 --padding "1 2" \
+      "SYNCOPATED" "$info_line" "User configuration"
   else
     printf '%s\n' \
       "============================================================" \
-      "  SYNCOPATED  |  $label ($desktop)  |  User configuration" \
+      "  SYNCOPATED  |  $info_line  |  User configuration" \
       "============================================================"
   fi
 }
@@ -474,11 +527,18 @@ capitalize() {
 }
 
 # step_label NAME : human-readable step name. 20-cargo.sh -> Cargo,
-# preflight -> Preflight, 80-install-user-flatpaks.sh -> Install user flatpaks.
+# preflight -> Preflight, 80-install-user-flatpaks.sh -> Install user flatpaks,
+# 01-ansible-system.sh -> Ansible System.
 step_label() {
   local name=${1##*/}
   name=${name%.sh}
   name=${name#[0-9][0-9]-}
+  case $name in
+    ansible-system) printf 'Ansible System\n'; return 0 ;;
+    ansible-desktop) printf 'Ansible Desktop\n'; return 0 ;;
+    ansible-tools) printf 'Ansible Tools\n'; return 0 ;;
+    ansible-user) printf 'Ansible User\n'; return 0 ;;
+  esac
   name=${name//[-_]/ }
   capitalize "$name"
 }
@@ -524,6 +584,60 @@ choose_many() {
         selected+=("${!n}")
       else
         printf 'Enter numbers from 1 to %d.\n' "$#" >&2
+        continue 2
+      fi
+    done
+    printf '%s\n' "${selected[@]}"
+    return 0
+  done
+}
+
+# choose_many_selected HEADER SELECTED_CSV OPTION... : print the selected options,
+# one per line, with the options named in SELECTED_CSV preselected.
+choose_many_selected() {
+  local header=$1 selected_csv=$2 reply n i selected=()
+  shift 2
+  if have_gum; then
+    gum choose --no-limit --ordered --header "$header" --selected "$selected_csv" -- "$@"
+    return
+  fi
+  printf '%s\n' "$header" >&2
+  local opt
+  local -A def_map=()
+  local def_item _def_items=()
+  IFS=, read -r -a _def_items <<<"$selected_csv"
+  for def_item in "${_def_items[@]}"; do
+    [[ -n $def_item ]] && def_map["$def_item"]=1
+  done
+
+  for ((i = 1; i <= $#; i++)); do
+    opt="${!i}"
+    if [[ -n ${def_map[$opt]:-} ]]; then
+      printf '  %d) [*] %s\n' "$i" "$opt" >&2
+    else
+      printf '  %d) [ ] %s\n' "$i" "$opt" >&2
+    fi
+  done
+  while :; do
+    read -r -p "Choose [numbers, empty for default ($selected_csv)]: " reply || return 1
+    reply=${reply//,/ }
+    if [[ -z ${reply// /} ]]; then
+      for opt in "$@"; do
+        if [[ -n ${def_map[$opt]:-} ]]; then
+          printf '%s\n' "$opt"
+        fi
+      done
+      return 0
+    fi
+    if [[ $reply == "none" || $reply == "0" ]]; then
+      return 0
+    fi
+    selected=()
+    for n in $reply; do
+      if [[ $n =~ ^[0-9]+$ ]] && ((n >= 1 && n <= $#)); then
+        selected+=("${!n}")
+      else
+        printf 'Enter numbers from 1 to %d, or 0/none for none.\n' "$#" >&2
         continue 2
       fi
     done
