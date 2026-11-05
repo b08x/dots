@@ -65,6 +65,27 @@ has_kvm() {
 }
 
 main() {
+  # --- firstboot marker (parity hinge) ---------------------------------------
+  # The workstation ansible pull writes ~/.initial-firstboot (the primary
+  # workstation user's home; root:root 0644, world-readable) after a full
+  # convergence run (roles/user in the workstation repo is its single
+  # writer). When the marker exists, this machine has already been converged
+  # through the same pull — ISO-installed machines skip this step, vanilla
+  # installs run the pull exactly once. The check is a PLAIN test -f: the
+  # marker lives in the user's home precisely so no sudo is needed to see it
+  # (root's $HOME and /root are 0550 root:root on stock installs, unstat-able
+  # by the non-root console user). SYNCOPATED_ANSIBLE_PULL_FORCE re-converges
+  # by name regardless of the marker. This step never writes the marker
+  # itself; the pull below is what needs sudo (needs-sudo header).
+  local firstboot_marker="${SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER:-${HOME:-/home/$(id -un)}/.initial-firstboot}"
+  local force="${SYNCOPATED_ANSIBLE_PULL_FORCE:-}"
+  if [[ -z $force ]] || [[ $force != 1 && $force != yes && $force != true ]]; then
+    if test -f "$firstboot_marker"; then
+      info "firstboot ansible-pull already completed; skipping ($firstboot_marker exists; set SYNCOPATED_ANSIBLE_PULL_FORCE=1 to re-converge)"
+      return "${RC_SKIPPED:-2}"
+    fi
+  fi
+
   local all_tags=(repos common tuning networking gpu containerd libvirt desktop_ui desktop tools user)
 
   # --- desktop environment --------------------------------------------------
