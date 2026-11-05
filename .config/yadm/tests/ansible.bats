@@ -22,10 +22,16 @@ exit 0'
   stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "${ANSIBLE_INVENTORY_ENABLED:-unset}" >>"$T/inv_enabled"; echo "${ANSIBLE_LOG_PATH:-unset}" >>"$T/log_path"; echo "ansible-pull $*" >>"$T/calls"; echo "ansible-pull finished"; exit "${ANSIBLE_PULL_RC:-0}"'
   stub sudo 'echo "sudo $*" >>"$T/calls"; if [[ "$*" == *"-n true"* ]]; then exit "${SUDO_N_RC:-0}"; fi; exit 0'
 
+  # Sandbox the firstboot marker: the step checks it with a plain `test -f`
+  # (phase-4 amendment: the marker lives in the primary user's home, world
+  # readable, so the check needs no sudo). The env override keeps the check
+  # inside make_env's $T sandbox and away from the real $HOME.
+  export SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER="$T/firstboot-marker"
   unset SYNCOPATED_ANSIBLE_TAGS
   unset SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH SYNCOPATED_ANSIBLE_PULL_INVENTORY
   unset SYNCOPATED_ANSIBLE_ASK_BECOME_PASS SYNCOPATED_GPU_DETECTED SYNCOPATED_KVM_DETECTED SYNCOPATED_DESKTOP
   unset SYNCOPATED_DESKTOP_UI_ENVIRONMENT SYNCOPATED_ANSIBLE_EXTRA_VARS SYNCOPATED_ANSIBLE_DESKTOP_EXTRA_VARS
+  unset SYNCOPATED_ANSIBLE_PULL_FORCE
 }
 
 teardown() { cleanup_env; }
@@ -268,4 +274,70 @@ run_pull() { run bash "$T/yadm/bootstrap.d/02-ansible-pull.sh" </dev/null; }
   [ "$status" -eq 0 ]
   grep -q "foot -T Ansible Pull - ansible-pull bash " "$T/calls"
   ! grep -q "^kitty" "$T/calls"
+}
+
+# --- firstboot marker: conditional convergence (parity hinge) ---
+
+@test "ansible-pull checks the firstboot marker before desktop and tag computation, with no sudo" {
+  # Phase-4 amendment pins the resolution order and the no-sudo check: with the
+  # marker present, an INTERACTIVE run must skip before any gum prompt
+  # (desktop/tag menus) fires and before the runner's own privilege probing,
+  # so the calls log holds no gum line and no sudo line at all.
+  touch "$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER"
+  export SYNCOPATED_FORCE_INTERACTIVE=1
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 2 ]
+  [[ $output == *"already completed; skipping"* ]]
+  ! grep -q "^gum " "$T/calls"
+  ! grep -q "^sudo " "$T/calls"
+  ! grep -q "^ansible-pull " "$T/calls"
+}
+
+@test "ansible-pull skips with RC_SKIPPED when the firstboot marker exists" {
+  touch "$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER"
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 2 ]
+  [[ $output == *"firstboot ansible-pull already completed; skipping"* ]]
+  [[ $output == *"$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER exists"* ]]
+  ! grep -q "^ansible-pull " "$T/calls"
+}
+
+@test "ansible-pull runs the pull when the firstboot marker is absent" {
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 0 ]
+  grep -q "^ansible-pull --ask-become-pass --url" "$T/calls"
+  # The check itself was plain (no sudo call for the marker, only the pull's
+  # own probe path) and the step still never wrote the marker.
+  ! grep -q "sudo test" "$T/calls"
+  [ ! -e "$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER" ]
+}
+
+@test "SYNCOPATED_ANSIBLE_PULL_FORCE=1 re-converges despite the marker" {
+  touch "$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER"
+  export SYNCOPATED_ANSIBLE_PULL_FORCE=1
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 0 ]
+  grep -q "^ansible-pull --ask-become-pass --url" "$T/calls"
+  [[ $output != *"already completed; skipping"* ]]
+}
+
+@test "ansible-pull honors a custom SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER path" {
+  export SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER="$T/other-firstboot-marker"
+  touch "$T/other-firstboot-marker"
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 2 ]
+  [[ $output == *"$T/other-firstboot-marker exists"* ]]
+  ! grep -q "^ansible-pull " "$T/calls"
+}
+
+@test "ansible-pull never writes the firstboot marker itself" {
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 0 ]
+  [ ! -e "$SYNCOPATED_ANSIBLE_PULL_FIRSTBOOT_MARKER" ]
 }
