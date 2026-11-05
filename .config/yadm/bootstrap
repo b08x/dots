@@ -24,6 +24,8 @@ set -uo pipefail
 YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
+export HOSTNAME="$(hostnamectl --static)"
+
 RC_ABORT=3 # internal: the user aborted inside a step
 BOOTSTRAP_D_DIR=$YADM_CONFIG_DIR/bootstrap.d
 LOG_FILE=${HOME}/.bootstrap.log
