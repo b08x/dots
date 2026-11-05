@@ -5,10 +5,7 @@ load helpers
 setup() {
   make_env
   cp "$YADM_SRC/scripts/ansible-runner.sh" "$T/yadm/scripts/"
-  cp "$YADM_SRC/bootstrap.d/01-ansible-system.sh" "$T/yadm/bootstrap.d/"
-  cp "$YADM_SRC/bootstrap.d/02-ansible-desktop.sh" "$T/yadm/bootstrap.d/"
-  cp "$YADM_SRC/bootstrap.d/03-ansible-tools.sh" "$T/yadm/bootstrap.d/"
-  cp "$YADM_SRC/bootstrap.d/04-ansible-user.sh" "$T/yadm/bootstrap.d/"
+  cp "$YADM_SRC/bootstrap.d/02-ansible-pull.sh" "$T/yadm/bootstrap.d/"
 
   stub gum 'echo "gum $*" >>"$T/calls"
 if [[ "$1" == "choose" ]]; then
@@ -22,10 +19,10 @@ if [[ "$1" == "choose" ]]; then
   done
 fi
 exit 0'
-  stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "${ANSIBLE_INVENTORY_ENABLED:-unset}" >>"$T/inv_enabled"; echo "${ANSIBLE_LOG_PATH:-unset}" >>"$T/log_path"; echo "ansible-pull $*" >>"$T/calls"; exit "${ANSIBLE_PULL_RC:-0}"'
+  stub ansible-pull 'echo "${ANSIBLE_STDOUT_CALLBACK:-unset}" >>"$T/cb"; echo "${ANSIBLE_INVENTORY_ENABLED:-unset}" >>"$T/inv_enabled"; echo "${ANSIBLE_LOG_PATH:-unset}" >>"$T/log_path"; echo "ansible-pull $*" >>"$T/calls"; echo "ansible-pull finished"; exit "${ANSIBLE_PULL_RC:-0}"'
   stub sudo 'echo "sudo $*" >>"$T/calls"; if [[ "$*" == *"-n true"* ]]; then exit "${SUDO_N_RC:-0}"; fi; exit 0'
 
-  unset SYNCOPATED_ANSIBLE_TAGS SYNCOPATED_ANSIBLE_SYSTEM_TAGS SYNCOPATED_ANSIBLE_DESKTOP_TAGS SYNCOPATED_ANSIBLE_TOOLS_TAGS SYNCOPATED_ANSIBLE_USER_TAGS
+  unset SYNCOPATED_ANSIBLE_TAGS
   unset SYNCOPATED_ANSIBLE_PULL_URL SYNCOPATED_ANSIBLE_PULL_PLAYBOOK SYNCOPATED_ANSIBLE_PULL_CHECKOUT SYNCOPATED_ANSIBLE_PULL_BRANCH SYNCOPATED_ANSIBLE_PULL_INVENTORY
   unset SYNCOPATED_ANSIBLE_ASK_BECOME_PASS SYNCOPATED_GPU_DETECTED SYNCOPATED_KVM_DETECTED SYNCOPATED_DESKTOP
   unset SYNCOPATED_DESKTOP_UI_ENVIRONMENT SYNCOPATED_ANSIBLE_EXTRA_VARS SYNCOPATED_ANSIBLE_DESKTOP_EXTRA_VARS
@@ -33,10 +30,7 @@ exit 0'
 
 teardown() { cleanup_env; }
 
-run_system() { run bash "$T/yadm/bootstrap.d/01-ansible-system.sh" </dev/null; }
-run_desktop() { run bash "$T/yadm/bootstrap.d/02-ansible-desktop.sh" </dev/null; }
-run_tools() { run bash "$T/yadm/bootstrap.d/03-ansible-tools.sh" </dev/null; }
-run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
+run_pull() { run bash "$T/yadm/bootstrap.d/02-ansible-pull.sh" </dev/null; }
 
 # --- Shared ansible-runner tests ---
 
@@ -154,6 +148,16 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   grep -q "ansible-pull --url https://gitlab.com/syncopatedX/workstation.git" "$T/calls"
 }
 
+@test "ansible-runner creates session log and forwards to systemd-cat inside terminal" {
+  stub ptyxis 'echo "ptyxis $*" >>"$T/calls"; shift 4; "$@"'
+  stub systemd-cat 'echo "systemd-cat $*" >>"$T/calls"; cat >>"$T/systemd_cat_in"; exit 0'
+  WAYLAND_DISPLAY="wayland-0" run bash -c 'source "$1"; run_ansible_tags "logtest" "common" 0' _ "$T/yadm/scripts/ansible-runner.sh"
+  [ "$status" -eq 0 ]
+  [ -f "$HOME/.cache/syncopated/ansible-logtest-session.log" ]
+  grep -q "ansible-pull finished" "$HOME/.cache/syncopated/ansible-logtest-session.log"
+  grep -q "systemd-cat -t yadm-bootstrap -p info" "$T/calls"
+}
+
 @test "ansible-runner falls back inline when headless" {
   stub ptyxis 'echo "ptyxis $*" >>"$T/calls"'
   unset WAYLAND_DISPLAY DISPLAY
@@ -176,130 +180,92 @@ run_user() { run bash "$T/yadm/bootstrap.d/04-ansible-user.sh" </dev/null; }
   grep -q -- "--extra-vars custom_var=1 --tags common local.yml" "$T/calls"
 }
 
-# --- 01-ansible-system tests ---
+# --- 02-ansible-pull consolidated step tests ---
 
-@test "ansible-system runs with full hardware defaults when GPU and KVM detected" {
-  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1
-  run_system
+@test "ansible-pull runs the full workstation convergence as a single -K pull" {
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
   [ "$status" -eq 0 ]
-  grep -q -- "--tags repos,common,tuning,networking,gpu,containerd,libvirt local.yml" "$T/calls"
+  grep -q -- "--ask-become-pass --url" "$T/calls"
+  grep -q -- "--extra-vars desktop_ui_environment=gnome" "$T/calls"
+  grep -q -- "--tags repos,common,tuning,networking,gpu,containerd,libvirt,desktop_ui,desktop,tools,user local.yml" "$T/calls"
+  [[ $(grep -c '^ansible-pull ' "$T/calls") -eq 1 ]]
 }
 
-@test "ansible-system deselects gpu when no GPU detected" {
-  export SYNCOPATED_GPU_DETECTED=0 SYNCOPATED_KVM_DETECTED=1
-  run_system
+@test "ansible-pull deselects gpu and libvirt when hardware is absent" {
+  export SYNCOPATED_GPU_DETECTED=0 SYNCOPATED_KVM_DETECTED=0 SYNCOPATED_DESKTOP=gnome
+  run_pull
   [ "$status" -eq 0 ]
-  grep -q -- "--tags repos,common,tuning,networking,containerd,libvirt local.yml" "$T/calls"
-  ! grep -q -- "gpu" "$T/calls"
+  grep -q -- "--tags repos,common,tuning,networking,containerd,desktop_ui,desktop,tools,user local.yml" "$T/calls"
+  ! grep -q ",gpu" "$T/calls"
+  ! grep -q ",libvirt" "$T/calls"
 }
 
-@test "ansible-system deselects libvirt when KVM is absent" {
-  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=0
-  run_system
+@test "ansible-pull omits desktop tags and extra vars on a headless host" {
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=shell
+  run_pull
   [ "$status" -eq 0 ]
-  grep -q -- "--tags repos,common,tuning,networking,gpu,containerd local.yml" "$T/calls"
-  ! grep -q -- "libvirt" "$T/calls"
+  grep -q -- "--tags repos,common,tuning,networking,gpu,containerd,libvirt,tools,user local.yml" "$T/calls"
+  ! grep -q -- "--extra-vars" "$T/calls"
+  [[ $output == *"headless"* ]]
 }
 
-@test "ansible-system respects SYNCOPATED_ANSIBLE_SYSTEM_TAGS override" {
-  export SYNCOPATED_ANSIBLE_SYSTEM_TAGS="common,networking"
-  run_system
+@test "ansible-pull respects SYNCOPATED_ANSIBLE_TAGS override" {
+  export SYNCOPATED_ANSIBLE_TAGS="common,networking"
+  run_pull
   [ "$status" -eq 0 ]
   grep -q -- "--tags common,networking local.yml" "$T/calls"
 }
 
-@test "ansible-system respects general SYNCOPATED_ANSIBLE_TAGS override" {
-  export SYNCOPATED_ANSIBLE_TAGS="tuning"
-  run_system
-  [ "$status" -eq 0 ]
-  grep -q -- "--tags tuning local.yml" "$T/calls"
-}
-
-# --- 02-ansible-desktop tests ---
-
-@test "ansible-desktop selects desktop_ui and desktop for graphical desktop" {
-  export SYNCOPATED_DESKTOP=gnome
-  run_desktop
-  [ "$status" -eq 0 ]
-  grep -q -- "--extra-vars desktop_ui_environment=gnome" "$T/calls"
-  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
-}
-
-@test "ansible-desktop skips with RC_SKIPPED when desktop environment is shell" {
-  export SYNCOPATED_DESKTOP=shell
-  run_desktop
-  [ "$status" -eq 2 ]
-  ! grep -q "ansible-pull" "$T/calls"
-}
-
-@test "ansible-desktop respects SYNCOPATED_ANSIBLE_DESKTOP_TAGS override" {
-  export SYNCOPATED_ANSIBLE_DESKTOP_TAGS="desktop_ui"
-  run_desktop
-  [ "$status" -eq 0 ]
-  grep -q -- "--tags desktop_ui local.yml" "$T/calls"
-}
-
-@test "ansible-desktop passes desktop_ui_environment=cosmic when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is cosmic" {
+@test "ansible-pull passes desktop_ui_environment from SYNCOPATED_DESKTOP_UI_ENVIRONMENT" {
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
   export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=cosmic
-  run_desktop
+  run_pull
   [ "$status" -eq 0 ]
   grep -q -- "--extra-vars desktop_ui_environment=cosmic" "$T/calls"
-  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
+  grep -q -- "--tags repos,common,tuning,networking,gpu,containerd,libvirt,desktop_ui,desktop,tools,user local.yml" "$T/calls"
 }
 
-@test "ansible-desktop passes desktop_ui_environment=sway when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is sway" {
-  export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=sway
-  run_desktop
-  [ "$status" -eq 0 ]
-  grep -q -- "--extra-vars desktop_ui_environment=sway" "$T/calls"
-  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
-}
-
-@test "ansible-desktop skips with RC_SKIPPED when SYNCOPATED_DESKTOP_UI_ENVIRONMENT is none" {
-  export SYNCOPATED_DESKTOP_UI_ENVIRONMENT=none
-  run_desktop
-  [ "$status" -eq 2 ]
-  ! grep -q "ansible-pull" "$T/calls"
-}
-
-@test "ansible-desktop prompts for desktop environment menu choice with cosmic, gnome, sway, none when interactive" {
-  export SYNCOPATED_FORCE_INTERACTIVE=1 SYNCOPATED_DESKTOP=gnome
-  run_desktop
+@test "ansible-pull prompts for desktop environment and tags when interactive" {
+  export SYNCOPATED_FORCE_INTERACTIVE=1 SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
   [ "$status" -eq 0 ]
   grep -q "gum choose --header Select desktop environment to configure --selected gnome -- cosmic gnome sway none" "$T/calls"
-  grep -q "gum choose --no-limit --ordered --header Select Ansible desktop tags to apply --selected desktop_ui,desktop -- desktop_ui desktop" "$T/calls"
-  grep -q -- "--extra-vars desktop_ui_environment=gnome" "$T/calls"
-  grep -q -- "--tags desktop_ui,desktop local.yml" "$T/calls"
+  grep -q "gum choose --no-limit --ordered --header Select Ansible tags to apply --selected repos,common,tuning,networking,gpu,containerd,libvirt,desktop_ui,desktop,tools,user -- repos common tuning networking gpu containerd libvirt desktop_ui desktop tools user" "$T/calls"
+  grep -q -- "--ask-become-pass --url" "$T/calls"
 }
 
-# --- 03-ansible-tools tests ---
-
-@test "ansible-tools runs with tools tag by default" {
-  run_tools
+@test "ansible-pull respects SYNCOPATED_ANSIBLE_ASK_BECOME_PASS=no override" {
+  export SYNCOPATED_ANSIBLE_ASK_BECOME_PASS=no
+  export SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
   [ "$status" -eq 0 ]
-  grep -q -- "--tags tools local.yml" "$T/calls"
-}
-
-@test "ansible-tools respects SYNCOPATED_ANSIBLE_TOOLS_TAGS override" {
-  export SYNCOPATED_ANSIBLE_TOOLS_TAGS="custom_tools"
-  run_tools
-  [ "$status" -eq 0 ]
-  grep -q -- "--tags custom_tools local.yml" "$T/calls"
-}
-
-# --- 04-ansible-user tests ---
-
-@test "ansible-user runs unprivileged with user tag by default" {
-  export SUDO_N_RC=1 SYNCOPATED_FORCE_INTERACTIVE=1
-  run_user
-  [ "$status" -eq 0 ]
-  grep -q -- "--tags user local.yml" "$T/calls"
   ! grep -q -- "--ask-become-pass" "$T/calls"
+  grep -q -- "--tags" "$T/calls"
 }
 
-@test "ansible-user respects SYNCOPATED_ANSIBLE_USER_TAGS override" {
-  export SYNCOPATED_ANSIBLE_USER_TAGS="dotfiles"
-  run_user
+@test "ansible-pull fails when the pull exits non-zero" {
+  export ANSIBLE_PULL_RC=1 SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome
+  run_pull
+  [ "$status" -eq 1 ]
+  [[ $output == *"ansible-pull failed for ansible-pull"* ]]
+}
+
+@test "ansible-pull defaults to kitty terminal with session logging when display is present" {
+  stub kitty 'echo "kitty $*" >>"$T/calls"; shift 2; "$@"'
+  WAYLAND_DISPLAY="wayland-0" SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome run_pull
   [ "$status" -eq 0 ]
-  grep -q -- "--tags dotfiles local.yml" "$T/calls"
+  grep -q "kitty --title Ansible Pull - ansible-pull bash " "$T/calls"
+  grep -q "ansible-pull --ask-become-pass --url https://gitlab.com/syncopatedX/workstation.git" "$T/calls"
+  [ -f "$HOME/.cache/syncopated/ansible-ansible-pull-session.log" ]
+  grep -q "ansible-pull finished" "$HOME/.cache/syncopated/ansible-ansible-pull-session.log"
+}
+
+@test "ansible-pull respects SYNCOPATED_TERMINAL override" {
+  stub foot 'echo "foot $*" >>"$T/calls"; shift 2; "$@"'
+  stub kitty 'echo "kitty $*" >>"$T/calls"; shift 2; "$@"'
+  SYNCOPATED_TERMINAL=foot WAYLAND_DISPLAY="wayland-0" SYNCOPATED_GPU_DETECTED=1 SYNCOPATED_KVM_DETECTED=1 SYNCOPATED_DESKTOP=gnome run_pull
+  [ "$status" -eq 0 ]
+  grep -q "foot -T Ansible Pull - ansible-pull bash " "$T/calls"
+  ! grep -q "^kitty" "$T/calls"
 }

@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
-# 30-ruby.sh: configure Ruby environment and install default gems.
+# bootstrap: needs-sudo
+# 01-ruby.sh: configure Ruby environment and install default gems.
 #
-# Defaults to system Ruby when Ruby >= 4.0.0 is available, installing
-# gems with --user-install to ~/.local/bin. Opt in to rbenv compilation
-# via USE_RBENV=1 or --rbenv.
+# Allows choosing between system Ruby and rbenv-installed Ruby for global.
+# Defaults to system Ruby when Ruby >= 4.0.0 is available, setting rbenv global
+# to system and installing gems with --user-install to ~/.local/bin.
+# Ensures required system development dependencies and ruby-build packages
+# are installed via dnf before configuring Ruby or installing gems.
+# Choose global Ruby version interactively or configure via:
+#   --global system|rbenv
+#   SYNCOPATED_RUBY_GLOBAL=system|rbenv
+#   USE_RBENV=1 / --rbenv (compiles and selects rbenv Ruby)
+#   --skip-deps / SYNCOPATED_RUBY_SKIP_DEPS=1
 #
 # Exits 0 when something was done, 2 when everything was already in place,
 # 1 on any failure. Gem failures do not stop the remaining gems.
@@ -18,14 +26,32 @@ source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
 
 RUBY_VERSION_WANTED=4.0.4
 PACKAGES_FILE=$YADM_CONFIG_DIR/files/default-gems.txt
+SYSTEM_PACKAGES_FILE=$YADM_CONFIG_DIR/files/ruby-system-packages.txt
 RBENV_ROOT=${RBENV_ROOT:-$HOME/.rbenv}
 RUBY_TMPDIR=${RUBY_TMPDIR:-$RBENV_ROOT/tmp}
 export RUBY_CONFIGURE_OPTS=${RUBY_CONFIGURE_OPTS:---with-openssl-dir=/usr}
+
+DEFAULT_SYSTEM_DEPS=(
+  openssl-devel
+  ruby-devel
+  ruby-build-all
+  ruby-build-rbenv
+  libtree-sitter-bash-devel
+  libtree-sitter-devel
+  libtree-sitter-javascript-devel
+  libtree-sitter-json-devel
+  libtree-sitter-python-devel
+  libtree-sitter-ruby-devel
+  libtree-sitter-toml-devel
+  libtree-sitter-yaml-devel
+)
 
 DID_WORK=0
 FAILED=0
 RUBY_TMPDIR_CREATED=""
 OPT_RBENV=0
+OPT_GLOBAL=""
+OPT_SKIP_DEPS=0
 
 cleanup_tmpdir() {
   if [[ -n $RUBY_TMPDIR_CREATED && -d $RUBY_TMPDIR_CREATED ]]; then
@@ -86,9 +112,65 @@ parse_args() {
   while (($#)); do
     case "$1" in
       --rbenv) OPT_RBENV=1 ;;
+      --global)
+        shift
+        OPT_GLOBAL="${1:-}"
+        ;;
+      --global=*)
+        OPT_GLOBAL="${1#--global=}"
+        ;;
+      --skip-deps)
+        OPT_SKIP_DEPS=1
+        ;;
     esac
     shift
   done
+}
+
+ensure_system_deps() {
+  if ((OPT_SKIP_DEPS)) || [[ "${SYNCOPATED_RUBY_SKIP_DEPS:-}" =~ ^(1|true|yes)$ ]]; then
+    return 0
+  fi
+
+  if ! command -v dnf >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local all_deps=()
+  if [[ -r $SYSTEM_PACKAGES_FILE ]]; then
+    mapfile -t all_deps < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$SYSTEM_PACKAGES_FILE" | grep -v '^$')
+  else
+    all_deps=("${DEFAULT_SYSTEM_DEPS[@]}")
+  fi
+
+  if ((${#all_deps[@]} == 0)); then
+    return 0
+  fi
+
+  local missing=() pkg
+  for pkg in "${all_deps[@]}"; do
+    if command -v rpm >/dev/null 2>&1; then
+      if ! rpm -q "$pkg" >/dev/null 2>&1; then
+        missing+=("$pkg")
+      fi
+    elif ! dnf list --installed "$pkg" >/dev/null 2>&1; then
+      missing+=("$pkg")
+    fi
+  done
+
+  if ((${#missing[@]} == 0)); then
+    info "All system dependencies are already installed"
+    return 0
+  fi
+
+  info "Installing missing system dependencies: ${missing[*]}"
+  if run_item "Ruby system dependencies" sudo dnf install -y "${missing[@]}"; then
+    DID_WORK=1
+    return 0
+  else
+    err "Failed to install system dependencies"
+    return 1
+  fi
 }
 
 want_rbenv() {
@@ -97,6 +179,47 @@ want_rbenv() {
     1|true|yes) return 0 ;;
   esac
   return 1
+}
+
+resolve_global_mode() {
+  local target="${OPT_GLOBAL:-${SYNCOPATED_RUBY_GLOBAL:-${RUBY_GLOBAL:-}}}"
+  case "$target" in
+    system)
+      echo "system"
+      return 0
+      ;;
+    rbenv|"$RUBY_VERSION_WANTED")
+      echo "rbenv"
+      return 0
+      ;;
+  esac
+
+  if want_rbenv; then
+    echo "rbenv"
+    return 0
+  fi
+
+  if ! has_system_ruby_4; then
+    echo "rbenv"
+    return 0
+  fi
+
+  if interactive; then
+    local sys_ver choice
+    sys_ver=$(get_system_ruby_version)
+    choice=$(choose "Select global Ruby version:" \
+      "system (System Ruby $sys_ver)" \
+      "rbenv (Ruby $RUBY_VERSION_WANTED)") || choice="system (System Ruby $sys_ver)"
+    if [[ $choice == rbenv* ]]; then
+      echo "rbenv"
+    else
+      echo "system"
+    fi
+    return 0
+  fi
+
+  echo "system"
+  return 0
 }
 
 version_ge() {
@@ -141,17 +264,22 @@ install_ruby() {
 }
 
 set_global() {
-  if [[ $(rbenv global 2>/dev/null) == "$RUBY_VERSION_WANTED" ]]; then
-    info "Global Ruby is already $RUBY_VERSION_WANTED"
+  local target_ver=${1:-$RUBY_VERSION_WANTED}
+  if ! command -v rbenv >/dev/null 2>&1; then
     return 0
   fi
 
-  info "Setting global Ruby to $RUBY_VERSION_WANTED"
-  if rbenv global "$RUBY_VERSION_WANTED" && rbenv rehash </dev/null; then
+  if [[ $(rbenv global 2>/dev/null) == "$target_ver" ]]; then
+    info "Global Ruby is already $target_ver"
+    return 0
+  fi
+
+  info "Setting global Ruby to $target_ver"
+  if rbenv global "$target_ver" && rbenv rehash </dev/null; then
     DID_WORK=1
-    ok "Global Ruby set to $RUBY_VERSION_WANTED"
+    ok "Global Ruby set to $target_ver"
   else
-    err "Failed to set global Ruby to $RUBY_VERSION_WANTED"
+    err "Failed to set global Ruby to $target_ver"
     return 1
   fi
 }
@@ -233,30 +361,21 @@ install_gems_system() {
 main() {
   parse_args "$@"
   setup_tmpdir || return "$RC_FAILED"
+  ensure_system_deps || return "$RC_FAILED"
 
-  local use_rbenv=0
-  if want_rbenv; then
-    use_rbenv=1
-  elif ! has_system_ruby_4; then
-    use_rbenv=1
-  elif interactive; then
-    local sys_ver choice
-    sys_ver=$(get_system_ruby_version)
-    choice=$(choose "System Ruby $sys_ver detected. Select installation mode:" \
-      "Skip rbenv (use system Ruby)" \
-      "Compile Ruby with rbenv") || choice="Skip rbenv (use system Ruby)"
-    if [[ $choice == "Compile Ruby with rbenv" ]]; then
-      use_rbenv=1
-    fi
-  fi
+  local global_mode
+  global_mode=$(resolve_global_mode)
 
-  if ((use_rbenv)); then
+  if [[ $global_mode == "rbenv" ]]; then
     PATH=$RBENV_ROOT/shims:$PATH
     install_ruby || return "$RC_FAILED"
-    set_global || return "$RC_FAILED"
+    set_global "$RUBY_VERSION_WANTED" || return "$RC_FAILED"
     write_gemrc || return "$RC_FAILED"
     install_gems_rbenv || return "$RC_FAILED"
   else
+    if command -v rbenv >/dev/null 2>&1; then
+      set_global "system" || return "$RC_FAILED"
+    fi
     local sys_ver
     sys_ver=$(get_system_ruby_version)
     info "Using system Ruby $sys_ver"

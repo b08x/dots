@@ -521,18 +521,15 @@ capitalize() {
   printf '%s%s\n' "$(printf '%s' "${1:0:1}" | tr '[:lower:]' '[:upper:]')" "${1:1}"
 }
 
-# step_label NAME : human-readable step name. 20-cargo.sh -> Cargo,
+# step_label NAME : human-readable step name. 01-ruby.sh -> Ruby,
 # preflight -> Preflight, 80-install-user-flatpaks.sh -> Install user flatpaks,
-# 01-ansible-system.sh -> Ansible System.
+# 02-ansible-pull.sh -> Ansible Pull.
 step_label() {
   local name=${1##*/}
   name=${name%.sh}
   name=${name#[0-9][0-9]-}
   case $name in
-    ansible-system) printf 'Ansible System\n'; return 0 ;;
-    ansible-desktop) printf 'Ansible Desktop\n'; return 0 ;;
-    ansible-tools) printf 'Ansible Tools\n'; return 0 ;;
-    ansible-user) printf 'Ansible User\n'; return 0 ;;
+    ansible-pull) printf 'Ansible Pull\n'; return 0 ;;
   esac
   name=${name//[-_]/ }
   capitalize "$name"

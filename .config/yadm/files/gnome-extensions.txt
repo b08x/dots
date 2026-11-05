@@ -1,6 +1,0 @@
-# User Extensions (UUID only)
-# System extensions are managed by the Ansible desktop role
-notification-timeout@chlumskyvaclav.gmail.com
-notification-configurator@exposedcat
-junk-notification-cleaner@murar8.github.com
-kando-integration@kando-menu.github.io

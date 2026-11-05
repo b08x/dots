@@ -1,0 +1,7 @@
+# System packages required for Ansible and bootstrap orchestration. Blank lines and # comments are ignored.
+ansible-core
+ansible-collection-community-general
+ansible-collection-ansible-posix
+ansible-collection-ansible-utils
+python3-rich
+python3-pyyaml

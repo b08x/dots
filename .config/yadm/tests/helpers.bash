@@ -7,7 +7,7 @@ YADM_SRC=$(cd "$BATS_TEST_DIRNAME/.." && pwd)
 make_env() {
   ORIG_PATH=$PATH
   T=$(mktemp -d)
-  export T HOME=$T/home USER=tester
+  export T HOME=$T/home USER=tester XDG_CACHE_HOME=$T/home/.cache
   mkdir -p "$HOME" "$T/bin" "$T/yadm/scripts" "$T/yadm/bootstrap.d"
   local tool path
   for tool in bash env sed awk grep cat mktemp date dirname readlink find sort rm mkdir cp id cut basename sleep tput chmod mv touch head tr wc tee md5sum ln uname cmp; do

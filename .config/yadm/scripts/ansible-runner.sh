@@ -94,20 +94,34 @@ run_in_terminal() {
   wrapper_script=$(mktemp -t "ansible-${step_name}-run-XXXXXX.sh")
   status_file=$(mktemp -t "ansible-${step_name}-status-XXXXXX.txt")
 
+  local log_dir="${XDG_CACHE_HOME:-$HOME/.cache}/syncopated"
+  local session_log="${SYNCOPATED_ANSIBLE_SESSION_LOG:-${log_dir}/ansible-${step_name}-session.log}"
+  local log_identifier="${SYNCOPATED_LOG_IDENTIFIER:-${BOOTSTRAP_LOG_IDENTIFIER:-yadm-ansible-pull}}"
+
   # shellcheck disable=SC2016
   {
     echo "#!/usr/bin/env bash"
     echo "export ANSIBLE_STDOUT_CALLBACK=${ANSIBLE_STDOUT_CALLBACK@Q}"
     echo "export ANSIBLE_INVENTORY_ENABLED=${ANSIBLE_INVENTORY_ENABLED@Q}"
     echo "export ANSIBLE_LOG_PATH=${ANSIBLE_LOG_PATH@Q}"
+    echo "export ANSIBLE_FORCE_COLOR=true"
+    echo "export PYTHONUNBUFFERED=1"
+    echo "export SESSION_LOG=${session_log@Q}"
+    echo "export LOG_IDENTIFIER=${log_identifier@Q}"
     echo "cd ${PWD@Q} || true"
-    printf 'ansible-pull %s\n' "$(printf '%q ' "${cmd_args[@]}")"
-    echo 'rc=$?'
+    echo 'if command -v systemd-cat >/dev/null 2>&1; then'
+    printf '  ansible-pull %s 2>&1 | tee -a "$SESSION_LOG" >(systemd-cat -t "$LOG_IDENTIFIER" -p info 2>/dev/null || true)\n' "$(printf '%q ' "${cmd_args[@]}")"
+    echo '  rc=${PIPESTATUS[0]}'
+    echo 'else'
+    printf '  ansible-pull %s 2>&1 | tee -a "$SESSION_LOG"\n' "$(printf '%q ' "${cmd_args[@]}")"
+    echo '  rc=${PIPESTATUS[0]}'
+    echo 'fi'
     echo "echo \"\$rc\" > ${status_file@Q}"
     echo 'if ((rc != 0)); then'
     echo '  echo ""'
     echo '  echo "✗ ansible-pull failed with exit code $rc"'
     echo '  echo "Log file: $ANSIBLE_LOG_PATH"'
+    echo '  echo "Session log: $SESSION_LOG"'
     echo '  echo ""'
     echo '  read -r -p "Press [Enter] to close this window..." _ || true'
     echo 'fi'
@@ -176,6 +190,7 @@ run_ansible_tags() {
   export ANSIBLE_STDOUT_CALLBACK=default
   export ANSIBLE_INVENTORY_ENABLED="host_list,script,auto,yaml,toml,ini"
   export ANSIBLE_LOG_PATH="${log_dir}/ansible-${step_name}.log"
+  export SYNCOPATED_ANSIBLE_SESSION_LOG="${log_dir}/ansible-${step_name}-session.log"
 
   local -a pull_args=()
   ((${#become_args[@]} > 0)) && pull_args+=("${become_args[@]}")
@@ -213,12 +228,13 @@ run_ansible_tags() {
     pull_rc=$?
   else
     info "Applying $playbook (tags: $tags_csv) from $repo_url"
+    local session_log="${SYNCOPATED_ANSIBLE_SESSION_LOG:-${log_dir}/ansible-${step_name}-session.log}"
     if have_systemd_cat; then
-      ansible-pull "${pull_args[@]}" 2>&1 | tee >(systemd_cat_log info)
+      ansible-pull "${pull_args[@]}" 2>&1 | tee -a "$session_log" >(systemd_cat_log info)
       pull_rc=${PIPESTATUS[0]}
     else
-      ansible-pull "${pull_args[@]}"
-      pull_rc=$?
+      ansible-pull "${pull_args[@]}" 2>&1 | tee -a "$session_log"
+      pull_rc=${PIPESTATUS[0]}
     fi
   fi
 

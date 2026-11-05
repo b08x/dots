@@ -4,7 +4,7 @@ load helpers
 
 setup() {
   make_env
-  cp "$YADM_SRC/bootstrap.d/10-zsh.sh" "$T/yadm/bootstrap.d/"
+  cp "$YADM_SRC/bootstrap.d/03-zsh.sh" "$T/yadm/bootstrap.d/"
   export SYNCOPATED_SYSTEM_OMZ=$T/no-system-omz
   stub curl 'out=; while [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; url=$1; shift; done
 echo "curl $url" >>"$T/calls"; echo "#installer" >"$out"'
@@ -13,7 +13,7 @@ echo "curl $url" >>"$T/calls"; echo "#installer" >"$out"'
 }
 teardown() { cleanup_env; }
 
-run_zsh() { run bash "$T/yadm/bootstrap.d/10-zsh.sh" </dev/null; }
+run_zsh() { run bash "$T/yadm/bootstrap.d/03-zsh.sh" </dev/null; }
 
 @test "installs both when neither is present, with unattended env" {
   run_zsh

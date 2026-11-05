@@ -96,16 +96,15 @@ teardown() { cleanup_env; }
 }
 
 @test "step_label turns step names into readable labels" {
-  run bash -c 'source "$1"; step_label 20-cargo.sh; step_label preflight; step_label bootstrap.d/80-install-user-flatpaks.sh; step_label cargo; step_label 01-ansible-system.sh; step_label 02-ansible-desktop.sh; step_label 03-ansible-tools.sh; step_label 04-ansible-user.sh' _ "$YADM_SRC/scripts/syncopated-theme.sh"
+  run bash -c 'source "$1"; step_label 01-ruby.sh; step_label preflight; step_label bootstrap.d/80-install-user-flatpaks.sh; step_label ruby; step_label 02-ansible-pull.sh; step_label 03-zsh.sh; step_label ansible-pull' _ "$YADM_SRC/scripts/syncopated-theme.sh"
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "Cargo" ]
+  [ "${lines[0]}" = "Ruby" ]
   [ "${lines[1]}" = "Preflight" ]
   [ "${lines[2]}" = "Install user flatpaks" ]
-  [ "${lines[3]}" = "Cargo" ]
-  [ "${lines[4]}" = "Ansible System" ]
-  [ "${lines[5]}" = "Ansible Desktop" ]
-  [ "${lines[6]}" = "Ansible Tools" ]
-  [ "${lines[7]}" = "Ansible User" ]
+  [ "${lines[3]}" = "Ruby" ]
+  [ "${lines[4]}" = "Ansible Pull" ]
+  [ "${lines[5]}" = "Zsh" ]
+  [ "${lines[6]}" = "Ansible Pull" ]
 }
 
 @test "item_label turns package ids into readable labels" {

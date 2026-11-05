@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 10-zsh.sh: install oh-my-zsh and zoxide for the current user.
+# 03-zsh.sh: install oh-my-zsh and zoxide for the current user.
 #
 # Skips each part that is already installed. Exits 0 when something was
 # installed, 2 when everything was already present, 1 on any failure.

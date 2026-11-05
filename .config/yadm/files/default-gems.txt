@@ -1,4 +1,4 @@
-# Gems installed by bootstrap.d/30-ruby.sh. Blank lines and # comments are ignored.
+# Gems installed by bootstrap.d/01-ruby.sh. Blank lines and # comments are ignored.
 pry
 solargraph
 ruby-lsp

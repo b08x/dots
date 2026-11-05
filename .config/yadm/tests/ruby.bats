@@ -4,8 +4,10 @@ load helpers
 
 setup() {
   make_env
-  cp "$YADM_SRC/bootstrap.d/30-ruby.sh" "$T/yadm/bootstrap.d/"
-  mkdir -p "$T/yadm/files"; cp "$YADM_SRC/files/default-gems.txt" "$T/yadm/files/"
+  cp "$YADM_SRC/bootstrap.d/01-ruby.sh" "$T/yadm/bootstrap.d/"
+  mkdir -p "$T/yadm/files"
+  cp "$YADM_SRC/files/default-gems.txt" "$T/yadm/files/"
+  cp "$YADM_SRC/files/ruby-system-packages.txt" "$T/yadm/files/"
   export RBENV_ROOT=$HOME/.rbenv
   mkdir -p "$RBENV_ROOT/versions/4.0.4/etc"
   echo "4.0.4" >"$T/versions"
@@ -54,7 +56,7 @@ fi'
 
 teardown() { cleanup_env; }
 
-run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
+run_ruby() { run bash "$T/yadm/bootstrap.d/01-ruby.sh" </dev/null; }
 
 @test "package list holds exactly the 7 gems" {
   [ "$(grep -vc '^#' "$YADM_SRC/files/default-gems.txt")" -eq 7 ]
@@ -170,16 +172,18 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   [[ $output == *"is not executable; unsetting"* ]]
 }
 
-@test "defaults to system Ruby when ruby >= 4.0.0 is present and rbenv is not requested" {
+@test "defaults to system Ruby when ruby >= 4.0.0 is present and sets rbenv global to system" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "4.0.4" >"$T/global"
   run_ruby
-  [ "$status" -eq 2 ]
+  [ "$status" -eq 0 ]
   [[ $output == *"Using system Ruby 4.0.7"* ]]
-  ! grep -q 'rbenv' "$T/calls"
+  grep -q '^rbenv global system' "$T/calls"
 }
 
 @test "skips downloading, compiling, and configuring rbenv when using system Ruby" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   : >"$T/versions"
   rm -f "$RBENV_ROOT/versions/4.0.4/etc/gemrc"
   run_ruby
@@ -191,6 +195,7 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
 
 @test "installs missing gems via user-install to ~/.local/bin when using system Ruby" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   grep -vx rubocop "$T/installed" >"$T/installed.new"
   mv "$T/installed.new" "$T/installed"
   run_ruby
@@ -199,15 +204,18 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   grep -q "gem install --user-install --bindir $HOME/.local/bin --no-document rubocop" "$T/calls"
 }
 
-@test "system Ruby exits 2 when all default gems are already present" {
+@test "system Ruby exits 2 when all default gems and global are already in place" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   run_ruby
   [ "$status" -eq 2 ]
   ! grep -q 'gem install' "$T/calls"
+  ! grep -q '^rbenv global' "$T/calls"
 }
 
 @test "a failing gem in system Ruby exits 1 and remaining gems are still attempted" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   : >"$T/installed"
   GEM_FAIL=solargraph run_ruby
   [ "$status" -eq 1 ]
@@ -226,7 +234,7 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
 @test "--rbenv option opts into rbenv compilation even when system Ruby >= 4.0.0 is present" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
   : >"$T/versions"
-  run bash "$T/yadm/bootstrap.d/30-ruby.sh" --rbenv </dev/null
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" --rbenv </dev/null
   [ "$status" -eq 0 ]
   grep -q '^rbenv install 4.0.4' "$T/calls"
 }
@@ -239,27 +247,29 @@ run_ruby() { run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null; }
   grep -q '^rbenv install 4.0.4' "$T/calls"
 }
 
-@test "prompts interactively when system Ruby >= 4.0.0 is present and skips rbenv if chosen" {
+@test "prompts interactively when system Ruby >= 4.0.0 is present and chooses system for global" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   stub gum 'echo "gum $*" >>"$T/calls"
 if [ "$1" = "choose" ]; then
-  echo "Skip rbenv (use system Ruby)"
+  echo "system (System Ruby 4.0.7)"
 fi
 exit 0'
   export SYNCOPATED_FORCE_INTERACTIVE=1
-  run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" </dev/null
   [ "$status" -eq 2 ]
-  grep -q "gum choose --header System Ruby 4.0.7 detected. Select installation mode: Skip rbenv (use system Ruby) Compile Ruby with rbenv" "$T/calls"
+  grep -q "gum choose --header Select global Ruby version: system (System Ruby 4.0.7) rbenv (Ruby 4.0.4)" "$T/calls"
   [[ $output == *"Using system Ruby 4.0.7"* ]]
   ! grep -q '^rbenv install' "$T/calls"
 }
 
-@test "prompts interactively when system Ruby >= 4.0.0 is present and compiles with rbenv if chosen" {
+@test "prompts interactively when system Ruby >= 4.0.0 is present and chooses rbenv for global" {
   stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
   : >"$T/versions"
   stub gum 'echo "gum $*" >>"$T/calls"
 if [ "$1" = "choose" ]; then
-  echo "Compile Ruby with rbenv"
+  echo "rbenv (Ruby 4.0.4)"
 elif [ "$1" = "spin" ]; then
   shift
   while [ "$1" != "--" ]; do shift; done
@@ -268,10 +278,126 @@ elif [ "$1" = "spin" ]; then
 fi
 exit 0'
   export SYNCOPATED_FORCE_INTERACTIVE=1
-  run bash "$T/yadm/bootstrap.d/30-ruby.sh" </dev/null
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" </dev/null
   [ "$status" -eq 0 ]
-  grep -q "gum choose --header System Ruby 4.0.7 detected. Select installation mode: Skip rbenv (use system Ruby) Compile Ruby with rbenv" "$T/calls"
+  grep -q "gum choose --header Select global Ruby version: system (System Ruby 4.0.7) rbenv (Ruby 4.0.4)" "$T/calls"
   grep -q '^rbenv install 4.0.4' "$T/calls"
+  grep -q '^rbenv global 4.0.4' "$T/calls"
 }
+
+@test "--global=system sets global to system Ruby" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "4.0.4" >"$T/global"
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" --global=system </dev/null
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv global system' "$T/calls"
+  [[ $output == *"Using system Ruby 4.0.7"* ]]
+}
+
+@test "--global=rbenv sets global to rbenv Ruby and compiles/installs gems" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "system" >"$T/global"
+  : >"$T/versions"
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" --global=rbenv </dev/null
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv install 4.0.4' "$T/calls"
+  grep -q '^rbenv global 4.0.4' "$T/calls"
+}
+
+@test "SYNCOPATED_RUBY_GLOBAL=system sets global to system Ruby" {
+  stub ruby 'echo "ruby 4.0.7 (2026-09-15) [x86_64-linux]"'
+  echo "4.0.4" >"$T/global"
+  SYNCOPATED_RUBY_GLOBAL=system run_ruby
+  [ "$status" -eq 0 ]
+  grep -q '^rbenv global system' "$T/calls"
+  [[ $output == *"Using system Ruby 4.0.7"* ]]
+}
+
+@test "ruby system package list holds exactly the 12 system packages" {
+  [ "$(grep -vc '^#' "$YADM_SRC/files/ruby-system-packages.txt")" -eq 12 ]
+  for p in openssl-devel ruby-devel ruby-build-all ruby-build-rbenv \
+           libtree-sitter-bash-devel libtree-sitter-devel libtree-sitter-javascript-devel \
+           libtree-sitter-json-devel libtree-sitter-python-devel libtree-sitter-ruby-devel \
+           libtree-sitter-toml-devel libtree-sitter-yaml-devel; do
+    grep -qx "$p" "$YADM_SRC/files/ruby-system-packages.txt"
+  done
+}
+
+@test "header declares needs-sudo for orchestrator pre-authentication" {
+  grep -q '^# bootstrap: needs-sudo' "$T/yadm/bootstrap.d/01-ruby.sh"
+}
+
+@test "installs missing system dependencies via dnf when missing" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run_ruby
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf install -y openssl-devel ruby-devel ruby-build-all ruby-build-rbenv libtree-sitter-bash-devel libtree-sitter-devel libtree-sitter-javascript-devel libtree-sitter-json-devel libtree-sitter-python-devel libtree-sitter-ruby-devel libtree-sitter-toml-devel libtree-sitter-yaml-devel' "$T/calls"
+  [[ $output == *"✓ Ruby system dependencies"* ]]
+}
+
+@test "skips system dependency installation when all packages are already installed" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 0'
+
+  run_ruby
+  [ "$status" -eq 2 ]
+  ! grep -q 'dnf install' "$T/calls"
+  [[ $output == *"All system dependencies are already installed"* ]]
+}
+
+@test "installs only the missing subset of system dependencies" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm '
+    echo "rpm $*" >>"$T/calls"
+    if [ "$2" = "ruby-devel" ] || [ "$2" = "openssl-devel" ]; then
+      exit 0
+    fi
+    exit 1
+  '
+
+  run_ruby
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf install -y ruby-build-all ruby-build-rbenv libtree-sitter-bash-devel libtree-sitter-devel libtree-sitter-javascript-devel libtree-sitter-json-devel libtree-sitter-python-devel libtree-sitter-ruby-devel libtree-sitter-toml-devel libtree-sitter-yaml-devel' "$T/calls"
+  ! grep -q 'dnf install.*openssl-devel' "$T/calls"
+  ! grep -E '^sudo dnf install.*(^|[[:space:]])ruby-devel([[:space:]]|$)' "$T/calls"
+}
+
+@test "fails with exit 1 when dnf install of system dependencies fails" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 1'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 1'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run_ruby
+  [ "$status" -eq 1 ]
+  [[ $output == *"✗ Ruby system dependencies"* ]]
+}
+
+@test "--skip-deps skips system dependency check" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run bash "$T/yadm/bootstrap.d/01-ruby.sh" --skip-deps </dev/null
+  [ "$status" -eq 2 ]
+  ! grep -q 'dnf install' "$T/calls"
+  ! grep -q 'rpm -q' "$T/calls"
+}
+
+@test "SYNCOPATED_RUBY_SKIP_DEPS=1 skips system dependency check" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  SYNCOPATED_RUBY_SKIP_DEPS=1 run_ruby
+  [ "$status" -eq 2 ]
+  ! grep -q 'dnf install' "$T/calls"
+  ! grep -q 'rpm -q' "$T/calls"
+}
+
 
 

@@ -1,0 +1,13 @@
+# System packages required for Ruby development and ruby-build. Blank lines and # comments are ignored.
+openssl-devel
+ruby-devel
+ruby-build-all
+ruby-build-rbenv
+libtree-sitter-bash-devel
+libtree-sitter-devel
+libtree-sitter-javascript-devel
+libtree-sitter-json-devel
+libtree-sitter-python-devel
+libtree-sitter-ruby-devel
+libtree-sitter-toml-devel
+libtree-sitter-yaml-devel

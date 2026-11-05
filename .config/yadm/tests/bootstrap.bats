@@ -5,6 +5,10 @@ load helpers
 setup() {
   make_env
   cp "$YADM_SRC/bootstrap" "$T/yadm/"
+  mkdir -p "$T/yadm/files"
+  if [[ -f "$YADM_SRC/files/bootstrap-system-packages.txt" ]]; then
+    cp "$YADM_SRC/files/bootstrap-system-packages.txt" "$T/yadm/files/"
+  fi
   printf 'NAME="Fedora Linux"\nVERSION_ID=43\n' >"$T/os-release"
   export SYNCOPATED_OS_RELEASE=$T/os-release
   printf '/usr/bin/zsh' >"$T/shell"
@@ -174,17 +178,14 @@ run_pty() {
   [ "$(grep -c 'one (ok)' <<<"$output")" -eq 1 ]
 }
 
-@test "01-ansible-system runs first and 91-install-vscode-extensions runs last" {
+@test "01-ruby runs first and 90-obsidian-flatpak-setup runs last" {
   names=$(find "$YADM_SRC/bootstrap.d" -maxdepth 1 -type f -printf '%f\n' | sort)
-  [ "$(head -n 1 <<<"$names")" = 01-ansible-system.sh ]
-  [ "$(sed -n '$p' <<<"$names")" = 91-install-vscode-extensions.sh ]
+  [ "$(head -n 1 <<<"$names")" = 01-ruby.sh ]
+  [ "$(sed -n '$p' <<<"$names")" = 90-obsidian-flatpak-setup.sh ]
 }
 
-@test "needs-sudo correctly detects ansible-system, ansible-desktop, and ansible-tools" {
-  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/01-ansible-system.sh"
-  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/02-ansible-desktop.sh"
-  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/03-ansible-tools.sh"
-  ! grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/04-ansible-user.sh"
+@test "needs-sudo correctly detects the consolidated ansible-pull step" {
+  grep -q '^# bootstrap: needs-sudo' "$YADM_SRC/bootstrap.d/02-ansible-pull.sh"
 }
 
 # --- step selection ----------------------------------------------------------
@@ -286,4 +287,76 @@ run_menu() { run bash -c 'printf "%b" "$1" | SYNCOPATED_FORCE_INTERACTIVE=1 bash
   grep -q 'Detected desktop environment:' "$T/systemd_cat_in"
   grep -q 'Bootstrap finished' "$T/systemd_cat_in"
   grep -q 'one ok' "$T/systemd_cat_in"
+}
+
+@test "bootstrap-system-packages.txt holds exactly the 6 system packages" {
+  [ "$(grep -vc '^#' "$YADM_SRC/files/bootstrap-system-packages.txt")" -eq 6 ]
+  for p in ansible-core ansible-collection-community-general ansible-collection-ansible-posix \
+           ansible-collection-ansible-utils python3-rich python3-pyyaml; do
+    grep -qx "$p" "$YADM_SRC/files/bootstrap-system-packages.txt"
+  done
+}
+
+@test "ensure_system_packages installs missing packages via sudo dnf -y install when missing" {
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf -y install ansible-core ansible-collection-community-general ansible-collection-ansible-posix ansible-collection-ansible-utils python3-rich python3-pyyaml' "$T/calls"
+  [[ $output == *"System packages installed"* ]]
+}
+
+@test "ensure_system_packages skips dnf install when all packages are already installed" {
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 0'
+
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  ! grep -q 'dnf -y install' "$T/calls"
+}
+
+@test "ensure_system_packages installs only the missing subset of packages" {
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm '
+    echo "rpm $*" >>"$T/calls"
+    if [ "$2" = "python3-rich" ] || [ "$2" = "python3-pyyaml" ]; then
+      exit 0
+    fi
+    exit 1
+  '
+
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  grep -q 'sudo dnf -y install ansible-core ansible-collection-community-general ansible-collection-ansible-posix ansible-collection-ansible-utils' "$T/calls"
+  ! grep -E '^sudo dnf -y install.*(^|[[:space:]])python3-rich([[:space:]]|$)' "$T/calls"
+  ! grep -E '^sudo dnf -y install.*(^|[[:space:]])python3-pyyaml([[:space:]]|$)' "$T/calls"
+}
+
+@test "ensure_system_packages warns and continues when dnf install fails" {
+  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 1'
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 1'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run_bootstrap
+  [ "$status" -eq 0 ]
+  [[ $output == *"Failed to install system packages; continuing"* ]]
+}
+
+@test "--skip-packages skips system package check" {
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  run bash "$T/yadm/bootstrap" --skip-packages </dev/null
+  [ "$status" -eq 0 ]
+  ! grep -q 'dnf -y install' "$T/calls"
+}
+
+@test "SYNCOPATED_SKIP_PACKAGES=1 skips system package check" {
+  stub dnf 'echo "dnf $*" >>"$T/calls"; exit 0'
+  stub rpm 'echo "rpm $*" >>"$T/calls"; exit 1'
+
+  SYNCOPATED_SKIP_PACKAGES=1 run_bootstrap
+  [ "$status" -eq 0 ]
+  ! grep -q 'dnf -y install' "$T/calls"
 }

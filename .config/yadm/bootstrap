@@ -3,8 +3,8 @@
 # YADM Master Bootstrap Orchestrator (Syncopated user configuration)
 #
 # Runs the preflight, shell, decrypt and alternates steps, then every
-# executable script in bootstrap.d/ in name order: 01-ansible-system (system
-# playbook) first, 91-install-vscode-extensions last. A bootstrap.d script returns 0 (ok),
+# executable script in bootstrap.d/ in name order: 01-ruby first,
+# 90-obsidian-flatpak-setup last. A bootstrap.d script returns 0 (ok),
 # 1 (failed) or 2 (skipped). A failed step offers retry / skip / abort when
 # stdin and stdout are terminals; otherwise it is recorded and bootstrap goes on.
 #
@@ -28,12 +28,23 @@ RC_ABORT=3 # internal: the user aborted inside a step
 BOOTSTRAP_D_DIR=$YADM_CONFIG_DIR/bootstrap.d
 LOG_FILE=${HOME}/.bootstrap.log
 USER_NAME=${USER:-$(id -un)}
+SYSTEM_PACKAGES_FILE=$YADM_CONFIG_DIR/files/bootstrap-system-packages.txt
+
+DEFAULT_SYSTEM_PACKAGES=(
+  ansible-core
+  ansible-collection-community-general
+  ansible-collection-ansible-posix
+  ansible-collection-ansible-utils
+  python3-rich
+  python3-pyyaml
+)
 
 declare -A STEP_CMD=()
 declare -A STEP_LABEL=()
 SELECTED=()
 OPT_ALL=0
 OPT_ONLY=()
+OPT_SKIP_PACKAGES=0
 
 # --- helpers -----------------------------------------------------------------
 
@@ -61,7 +72,7 @@ interactive() {
 }
 
 usage() {
-  printf 'Usage: bootstrap [--all | --only STEP[,STEP...]]\n' >&2
+  printf 'Usage: bootstrap [--all | --skip-packages | --only STEP[,STEP...]]\n' >&2
 }
 
 parse_args() {
@@ -69,6 +80,7 @@ parse_args() {
   while (($#)); do
     case $1 in
       --all) OPT_ALL=1 ;;
+      --skip-packages) OPT_SKIP_PACKAGES=1 ;;
       --only)
         (($# >= 2)) || {
           usage
@@ -102,6 +114,53 @@ ensure_gum() {
     warn "gum is not available; continuing with plain output. Install it from https://github.com/charmbracelet/gum"
   fi
   return 0
+}
+
+ensure_system_packages() {
+  ((OPT_SKIP_PACKAGES)) && return 0
+  [[ "${SYNCOPATED_SKIP_PACKAGES:-}" =~ ^(1|true|yes)$ ]] && return 0
+  command -v dnf >/dev/null 2>&1 || return 0
+
+  local all_pkgs=()
+  if [[ -r $SYSTEM_PACKAGES_FILE ]]; then
+    mapfile -t all_pkgs < <(sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$SYSTEM_PACKAGES_FILE" | grep -v '^$')
+  else
+    all_pkgs=("${DEFAULT_SYSTEM_PACKAGES[@]}")
+  fi
+
+  ((${#all_pkgs[@]} == 0)) && return 0
+
+  local missing=() pkg
+  for pkg in "${all_pkgs[@]}"; do
+    if command -v rpm >/dev/null 2>&1; then
+      if ! rpm -q "$pkg" >/dev/null 2>&1; then
+        missing+=("$pkg")
+      fi
+    elif ! dnf list --installed "$pkg" >/dev/null 2>&1; then
+      missing+=("$pkg")
+    fi
+  done
+
+  if ((${#missing[@]} == 0)); then
+    return 0
+  fi
+
+  info "Installing missing system packages with dnf: ${missing[*]}"
+  local rc=0
+  if have_systemd_cat; then
+    sudo dnf -y install "${missing[@]}" 2>&1 | tee >(systemd_cat_log info)
+    rc=${PIPESTATUS[0]}
+  else
+    sudo dnf -y install "${missing[@]}"
+    rc=$?
+  fi
+
+  if ((rc == 0)); then
+    ok "System packages installed"
+  else
+    warn "Failed to install system packages; continuing"
+  fi
+  return "$rc"
 }
 
 # --- steps -------------------------------------------------------------------
@@ -238,7 +297,7 @@ step_alternates() {
 
 # --- runner ------------------------------------------------------------------
 
-# step_title SCRIPT : bootstrap.d/10-zsh.sh -> zsh
+# step_title SCRIPT : bootstrap.d/03-zsh.sh -> zsh
 step_title() {
   local name
   name=$(basename "$1" .sh)
@@ -418,6 +477,7 @@ main() {
   validate_only
 
   ensure_gum
+  ensure_system_packages
   splash
   banner
   show_steps
