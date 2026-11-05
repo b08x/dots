@@ -34,12 +34,12 @@ This repository is a **yadm dotfiles tree** whose payload is a Bash bootstrap or
 # Run the full bootstrap (interactive menu on a TTY)
 ./bootstrap
 ./bootstrap --all                 # every step, no menu
-./bootstrap --only zsh,cargo      # named steps (names = filename minus NN- prefix)
+./bootstrap --only ruby,zsh       # named steps (names = filename minus NN- prefix)
 
 # Tests (bats)
 bats tests/
 bats tests/bootstrap.bats          # single file
-bats tests/zsh.bats tests/cargo.bats
+bats tests/zsh.bats tests/ruby.bats
 
 # Lint (shellcheck config in .shellcheckrc sources SCRIPTDIR and SCRIPTDIR/..)
 shellcheck bootstrap scripts/*.sh bootstrap.d/*.sh
