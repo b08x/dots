@@ -1,26 +1,34 @@
 #!/usr/bin/env bash
-# 85-rubymine.sh: install JetBrains RubyMine IDE via official Linux tarball.
+# bootstrap: needs-sudo
+# 85-rubymine.sh: install JetBrains RubyMine IDE via system package manager or rubymine-fetch.
 #
-# Detects pre-existing RubyMine or JetBrains Toolbox installations, exiting 2
-# (skipped) if already present. Otherwise fetches the latest release tarball
-# from JetBrains, extracts to ~/.local/share/JetBrains/RubyMine, creates symlink
-# ~/.local/bin/rubymine, and provisions a desktop launcher.
+# Detects pre-existing RubyMine, Flatpak, RPM, or JetBrains Toolbox installations,
+# exiting 2 (skipped) if already present.
+#
+# If not installed:
+# 1. Checks if 'rubymine' is available via system package manager (dnf) and installs it.
+# 2. Otherwise falls back to rubymine-fetch (system-wide under /opt/rubymine).
 #
 # Exits 0 on success, 2 if skipped/already installed, 1 on failure.
 
 # shellcheck disable=SC2329  # install functions are invoked indirectly by run_item
 set -uo pipefail
 
-YADM_CONFIG_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/..
-# shellcheck source=../scripts/syncopated-theme.sh
-source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
+SCRIPT_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+YADM_CONFIG_DIR=$(readlink -f "$SCRIPT_DIR/..")
+if [[ -f "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh" ]]; then
+  # shellcheck source=../scripts/syncopated-theme.sh
+  source "$YADM_CONFIG_DIR/scripts/syncopated-theme.sh"
+elif [[ -f "${HOME}/.config/yadm/scripts/syncopated-theme.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "${HOME}/.config/yadm/scripts/syncopated-theme.sh"
+fi
 
 : "${SYNCOPATED_STEP:=rubymine}"
 
-JETBRAINS_API_URL="https://data.services.jetbrains.com/products/releases?code=RM&latest=true&type=release"
 INSTALL_DIR="${RUBYMINE_INSTALL_DIR:-$HOME/.local/share/JetBrains/RubyMine}"
 BIN_DIR="${RUBYMINE_BIN_DIR:-$HOME/.local/bin}"
-APPS_DIR="${RUBYMINE_APPS_DIR:-$HOME/.local/share/applications}"
+OPT_DIR="${RUBYMINE_OPT_DIR:-/opt/rubymine}"
 OPT_SKIP=0
 
 parse_args() {
@@ -42,7 +50,10 @@ is_installed() {
   if [[ -x "$BIN_DIR/rubymine" ]]; then
     return 0
   fi
-  if [[ -x "/opt/rubymine/bin/rubymine.sh" ]]; then
+  if [[ -x "/usr/bin/rubymine" ]]; then
+    return 0
+  fi
+  if [[ -x "$OPT_DIR/bin/rubymine" || -x "$OPT_DIR/bin/rubymine.sh" ]]; then
     return 0
   fi
   if [[ -x "$INSTALL_DIR/bin/rubymine.sh" ]]; then
@@ -59,91 +70,73 @@ is_installed() {
       return 0
     fi
   done
+  if command -v rpm >/dev/null 2>&1 && rpm -q rubymine >/dev/null 2>&1; then
+    return 0
+  fi
+  if command -v flatpak >/dev/null 2>&1 && flatpak info com.jetbrains.RubyMine >/dev/null 2>&1; then
+    return 0
+  fi
   return 1
 }
 
-get_release_url() {
-  if [[ -n ${SYNCOPATED_RUBYMINE_URL:-} ]]; then
-    printf '%s\n' "$SYNCOPATED_RUBYMINE_URL"
+find_rubymine_fetch() {
+  if [[ -n "${RUBYMINE_FETCH_PATH:-}" && -f "$RUBYMINE_FETCH_PATH" ]]; then
+    printf '%s\n' "$RUBYMINE_FETCH_PATH"
     return 0
   fi
 
-  local arch key api_out
-  arch=$(uname -m 2>/dev/null || echo "x86_64")
-  key="linux"
-  if [[ $arch == "aarch64" || $arch == "arm64" ]]; then
-    key="linuxARM64"
+  local bundled="$YADM_CONFIG_DIR/scripts/rubymine-fetch"
+  if [[ -f "$bundled" ]]; then
+    printf '%s\n' "$bundled"
+    return 0
   fi
 
-  api_out=$(curl -fsSL --connect-timeout 15 "$JETBRAINS_API_URL") || {
-    echo "Failed to query JetBrains release API" >&2
-    return 1
-  }
-
-  local url=""
-  if command -v jq >/dev/null 2>&1; then
-    url=$(printf '%s' "$api_out" | jq -r ".RM[0].downloads.${key}.link // empty" 2>/dev/null || true)
-  fi
-  if [[ -z $url ]]; then
-    url=$(printf '%s' "$api_out" | grep -o "\"${key}\":{[^}]*\"link\":\"[^\"]*\"" | sed -n 's/.*"link":"\([^"]*\)".*/\1/p' | head -n 1)
+  local fallback_bundled="${HOME}/.config/yadm/scripts/rubymine-fetch"
+  if [[ -f "$fallback_bundled" ]]; then
+    printf '%s\n' "$fallback_bundled"
+    return 0
   fi
 
-  if [[ -z $url ]]; then
-    echo "Could not find RubyMine download link for $key" >&2
-    return 1
+  local workspace_path="${SYNCOPATED_RUBYMINE_WORKSPACE_FETCH:-/home/b08x/WorkspaceV3/Syncopated/rpmbuild/roles/packages/files/rubymine/rubymine-fetch}"
+  if [[ -f "$workspace_path" ]]; then
+    printf '%s\n' "$workspace_path"
+    return 0
   fi
 
-  printf '%s\n' "$url"
+  if command -v rubymine-fetch >/dev/null 2>&1; then
+    command -v rubymine-fetch
+    return 0
+  fi
+
+  return 1
 }
 
 rubymine_install_task() {
-  local url
-  url=$(get_release_url) || return 1
+  # 1. Check system package manager (dnf/rpm)
+  if command -v dnf >/dev/null 2>&1; then
+    if dnf info rubymine >/dev/null 2>&1; then
+      if sudo dnf install -y rubymine; then
+        return 0
+      fi
+      echo "dnf install rubymine failed; falling back to rubymine-fetch" >&2
+    fi
+  fi
 
-  local tmp_tar
-  tmp_tar=$(mktemp) || return 1
-
-  if ! curl -fsSL --connect-timeout 15 -o "$tmp_tar" "$url"; then
-    echo "Failed to download RubyMine tarball from $url" >&2
-    rm -f "$tmp_tar"
+  # 2. Otherwise install via rubymine-fetch
+  local fetch_script
+  if ! fetch_script=$(find_rubymine_fetch); then
+    echo "Could not find rubymine-fetch and rubymine package is not available via dnf" >&2
     return 1
   fi
 
-  mkdir -p "$INSTALL_DIR"
-  if ! tar -xzf "$tmp_tar" -C "$INSTALL_DIR" --strip-components=1; then
-    echo "Failed to extract RubyMine tarball to $INSTALL_DIR" >&2
-    rm -f "$tmp_tar"
-    return 1
+  if [[ -x "$fetch_script" ]]; then
+    sudo "$fetch_script"
+  else
+    sudo sh "$fetch_script"
   fi
-  rm -f "$tmp_tar"
-
-  mkdir -p "$BIN_DIR"
-  ln -sf "$INSTALL_DIR/bin/rubymine.sh" "$BIN_DIR/rubymine"
-
-  local icon="$INSTALL_DIR/bin/rubymine.svg"
-  if [[ ! -f $icon && -f "$INSTALL_DIR/bin/rubymine.png" ]]; then
-    icon="$INSTALL_DIR/bin/rubymine.png"
-  fi
-
-  mkdir -p "$APPS_DIR"
-  cat > "$APPS_DIR/jetbrains-rubymine.desktop" <<DESKTOP_EOF
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=RubyMine
-Icon=$icon
-Exec="$INSTALL_DIR/bin/rubymine.sh" %f
-Comment=The Most Intelligent Ruby and Rails IDE
-Categories=Development;IDE;
-Terminal=false
-StartupWMClass=jetbrains-rubymine
-DESKTOP_EOF
-  chmod 644 "$APPS_DIR/jetbrains-rubymine.desktop" 2>/dev/null || true
-
-  return 0
 }
 
-export -f get_release_url rubymine_install_task
+export -f find_rubymine_fetch rubymine_install_task
 
 main() {
   parse_args "$@"
@@ -158,12 +151,7 @@ main() {
     exit "$RC_SKIPPED"
   fi
 
-  if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
-    err "curl and tar are required to install RubyMine"
-    exit "$RC_FAILED"
-  fi
-
-  export JETBRAINS_API_URL INSTALL_DIR BIN_DIR APPS_DIR SYNCOPATED_RUBYMINE_URL
+  export YADM_CONFIG_DIR RUBYMINE_FETCH_PATH
   if run_item "RubyMine IDE" rubymine_install_task; then
     exit "$RC_OK"
   else

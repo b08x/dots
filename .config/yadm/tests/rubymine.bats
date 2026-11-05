@@ -7,55 +7,34 @@ setup() {
   cp "$YADM_SRC/bootstrap.d/85-rubymine.sh" "$T/yadm/bootstrap.d/"
   export RUBYMINE_INSTALL_DIR="$HOME/.local/share/JetBrains/RubyMine"
   export RUBYMINE_BIN_DIR="$HOME/.local/bin"
-  export RUBYMINE_APPS_DIR="$HOME/.local/share/applications"
+  export RUBYMINE_OPT_DIR="$T/opt/rubymine"
 
-  # Default stub for curl: handles JetBrains release API and tarball download
-  stub curl '
-    echo "curl $*" >>"$T/calls"
-    out=""
-    url=""
-    while [ $# -gt 0 ]; do
-      if [ "$1" = "-o" ]; then
-        out=$2
-        shift 2
-        continue
-      fi
-      url=$1
-      shift
-    done
-    if [ -n "${CURL_FAIL:-}" ]; then
+  # Default stub for sudo
+  stub sudo '
+    echo "sudo $*" >>"$T/calls"
+    if [ -n "${SUDO_FAIL:-}" ]; then
       exit 1
     fi
-    if [[ "$url" == *"releases?code=RM"* ]]; then
-      echo '\''{"RM":[{"version":"2026.2.4","downloads":{"linux":{"link":"https://download.jetbrains.com/ruby/RubyMine-2026.2.4.tar.gz"}}}]}'\''
-      exit 0
-    elif [ -n "$out" ]; then
-      echo "dummy-tarball-content" >"$out"
-      exit 0
+    if [ "$1" = "dnf" ] && [ -n "${DNF_INSTALL_FAIL:-}" ]; then
+      exit 1
     fi
     exit 0
   '
 
-  # Default stub for tar: creates bin/rubymine.sh and bin/rubymine.svg in target directory
-  stub tar '
-    echo "tar $*" >>"$T/calls"
-    if [ -n "${TAR_FAIL:-}" ]; then
+  # Default stub for dnf: by default rubymine package is not in repos
+  stub dnf '
+    echo "dnf $*" >>"$T/calls"
+    if [ "$1" = "info" ] && [ "$2" = "rubymine" ]; then
+      if [ -n "${DNF_HAS_RUBYMINE:-}" ]; then
+        exit 0
+      fi
       exit 1
     fi
-    target_dir=""
-    while [ $# -gt 0 ]; do
-      if [ "$1" = "-C" ]; then
-        target_dir=$2
-        shift 2
-        continue
+    if [ "$1" = "install" ]; then
+      if [ -n "${DNF_INSTALL_FAIL:-}" ]; then
+        exit 1
       fi
-      shift
-    done
-    if [ -n "$target_dir" ]; then
-      mkdir -p "$target_dir/bin"
-      touch "$target_dir/bin/rubymine.sh"
-      chmod +x "$target_dir/bin/rubymine.sh"
-      touch "$target_dir/bin/rubymine.svg"
+      exit 0
     fi
     exit 0
   '
@@ -70,14 +49,16 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine installation skipped"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when --skip-rubymine is passed" {
   run_rubymine --skip-rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine installation skipped"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when rubymine is in PATH" {
@@ -85,7 +66,8 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine is already installed"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when ~/.local/bin/rubymine exists" {
@@ -95,7 +77,40 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine is already installed"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
+}
+
+@test "skips with exit 2 when /usr/bin/rubymine exists" {
+  touch "$T/bin/rubymine"
+  chmod +x "$T/bin/rubymine"
+  run_rubymine
+  [ "$status" -eq 2 ]
+  [[ $output == *"RubyMine is already installed"* ]]
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
+}
+
+@test "skips with exit 2 when /opt/rubymine/bin/rubymine exists" {
+  mkdir -p "$RUBYMINE_OPT_DIR/bin"
+  touch "$RUBYMINE_OPT_DIR/bin/rubymine"
+  chmod +x "$RUBYMINE_OPT_DIR/bin/rubymine"
+  run_rubymine
+  [ "$status" -eq 2 ]
+  [[ $output == *"RubyMine is already installed"* ]]
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
+}
+
+@test "skips with exit 2 when /opt/rubymine/bin/rubymine.sh exists" {
+  mkdir -p "$RUBYMINE_OPT_DIR/bin"
+  touch "$RUBYMINE_OPT_DIR/bin/rubymine.sh"
+  chmod +x "$RUBYMINE_OPT_DIR/bin/rubymine.sh"
+  run_rubymine
+  [ "$status" -eq 2 ]
+  [[ $output == *"RubyMine is already installed"* ]]
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when JetBrains RubyMine installation exists in ~/.local/share" {
@@ -105,7 +120,8 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine is already installed"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when JetBrains Toolbox is installed" {
@@ -113,7 +129,8 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine is already installed"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
 @test "skips with exit 2 when JetBrains Toolbox rubymine app directory exists" {
@@ -121,63 +138,148 @@ run_rubymine() { run bash "$T/yadm/bootstrap.d/85-rubymine.sh" "$@" </dev/null; 
   run_rubymine
   [ "$status" -eq 2 ]
   [[ $output == *"RubyMine is already installed"* ]]
-  ! grep -q '^curl ' "$T/calls"
+  ! grep -q '^dnf ' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
-@test "fails with exit 1 when curl is missing" {
-  rm "$T/bin/curl"
+@test "skips with exit 2 when rubymine is installed via rpm" {
+  stub rpm '
+    echo "rpm $*" >>"$T/calls"
+    if [ "$1" = "-q" ] && [ "$2" = "rubymine" ]; then
+      exit 0
+    fi
+    exit 1
+  '
   run_rubymine
-  [ "$status" -eq 1 ]
-  [[ $output == *"curl and tar are required"* ]]
+  [ "$status" -eq 2 ]
+  [[ $output == *"RubyMine is already installed"* ]]
+  grep -q '^rpm -q rubymine' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
-@test "fails with exit 1 when tar is missing" {
-  rm "$T/bin/tar"
+@test "skips with exit 2 when rubymine is installed via flatpak" {
+  stub flatpak '
+    echo "flatpak $*" >>"$T/calls"
+    if [ "$1" = "info" ] && [ "$2" = "com.jetbrains.RubyMine" ]; then
+      exit 0
+    fi
+    exit 1
+  '
   run_rubymine
-  [ "$status" -eq 1 ]
-  [[ $output == *"curl and tar are required"* ]]
+  [ "$status" -eq 2 ]
+  [[ $output == *"RubyMine is already installed"* ]]
+  grep -q '^flatpak info com.jetbrains.RubyMine' "$T/calls"
+  ! grep -q '^sudo ' "$T/calls"
 }
 
-@test "downloads and installs RubyMine successfully" {
+@test "installs RubyMine via dnf when available in package repository" {
+  export DNF_HAS_RUBYMINE=1
   run_rubymine
   [ "$status" -eq 0 ]
-  grep -q 'https://download.jetbrains.com/ruby/RubyMine-2026.2.4.tar.gz' "$T/calls"
-  grep -q "^tar .* -C $RUBYMINE_INSTALL_DIR --strip-components=1" "$T/calls"
-  [ -L "$RUBYMINE_BIN_DIR/rubymine" ]
-  [ "$(readlink "$RUBYMINE_BIN_DIR/rubymine")" = "$RUBYMINE_INSTALL_DIR/bin/rubymine.sh" ]
-  [ -f "$RUBYMINE_APPS_DIR/jetbrains-rubymine.desktop" ]
-  grep -q "Exec=\"$RUBYMINE_INSTALL_DIR/bin/rubymine.sh\" %f" "$RUBYMINE_APPS_DIR/jetbrains-rubymine.desktop"
-  grep -q "Icon=$RUBYMINE_INSTALL_DIR/bin/rubymine.svg" "$RUBYMINE_APPS_DIR/jetbrains-rubymine.desktop"
+  grep -q '^dnf info rubymine' "$T/calls"
+  grep -q '^sudo dnf install -y rubymine' "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+  ! grep -q 'rubymine-fetch' "$T/calls"
+}
+
+@test "falls back to rubymine-fetch when package is not in dnf repository" {
+  run_rubymine
+  [ "$status" -eq 0 ]
+  grep -q '^dnf info rubymine' "$T/calls"
+  grep -q "^sudo $T/yadm/scripts/rubymine-fetch" "$T/calls"
   [[ $output == *"✓ RubyMine IDE"* ]]
 }
 
-@test "fails with exit 1 when tarball download fails" {
-  export CURL_FAIL=1
+@test "falls back to rubymine-fetch when dnf install fails" {
+  export DNF_HAS_RUBYMINE=1
+  export DNF_INSTALL_FAIL=1
+  run_rubymine
+  [ "$status" -eq 0 ]
+  grep -q '^dnf info rubymine' "$T/calls"
+  grep -q '^sudo dnf install -y rubymine' "$T/calls"
+  grep -q "^sudo $T/yadm/scripts/rubymine-fetch" "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+}
+
+@test "falls back to rubymine-fetch when dnf is not present" {
+  rm -f "$T/bin/dnf"
+  run_rubymine
+  [ "$status" -eq 0 ]
+  ! grep -q '^dnf ' "$T/calls"
+  grep -q "^sudo $T/yadm/scripts/rubymine-fetch" "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+}
+
+@test "respects RUBYMINE_FETCH_PATH override" {
+  custom_fetch="$T/custom-rubymine-fetch"
+  printf '#!/bin/sh\nexit 0\n' >"$custom_fetch"
+  chmod +x "$custom_fetch"
+  export RUBYMINE_FETCH_PATH="$custom_fetch"
+
+  run_rubymine
+  [ "$status" -eq 0 ]
+  grep -q "^sudo $custom_fetch" "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+}
+
+@test "falls back to WorkspaceV3 path when bundled rubymine-fetch is absent" {
+  rm -f "$T/yadm/scripts/rubymine-fetch"
+  ws_fetch="$T/ws-rubymine-fetch"
+  printf '#!/bin/sh\nexit 0\n' >"$ws_fetch"
+  chmod +x "$ws_fetch"
+  export SYNCOPATED_RUBYMINE_WORKSPACE_FETCH="$ws_fetch"
+
+  run_rubymine
+  [ "$status" -eq 0 ]
+  grep -q "^sudo $ws_fetch" "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+}
+
+@test "falls back to rubymine-fetch in PATH when other paths are absent" {
+  rm -f "$T/yadm/scripts/rubymine-fetch"
+  export SYNCOPATED_RUBYMINE_WORKSPACE_FETCH="$T/nonexistent"
+  stub rubymine-fetch 'exit 0'
+
+  run_rubymine
+  [ "$status" -eq 0 ]
+  grep -q "^sudo $T/bin/rubymine-fetch" "$T/calls"
+  [[ $output == *"✓ RubyMine IDE"* ]]
+}
+
+@test "fails with exit 1 when rubymine is not in dnf and rubymine-fetch cannot be found" {
+  rm -f "$T/yadm/scripts/rubymine-fetch"
+  export SYNCOPATED_RUBYMINE_WORKSPACE_FETCH="$T/nonexistent"
+
+  run_rubymine
+  [ "$status" -eq 1 ]
+  [[ $output == *"✗ RubyMine IDE"* ]]
+  [[ $output == *"Could not find rubymine-fetch"* ]]
+}
+
+@test "fails with exit 1 when rubymine-fetch fails" {
+  export SUDO_FAIL=1
   run_rubymine
   [ "$status" -eq 1 ]
   [[ $output == *"✗ RubyMine IDE"* ]]
 }
 
-@test "fails with exit 1 when tar extraction fails" {
-  export TAR_FAIL=1
-  run_rubymine
-  [ "$status" -eq 1 ]
-  [[ $output == *"✗ RubyMine IDE"* ]]
-}
-
-@test "master bootstrap registers rubymine step" {
+@test "master bootstrap registers rubymine step and recognizes needs-sudo" {
   cp "$YADM_SRC/bootstrap" "$T/yadm/"
   printf 'NAME="Fedora Linux"\nVERSION_ID=43\n' >"$T/os-release"
   export SYNCOPATED_OS_RELEASE=$T/os-release
   printf '/usr/bin/zsh' >"$T/shell"
   stub yadm 'echo "yadm $*" >>"$T/calls"; exit 0'
-  stub sudo 'echo "sudo $*" >>"$T/calls"; exit 0'
   stub getent 'echo "tester:x:1000:1000::/home/tester:$(cat "$T/shell")"'
   stub zsh 'true'
   stub j2 'true'
   stub uv 'echo "uv $*" >>"$T/calls"'
 
+  # Verify header declaration
+  grep -q '^# bootstrap: needs-sudo' "$T/yadm/bootstrap.d/85-rubymine.sh"
+
+  export SYNCOPATED_FORCE_INTERACTIVE=1
   run bash "$T/yadm/bootstrap" --only=rubymine </dev/null
   [ "$status" -eq 0 ]
   [[ $output == *"rubymine (ok)"* ]]
+  grep -q '^sudo -v' "$T/calls"
 }

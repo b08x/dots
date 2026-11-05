@@ -1,0 +1,160 @@
+#!/bin/sh
+# rubymine-fetch -- download and integrate JetBrains RubyMine.
+#
+# Packager-authored file of the rubymine RPM. The RPM deliberately ships
+# no JetBrains bits: this helper fetches the official RubyMine archive
+# from JetBrains on the end-user machine and places it under /opt/rubymine,
+# so completing the download means the end user accepts the JetBrains
+# Tools User Agreement directly with JetBrains.
+#
+# The RPM install scriptlet runs this helper. Re-running it by hand as
+# root is safe and is the recovery path after a failed download: a
+# matching installed build skips the download entirely, an older or newer
+# installed tree is refreshed through a staging directory and a clean
+# directory swap, and a partial download is RESUMED across attempts
+# rather than restarted from zero (the checksum check of the completed
+# file is the integrity authority, which makes resume safe).
+#
+# Exit codes: nonzero on failure when run interactively. The package
+# post scriptlet deliberately swallows the code (warn-and-continue), so
+# one machine-side failure never rolls back the installed package -- but
+# scripts calling this helper directly still see the real code.
+
+set -eu
+
+URL="https://download.jetbrains.com/ruby/RubyMine-2026.2.4.tar.gz"
+SHA256="664f742cfd301a055c3bbc4ffc7de22ef132ddf559259ba8171d929fdc460f4a"
+BUILD="RM-262.11879.97"
+SOURCE_TOP="RubyMine-2026.2.4"
+
+DEST=/opt/rubymine
+NEW=/opt/rubymine.new
+OLD=/opt/rubymine.old
+TARBALL="$NEW/${SOURCE_TOP}.staged-download.tar.gz"
+STAGE="$NEW/staged"
+
+die() {
+    echo "rubymine-fetch: $*" >&2
+    echo "rubymine-fetch: nothing has been changed on disk yet; the" >&2
+    echo "rubymine-fetch: staged partial download is kept for resume." >&2
+    echo "rubymine-fetch: retry this command as root to continue." >&2
+    exit 1
+}
+
+installed_matches() {
+    [ -f "$DEST/build.txt" ] && grep -qx "$BUILD" "$DEST/build.txt"
+}
+
+integrate() {
+    # Launcher on the PATH.
+    ln -sfn "$DEST/bin/rubymine" /usr/bin/rubymine
+
+    # Menu icons from the downloaded tree: the vector icon goes to the
+    # scalable slot; the raster icon goes to the slot its PNG header
+    # actually declares (bytes 16..23 hold the big-endian width/height).
+    install -D -m 0644 "$DEST/bin/rubymine.svg" \
+        /usr/share/icons/hicolor/scalable/apps/rubymine.svg
+    # shellcheck disable=SC2046
+    set -- $(od -An -tu1 -j16 -N8 "$DEST/bin/rubymine.png")
+    w=$(( ($1 << 24) + ($2 << 16) + ($3 << 8) + $4 ))
+    h=$(( ($5 << 24) + ($6 << 16) + ($7 << 8) + $8 ))
+    [ "$w" -eq "$h" ] || die "raster icon is ${w}x${h}, expected square"
+    # shellcheck disable=SC2194
+    case " 16 22 24 32 36 40 48 64 72 96 128 192 256 512 " in
+        *" $w "*)
+            ;;
+        *)
+            die "raster icon size ${w}x${h} is not a standard hicolor size"
+            ;;
+    esac
+    install -D -m 0644 "$DEST/bin/rubymine.png" \
+        "/usr/share/icons/hicolor/${w}x${h}/apps/rubymine.png"
+
+    # Cache refreshes are best-effort: the tools may be absent, and the
+    # caches rebuild on demand anyway.
+    /usr/bin/update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+    gtk-update-icon-cache -q -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || true
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+    die "must run as root (writes under /opt, the icon paths and the PATH link)"
+fi
+
+if installed_matches; then
+    # The matching build is already in place (a repeated install or an
+    # upgrade): no download, only re-assert the integration artifacts.
+    echo "rubymine-fetch: matching build $BUILD already present under $DEST; skipping the download."
+    integrate
+    exit 0
+fi
+
+# Fetch into the staging area. The staged tarball is deliberately KEPT
+# across failed attempts: the continue-at mode below resumes it. The
+# transfer always goes through the stable base URL so every attempt
+# receives a fresh redirect to the CDN -- the signed target URLs are
+# time-limited and must not be reused or cached. Only the extracted
+# staging tree of a failed attempt is discarded, by the exit trap below.
+mkdir -p "$NEW"
+rm -rf "$STAGE"
+mkdir -p "$STAGE" || die "cannot create the staged extraction directory $STAGE"
+trap 'rm -rf "$STAGE"' EXIT
+
+echo "rubymine-fetch: fetching RubyMine 2026.2.4 from JetBrains (about 1.1 GB; resumes a partial download if one is staged)..."
+
+# Transfer hardening (field evidence: a transient TLS record failure on
+# the CDN redirect target killed the release-one fetch mid-transfer):
+#   --fail --location      keep an HTTP error from being saved as a file,
+#                          follow the signed redirect each attempt.
+#   --continue-at -        resume the staged partial; the checksum check
+#                          at the end stays the integrity authority.
+#   --retry 5              retry transient failures.
+#   --retry-all-errors     plain retry mode does not class a TLS record
+#                          error as transient in the curl line shipping
+#                          with the targets, so every error is retried.
+#   --retry-delay 5        pause between attempts, no exponential growth.
+#   --speed-limit with --speed-time   abort a stalled transfer (slower
+#                          than ten kilobytes per second for a minute)
+#                          into the retry path instead of hanging.
+curl --fail --location --continue-at - \
+    --retry 5 --retry-delay 5 --retry-all-errors \
+    --speed-limit 10240 --speed-time 60 \
+    --connect-timeout 30 \
+    -o "$TARBALL" "$URL" \
+    || die "download from download.jetbrains.com failed after retries"
+
+actual=$(sha256sum "$TARBALL" | cut -d' ' -f1)
+if [ "$actual" != "$SHA256" ]; then
+    # A resumed archive that fails its checksum is corrupt: drop it so
+    # the next attempt starts clean instead of resuming garbage.
+    rm -f "$TARBALL"
+    die "checksum mismatch: expected $SHA256, got $actual -- not installing an unverified archive"
+fi
+
+tar -xzf "$TARBALL" -C "$STAGE" --strip-components=1 \
+    || die "cannot unpack the downloaded archive"
+
+grep -qx "$BUILD" "$STAGE/build.txt" \
+    || die "the unpacked tree is not the pinned build $BUILD"
+[ -x "$STAGE/bin/rubymine" ] || die "the unpacked tree has no runnable launcher"
+
+# Free the staged archive before the swap.
+rm -f "$TARBALL"
+
+# Deterministic swap scheme: the previous tree (if any) stays aside until
+# the new one is in place, then it is removed; no backup leftovers.
+if [ -d "$DEST" ]; then
+    rm -rf "$OLD"
+    mv "$DEST" "$OLD" || die "cannot move the existing tree aside ($DEST to $OLD)"
+fi
+if ! mv "$STAGE" "$DEST"; then
+    if [ -d "$OLD" ]; then
+        mv "$OLD" "$DEST"
+    fi
+    die "cannot move the new tree into place under /opt"
+fi
+rm -rf "$OLD"
+rm -rf "$NEW"
+
+integrate
+
+echo "rubymine-fetch: RubyMine 2026.2.4 ($BUILD) is installed under $DEST."

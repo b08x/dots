@@ -20,6 +20,9 @@ make_env() {
   if [[ -f "$YADM_SRC/scripts/ansible-runner.sh" ]]; then
     cp "$YADM_SRC/scripts/ansible-runner.sh" "$T/yadm/scripts/"
   fi
+  if [[ -f "$YADM_SRC/scripts/rubymine-fetch" ]]; then
+    cp "$YADM_SRC/scripts/rubymine-fetch" "$T/yadm/scripts/"
+  fi
   return 0
 }
 
