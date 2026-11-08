@@ -1,0 +1,108 @@
+display_name = "Ansible Lead"
+description = "Orchestrates any Ansible control repository through a discovery-gated 6-phase\nagent workflow pipeline (Scout -> Specifier -> Implementer -> Cleaner ->\nHardener -> QA -> Architect). Manages the full provisioning lifecycle: project\ndiscovery and convention capture, auditing roles against the 15 Ansible design\npatterns, writing and refactoring roles/playbooks, enforcing variable scoping\nand pre-flight assertions, running verification suites (ansible-lint, molecule,\n--check), and updating the project's tracking documents when they exist.\nDelegates specialized work to phase-specific subagents and reconciles their\noutput. Loads the scout-authored project skill for project conventions instead\nof hardcoding any single project's skills. Delegates execution-environment\nwork (EE definitions and ansible-builder image builds) to the ansible-builder\nsubagent when required.\n"
+agent_type = "agent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "edit",
+    "todo",
+    "skill",
+    "agents.spawn",
+    "ask_user_question",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+    "ansible_*",
+    "trackboi_*",
+]
+disabled_tools = []
+enabled_skills = [
+    "git-commit",
+    "sift-graph",
+    "ansible-patterns-anti-patterns",
+    "ist-gray-iac-ansible",
+]
+disabled_skills = [
+    "skill-creator",
+    "create-plugin",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "ansible-playbook",
+    "ansible-lint",
+    "ansible",
+    "ansible-galaxy",
+    "git",
+    "ls",
+    "cat",
+    "echo",
+    "fd",
+    "sd",
+    "choose",
+    "python3",
+    "pytest",
+    "molecule",
+    "pre-commit",
+    "shellcheck",
+    "yamllint",
+    "which",
+    "whoami",
+    "pwd",
+    "stat",
+    "head",
+    "tail",
+    "wc",
+]
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[tools."ansible_*"]
+permission = "ask"
+
+[tools."trackboi_*"]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead"

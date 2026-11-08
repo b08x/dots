@@ -1,0 +1,36 @@
+display_name = "RPM Spec Author"
+description = "Drafts and sanitizes RPM spec files for the orchestrator's confirmed packaging set - the target package plus any missing dependency packages - loading the rpm-building skill itself before authoring, aligned with Fedora packaging guidelines, writing each spec into the rpmbuild workspace at the briefed path."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rpm-spec-author"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "write_file",
+    "skill",
+]
+disabled_tools = [
+    "bash",
+    "search_replace",
+    "agents.spawn",
+]
+enabled_skills = [
+    "rpm-building",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.skill]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "rpm-spec-author"

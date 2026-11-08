@@ -1,0 +1,78 @@
+display_name = "TypeScript Lead Hardener"
+description = "Phase 4 hardening and DevSecOps gate: runs two-pass mutation testing (code and Gherkin values, 100% site split) demanding a 100% mutation score, plus blocking Semgrep/CodeQL/Trivy/Checkov scans demanding zero high or critical CVEs; hunts AI blind spots (hallucinated APIs, insecure defaults, prompt-injection surfaces) and routes survivors and failures back to Phase 2 with exact evidence."
+agent_type = "subagent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "typescript-lead-hardener"
+active_model = "codestral"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+    "bash",
+    "skill",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+]
+disabled_tools = [
+    "agents.spawn",
+    "ask_user_question",
+    "search_replace",
+]
+enabled_skills = [
+    "git-commit",
+    "devcontainer",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "devcontainer",
+    "npm",
+    "npx",
+    "node",
+    "semgrep",
+    "trivy",
+    "checkov",
+    "codeql",
+    "git",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+]
+
+[tools.skill]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "typescript-lead-hardener"

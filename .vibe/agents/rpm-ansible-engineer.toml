@@ -1,0 +1,57 @@
+display_name = "RPM Ansible Engineer"
+description = "Manages the Ansible side of the RPM pipeline in the rpmbuild workspace for the orchestrator: creates the per-RPM plan files in roles/packages/defaults/, mirrors them into the rpm_pipeline__* variable family in roles/packages/defaults/main.yml, authors the per-RPM pipeline playbooks in playbooks/ driving the packages role stages (sources, spec workspace, build, publish), validates them with ansible-playbook --syntax-check and ansible-lint, and consults the Ansible documentation via the context7 MCP tools (library_id /ansible/ansible-documentation)."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rpm-ansible-engineer"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "write_file",
+    "bash",
+    "context7_resolve-library-id",
+    "context7_get-library-docs",
+]
+disabled_tools = [
+    "agents.spawn",
+    "search_replace",
+    "skill",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "ls",
+    "cat",
+    "echo",
+    "head",
+    "tail",
+    "wc",
+    "find",
+    "ansible",
+    "ansible-playbook",
+    "ansible-lint",
+    "ansible-galaxy",
+    "yamllint",
+    "pre-commit",
+]
+
+[tools.context7_resolve-library-id]
+permission = "ask"
+
+[tools.context7_get-library-docs]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "rpm-ansible-engineer"

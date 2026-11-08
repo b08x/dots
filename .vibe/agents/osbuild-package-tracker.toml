@@ -1,0 +1,48 @@
+display_name = "Osbuild Package Tracker"
+description = "Performs every component-package concern in the Syncopated osbuild repository through scripts/package_tracker.py for the orchestrator: lists components per target, searches where a package lives, adds and removes packages with repo verification, selects the components a playbook builds from, authors brand-new component files for new concerns, and maintains Negativo 17 driver/CUDA/multimedia components while preserving repository override fragments; loads the package-tracker skill itself; never hand-edits a packages list."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "osbuild-package-tracker"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "write_file",
+    "skill",
+    "bash",
+]
+disabled_tools = [
+    "agents.spawn",
+    "search_replace",
+    "ask_user_question",
+]
+enabled_skills = [
+    "package-tracker",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.skill]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "git",
+    "python3 scripts/package_tracker.py",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "osbuild-package-tracker"

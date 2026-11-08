@@ -1,0 +1,54 @@
+display_name = "Osbuild Intent Architect"
+description = "Turns an image brief from the orchestrator into a validated intent profile (profiles/<name>.yml copied from the closest committed example) in the Syncopated osbuild repository, then generates the image-builder blueprint <name>.toml and build script build-<name>.sh, gated on intent schema validation, component-existence checks, shellcheck, and ansible-lint; handles Negativo 17 driver stack, CUDA, and multimedia component merging, CUDA volume sizing, and DNF repository override drop-in verification; loads the image-intent skill itself; never builds."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "osbuild-intent-architect"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "write_file",
+    "skill",
+    "bash",
+]
+disabled_tools = [
+    "agents.spawn",
+    "search_replace",
+    "ask_user_question",
+]
+enabled_skills = [
+    "image-intent",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.skill]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "cp",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+    "git",
+    "python3 -m pytest tests/test_intent.py",
+    "python3 scripts/package_tracker.py",
+    "ansible-playbook playbooks/build.yml",
+    "ansible-lint",
+    "shellcheck",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "osbuild-intent-architect"

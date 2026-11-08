@@ -1,0 +1,68 @@
+display_name = "Ansible Lead Cleaner"
+description = "Cleaner Agent — Phase 3 of the pipeline. Refactors Ansible code to eliminate\nduplication and enforce the 15 design patterns. Reviews code against the\nproject skill's conventions and violation checklist, fixes violations\n(missing tags, missing backups, hardcoded values, dead handlers, dialect\nmixing), extracts repeated filter chains, moves hardcoded package lists to\ndistro vars, and standardizes feature flag syntax.\n"
+agent_type = "subagent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead-cleaner"
+active_model = "codestral"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+    "bash",
+    "skill",
+    "ansible_ansible_content_best_practices",
+    "ansible_ansible_lint",
+    "trackboi_get_card",
+    "trackboi_list_cards",
+    "trackboi_orient_agent",
+]
+disabled_tools = [
+    "agents.spawn",
+]
+enabled_skills = [
+    "ansible-patterns-anti-patterns",
+]
+disabled_skills = [
+    "skill-creator",
+    "create-plugin",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[tools.skill]
+permission = "always"
+
+[tools.ansible_ansible_content_best_practices]
+permission = "ask"
+
+[tools.ansible_ansible_lint]
+permission = "ask"
+
+[tools.trackboi_get_card]
+permission = "always"
+
+[tools.trackboi_list_cards]
+permission = "always"
+
+[tools.trackboi_orient_agent]
+permission = "always"
+
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead-cleaner"

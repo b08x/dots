@@ -1,0 +1,27 @@
+# ~/.vibe/agents/sfl-annotator.toml
+# Profile fields: display_name, description, safety, agent_type (default
+# "agent"), instructions. Everything else is a config override.
+# NOTE: agent_type is intentionally omitted. Omitting it (default "agent")
+# makes this agent usable via `vibe --agent sfl-annotator`; setting it to
+# "subagent" would make it spawn-only via agentType and --agent would reject it.
+display_name = "SFL Annotator"
+description = """
+Pass 2 metafunction annotator for the SFL NLP pipeline. Receives an utterance
+plus deterministic Pass 1 analysis (participants, processes, circumstances) and
+returns strict-taxonomy Interpersonal and Textual metafunction annotations as
+JSON. Input comes from the calling agent; output is the annotation JSON only.
+"""
+safety = "safe"
+system_prompt_id = "sfl-annotator"
+
+# enabled_tools is an allowlist (glob patterns). An EMPTY list means "no
+# restriction", not "no tools" — so allow only the skill tool, which the agent
+# uses to load the sfl-metafunction-annotation taxonomy.
+enabled_tools = ["skill"]
+
+# Belt-and-braces: the tool exclusions requested at creation time.
+disabled_tools = ["write_file", "search_replace", "bash", "task"]
+
+[session_logging]
+enabled = true
+session_prefix = "sfl-annotator"

@@ -1,0 +1,41 @@
+display_name = "RPM Dependency Scout"
+description = "Scans the upstream project sources (cloned into the rpmbuild workspace at /home/b08x/WorkspaceV3/Syncopated/rpmbuild) to scope build and runtime dependencies for the orchestrator, checking each against target-distro repositories with dnf repoquery and flagging missing dependencies that need their own spec files."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rpm-dependency-scout"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+    "find",
+    "rpm",
+    "rpmspec",
+    "dnf",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "rpm-dependency-scout"

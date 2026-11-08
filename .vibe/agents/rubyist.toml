@@ -1,0 +1,17 @@
+display_name = "Rubyist"
+description = "The Rubyist. Orchestrator for Ruby development — the entry point for Ruby tasks spanning multiple concerns. Runs as the main-thread agent (vibe --agent rubyist) or via the /rubyDev:ruby-development skill. Routes work through five phase subagents and synthesizes their reports."
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rubyist"
+enabled_tools = []
+disabled_tools = [
+    "write_file",
+    "edit",
+    "search_replace",
+    "skill",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "rubyist"

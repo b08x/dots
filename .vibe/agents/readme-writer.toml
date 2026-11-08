@@ -1,0 +1,33 @@
+display_name = "Readme Writer"
+description = "Rewrites the project README by applying both style-judge reports, producing the final styled README text."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "readme-writer"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+]
+disabled_tools = []
+enabled_skills = [
+    "writing-for-software-developers",
+    "hofstadter-geb",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "readme-writer"

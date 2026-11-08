@@ -1,0 +1,76 @@
+display_name = "TypeScript Lead Implementer"
+description = "Phase 2 implementation: authors production TypeScript and unit tests in the isolated worktree via a red-green loop until 100% of the Gherkin scenarios and unit tests pass, holding cyclomatic complexity at or below 4 per function, honoring specifier-marked trust boundaries and protected paths, and running the gitleaks secret guard before every handoff."
+agent_type = "subagent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "typescript-lead-implementer"
+active_model = "codestral"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+    "bash",
+    "skill",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+]
+disabled_tools = [
+    "agents.spawn",
+    "ask_user_question",
+    "search_replace",
+]
+enabled_skills = [
+    "git-commit",
+    "devcontainer",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "devcontainer",
+    "npm",
+    "npx",
+    "node",
+    "git",
+    "env",
+    "which",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+]
+
+[tools.skill]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "typescript-lead-implementer"

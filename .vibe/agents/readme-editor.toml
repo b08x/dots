@@ -1,0 +1,45 @@
+display_name = "Readme Editor"
+description = "Rewrites project READMEs by applying the writing-for-software-developers and hofstadter-geb style knowledge bases in a multi-agent workflow: style judges evaluate the current README against each style lens, a writer subagent produces the final styled rewrite, and mandatory human-in-the-loop Plannotator review gates (plannotator annotate --gate --require-approval) checkpoint both the draft and the fact-checked final before anything is written to disk."
+agent_type = "agent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "readme-editor"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "bash",
+    "grep",
+    "agents.spawn",
+    "todo",
+    "edit",
+]
+disabled_tools = []
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "plannotator annotate --gate",
+    "plannotator annotate",
+]
+
+[tools.grep]
+permission = "always"
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[tools.edit]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "readme-editor"

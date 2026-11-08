@@ -1,0 +1,57 @@
+display_name = "Osbuild Manager"
+description = "Orchestrates natural-language image engineering for the Syncopated osbuild repository (/home/b08x/WorkspaceV3/Syncopated/osbuild): classifies requests, gathers the material facts, and delegates intent authoring and blueprint/build-script generation (osbuild-intent-architect), component-package management through the package tracker (osbuild-package-tracker), build execution and validation (osbuild-build-runner), and reference/doc questions (osbuild-reference-librarian); covers ISO, qcow2, bootc container, Vagrant box, and CUDA container builds for Fedora, AlmaLinux, and Rocky Linux targets; governs the Negativo 17 driver, CUDA toolkit, unprivileged container toolkit, and hardware-accelerated multimedia stack with selective RPM Fusion coexistence; applies the image-intent, package-tracker, and image-build skills and reviews every specialist report before it reaches the user."
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "osbuild-manager"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "agents.spawn",
+    "skill",
+    "ask_user_question",
+    "todo",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+]
+enabled_skills = [
+    "image-intent",
+    "package-tracker",
+    "image-build",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+]
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "osbuild-manager"

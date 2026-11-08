@@ -1,0 +1,36 @@
+display_name = "Ansible Lead Specifier"
+description = "Specifier Agent — Phase 1 of the pipeline. Translates requirements into\nrole/playbook designs, variable schemas (Tier 1/Tier 2 scoping per the\nproject skill), and Gherkin-style acceptance criteria. Produces design\ndocuments and testable acceptance checklists. Writes no implementation code.\n"
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead-specifier"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "bash",
+    "ansible_ansible_content_best_practices",
+]
+disabled_tools = [
+    "edit",
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[tools.ansible_ansible_content_best_practices]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead-specifier"

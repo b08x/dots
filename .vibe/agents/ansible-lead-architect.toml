@@ -1,0 +1,56 @@
+display_name = "Ansible Lead Architect"
+description = "Architect Agent — Phase 6 of the pipeline. Audits the change against the 15\npatterns using the project skill's conventions. Verifies dependency direction\n(roles don't import from other roles' internals), variable scoping (Tier 1\nunprefixed, Tier 2 role-prefixed), tag coverage, firewall data-drivenness,\nand layer boundary compliance. Assesses cross-role blast radius and updates\nthe project's tracking documents (goals/ or equivalent) when present.\n"
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead-architect"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "bash",
+    "edit",
+    "ansible_ansible_content_best_practices",
+    "ansible_ansible_lint",
+    "trackboi_get_card",
+    "trackboi_list_cards",
+    "trackboi_orient_agent",
+]
+disabled_tools = [
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.ansible_ansible_content_best_practices]
+permission = "ask"
+
+[tools.ansible_ansible_lint]
+permission = "ask"
+
+[tools.trackboi_get_card]
+permission = "always"
+
+[tools.trackboi_list_cards]
+permission = "always"
+
+[tools.trackboi_orient_agent]
+permission = "always"
+
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead-architect"

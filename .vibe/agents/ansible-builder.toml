@@ -1,0 +1,68 @@
+# ansible-builder — Cross-cutting subagent: execution environments (EE) via ansible-builder
+
+display_name = "Ansible Builder"
+description = """
+Builder Agent — cross-cutting delegate of the Ansible Lead. Authors, repairs,
+builds, and verifies Ansible execution environments (EE) with ansible-builder:
+execution-environment.yml (version 3 definition), galaxy/python/system
+dependency files (requirements.yml, requirements.txt, bindep.txt),
+additional_build_files and additional_build_steps, then `ansible-builder
+create` (Containerfile + build context only) and `ansible-builder build`
+(full image build with podman or docker). Upstream usage is referenced through
+the Context7 library /ansible/ansible-builder; the ansible-builder skill
+carries the definition schema and CLI reference. Loads that skill on demand.
+"""
+agent_type = "subagent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-builder"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+    "bash",
+    "skill",
+]
+disabled_tools = [
+    "agents.spawn",
+]
+enabled_skills = [
+    "ansible-builder",
+]
+disabled_skills = []
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "ansible-builder",
+    "podman",
+    "docker",
+    "ansible-navigator",
+    "cat",
+    "ls",
+    "which",
+    "head",
+    "tail",
+    "wc",
+    "stat",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-builder"

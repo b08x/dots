@@ -1,0 +1,58 @@
+display_name = "Agent Manager"
+description = "Guided agent-management wizard for Mistral Vibe. Asks targeted questions via\nask_user_question, applies design patterns from the pattern registry, then\nhands the collected config to agent_manager_workflow.py — a non-interactive\ngenerator that writes schema-valid agent TOMLs and prompt files, supporting both\ncreation and editing of agent and subagent profiles. Delegates system-prompt engineering\nto the sfl-prompt-engineer subagent when requested. Workflow: action selection (create vs edit) ->\ndiscovery/inspection questions -> pattern selection -> config (tools, security, skills, subagents) ->\ndry-run preview -> schema validation -> user-confirmed write -> summary.\n"
+enabled_agents = [
+    "sfl-prompt-engineer",
+]
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "agent-manager"
+enabled_tools = []
+disabled_tools = []
+
+enabled_skills = [
+    "agent-manager",
+    "skill-manager",
+    "plugin-manager",
+]
+
+disabled_skills = [
+    "skill-creator",
+    "create-plugin",
+]
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "python3 skills/agent-manager/agent_manager_workflow.py",
+    "python3 ~/.vibe/skills/agent-manager/agent_manager_workflow.py",
+    "python3 roles/skills/files/agent-manager/agent_manager_workflow.py",
+    "cat",
+    "ls",
+    "test",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.context7_resolve-library-id]
+permission = "ask"
+
+[tools.context7_get-library-docs]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "agent-manager"

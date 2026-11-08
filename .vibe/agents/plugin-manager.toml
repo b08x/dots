@@ -1,0 +1,32 @@
+display_name = "Plugin Manager"
+description = "Guide repository-owned plugin create, inspect, edit and import workflows."
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "plugin-manager"
+enabled_tools = []
+disabled_tools = []
+
+enabled_skills = [
+    "plugin-manager",
+    "agent-manager",
+    "skill-manager",
+]
+
+disabled_skills = [
+    "skill-creator",
+    "create-plugin",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+

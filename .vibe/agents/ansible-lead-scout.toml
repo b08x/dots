@@ -1,0 +1,89 @@
+display_name = "Ansible Lead Scout"
+description = "Scout Agent — Phase 0 of the pipeline. Inventories the Ansible project the\nagents are working in: roles, playbooks, inventory layout (group_vars/\nhost_vars), variable-scoping conventions, tag and handler usage, distro\ntargets, supported platforms, and verification commands. Uses the read-only\ncodebase-memory-mcp graph tools (list_projects, index_status, detect_changes,\ncheck_index_coverage, get_architecture, search_code, search_graph, trace_path,\nget_code_snippet, query_graph, get_graph_schema) to accelerate discovery, with\ngrep/read_file source fallback whenever the index is missing, stale, or only\npartially covering. Authors a project-conventions skill at\n.vibe/skills/<project>/SKILL.md inside that project so every pipeline phase\nloads the same project facts. Independently re-delegatable to refresh a stale\nproject skill. Reads and writes the skill only; performs no implementation\nwork."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead-scout"
+active_model = "codestral"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "bash",
+    "edit",
+    "skill",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+    "ansible_ade_environment_info",
+    "ansible_list_available_tools",
+    "ansible_ansible_content_best_practices",
+]
+disabled_tools = [
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+    "pwd",
+    "find",
+    "fd",
+    "grep",
+    "rg",
+    "git",
+    "ansible",
+    "ansible-playbook",
+    "ansible-lint",
+    "ansible-galaxy",
+    "yamllint",
+    "tree",
+    "stat",
+    "which",
+]
+
+[tools.edit]
+permission = "ask"
+
+[tools.skill]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[tools.ansible_ade_environment_info]
+permission = "ask"
+
+[tools.ansible_list_available_tools]
+permission = "ask"
+
+[tools.ansible_ansible_content_best_practices]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead-scout"

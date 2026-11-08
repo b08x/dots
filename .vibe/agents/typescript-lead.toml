@@ -1,0 +1,74 @@
+display_name = "TypeScript Lead"
+description = "Orchestrates the six-phase TypeScript development pipeline (SwarmForge substrate): Specification -> Implementation -> Cleaning -> Hardening -> QA -> Architecture. Classifies each request, manages the per-phase Git worktree topology, delegates phase work to specialist subagents (typescript-lead-specifier, -implementer, -cleaner, -hardener, -qa, -architect), enforces the quantitative gates (100% PRD/Gherkin/STRIDE traceability with a mandatory human checkpoint, 100% unit and Gherkin pass with CC <= 4, CRAP(m) <= 6, 100% mutation score with zero high/critical CVEs, 100% deterministic E2E with p95/p99 latency and zero DAST highs, zero illegal imports), routes failures back to the owning phase per the rollback protocol, and applies the Layer-3 merge policy and escalation triggers before anything merges. Reviews every phase report; never writes code, specs, or tests itself."
+agent_type = "agent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "typescript-lead"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "edit",
+    "todo",
+    "skill",
+    "agents.spawn",
+    "ask_user_question",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+]
+disabled_tools = [
+    "search_replace",
+]
+enabled_skills = [
+    "git-flow",
+    "git-commit",
+    "devcontainer",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+    "fd",
+]
+
+[tools.todo]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "typescript-lead"

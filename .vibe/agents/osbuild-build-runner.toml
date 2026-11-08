@@ -1,0 +1,49 @@
+display_name = "Osbuild Build Runner"
+description = "Drives image builds in the Syncopated osbuild repository for the orchestrator: checks the builder host (tinybot unless overridden), runs the non-interactive build recipe (ISO, qcow2, bootc container, Vagrant box, CUDA container) from a verified generated blueprint, watches asynchronous progress, fetches artifacts with just fetch, and runs the validation suites (just lint, shellcheck, firstboot injection, test_vm_install); validates Negativo 17 driver/CUDA/multimedia stack builds, akmods compilation, and graceful hardware fallback on non-NVIDIA GPUs (virtio_gpu/amdgpu/intel); loads the image-build skill itself; never builds from a missing or stale blueprint."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "osbuild-build-runner"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "skill",
+    "bash",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+    "agents.spawn",
+    "ask_user_question",
+]
+enabled_skills = [
+    "image-build",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "just",
+    "ansible-playbook",
+    "shellcheck",
+    "python3 -m pytest",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+    "git",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "osbuild-build-runner"

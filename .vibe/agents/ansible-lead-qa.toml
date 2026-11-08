@@ -1,0 +1,55 @@
+display_name = "Ansible Lead QA"
+description = "QA Agent — Phase 5 of the pipeline. Runs the full verification suite using the\ncommands recorded in the project skill: assert-tag check mode, ansible-lint,\nsyntax check, --check --diff dry run, molecule tests (per role with\nscenarios), and pre-commit where configured. Validates that all acceptance\ncriteria from the Specifier phase pass. Reports pass/fail with specific error\ndetails. Read-only — modifies no files.\n"
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "ansible-lead-qa"
+active_model = "mistral-medium-3.5"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "ansible_ansible_lint",
+    "ansible_ansible_navigator",
+    "ansible_ade_environment_info",
+    "trackboi_get_card",
+    "trackboi_list_cards",
+    "trackboi_orient_agent",
+]
+disabled_tools = [
+    "write_file",
+    "edit",
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[tools.ansible_ansible_lint]
+permission = "ask"
+
+[tools.ansible_ansible_navigator]
+permission = "ask"
+
+[tools.ansible_ade_environment_info]
+permission = "ask"
+
+[tools.trackboi_get_card]
+permission = "always"
+
+[tools.trackboi_list_cards]
+permission = "always"
+
+[tools.trackboi_orient_agent]
+permission = "always"
+
+
+[session_logging]
+enabled = true
+session_prefix = "ansible-lead-qa"

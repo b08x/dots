@@ -1,0 +1,86 @@
+display_name = "Readme Fact Checker"
+description = "Fact-check gate for the restyle workflow: verifies a README draft's technical claims (commands, paths, versions, architecture) against the actual codebase using codebase-memory graph tools, context7 docs, git metadata, and direct source reads; reports pass/fail findings before the rewrite is applied."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "readme-fact-checker"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+    "context7_resolve-library-id",
+    "context7_get-library-docs",
+    "codebase-memory-mcp_search_graph",
+    "codebase-memory-mcp_trace_path",
+    "codebase-memory-mcp_get_code_snippet",
+    "codebase-memory-mcp_query_graph",
+    "codebase-memory-mcp_get_architecture",
+    "codebase-memory-mcp_search_code",
+    "codebase-memory-mcp_get_graph_schema",
+    "codebase-memory-mcp_list_projects",
+    "codebase-memory-mcp_index_status",
+    "codebase-memory-mcp_detect_changes",
+    "codebase-memory-mcp_check_index_coverage",
+]
+disabled_tools = []
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git log",
+    "git show",
+    "git diff",
+    "git status",
+    "git branch",
+    "git remote",
+    "git rev-parse",
+]
+
+[tools.context7_resolve-library-id]
+permission = "ask"
+
+[tools.context7_get-library-docs]
+permission = "ask"
+
+[tools.codebase-memory-mcp_search_graph]
+permission = "ask"
+
+[tools.codebase-memory-mcp_trace_path]
+permission = "ask"
+
+[tools.codebase-memory-mcp_get_code_snippet]
+permission = "ask"
+
+[tools.codebase-memory-mcp_query_graph]
+permission = "ask"
+
+[tools.codebase-memory-mcp_get_architecture]
+permission = "ask"
+
+[tools.codebase-memory-mcp_search_code]
+permission = "ask"
+
+[tools.codebase-memory-mcp_get_graph_schema]
+permission = "ask"
+
+[tools.codebase-memory-mcp_list_projects]
+permission = "ask"
+
+[tools.codebase-memory-mcp_index_status]
+permission = "ask"
+
+[tools.codebase-memory-mcp_detect_changes]
+permission = "ask"
+
+[tools.codebase-memory-mcp_check_index_coverage]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "readme-fact-checker"

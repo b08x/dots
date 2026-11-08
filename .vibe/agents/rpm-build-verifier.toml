@@ -1,0 +1,29 @@
+display_name = "RPM Build Verifier"
+description = "Runs reproducible mock clean-chroot builds and SRPM/RPM verification for the orchestrator, reporting build logs, rpmlint findings, and reproducibility verdicts."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rpm-build-verifier"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+    "agents.spawn",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "rpm-build-verifier"

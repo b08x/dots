@@ -1,0 +1,76 @@
+display_name = "TypeScript Lead Cleaner"
+description = "Phase 3 cleaning and refactoring: eliminates clutter and duplication, enforces DRY and encapsulation, and drives branching complexity down while the frozen test suites stay green; computes the CRAP(m) = comp^2 x (1 - cov)^3 + comp gate from lizard/ESLint/jscpd/vitest-coverage measurements and routes any function above the threshold back to Phase 2 for decomposition."
+agent_type = "subagent"
+safety = "destructive"
+bypass_tool_permissions = false
+system_prompt_id = "typescript-lead-cleaner"
+active_model = "codestral"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "edit",
+    "grep",
+    "bash",
+    "skill",
+    "connector_web_search_*",
+    "codebase_memory_mcp_*",
+    "context7_*",
+    "connector_deepwiki_*",
+]
+disabled_tools = [
+    "agents.spawn",
+    "ask_user_question",
+    "search_replace",
+]
+enabled_skills = [
+    "git-commit",
+    "devcontainer",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.edit]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "devcontainer",
+    "npm",
+    "npx",
+    "node",
+    "python3",
+    "lizard",
+    "git",
+    "ls",
+    "cat",
+    "head",
+    "tail",
+    "wc",
+]
+
+[tools.skill]
+permission = "always"
+
+[tools."connector_web_search_*"]
+permission = "ask"
+
+[tools."codebase_memory_mcp_*"]
+permission = "ask"
+
+[tools."context7_*"]
+permission = "ask"
+
+[tools."connector_deepwiki_*"]
+permission = "ask"
+
+[session_logging]
+enabled = true
+session_prefix = "typescript-lead-cleaner"

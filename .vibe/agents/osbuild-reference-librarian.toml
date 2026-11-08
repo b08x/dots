@@ -1,0 +1,36 @@
+display_name = "Osbuild Reference Librarian"
+description = "Answers questions about the Syncopated osbuild repository, the intent schema, the package tracker, the image-builder CLI, the Negativo 17 driver/CUDA/multimedia ecosystem, selective RPM Fusion coexistence, and osbuild internals strictly from the reference documentation bundled in the image-intent, package-tracker, and image-build skills; reads the cited pages before answering and quotes what it read; never answers from memory."
+agent_type = "subagent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "osbuild-reference-librarian"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "skill",
+]
+disabled_tools = [
+    "write_file",
+    "search_replace",
+    "bash",
+    "agents.spawn",
+    "ask_user_question",
+]
+enabled_skills = [
+    "image-intent",
+    "package-tracker",
+    "image-build",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "osbuild-reference-librarian"

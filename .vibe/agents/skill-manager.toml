@@ -1,0 +1,39 @@
+display_name = "Skill Manager"
+description = "Guide repository-owned skill create, inspect, edit and import workflows."
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "skill-manager"
+enabled_tools = []
+
+disabled_tools = []
+
+enabled_skills = [
+    "skill-manager",
+]
+
+disabled_skills = [
+    "skill-creator",
+    "create-plugin",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools.context7_resolve-library-id]
+permission = "ask"
+
+[tools.context7_get-library-docs]
+permission = "ask"
+
+[tools.connector_deepwiki_ask_wiki_question]
+permission = "ask"

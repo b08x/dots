@@ -1,0 +1,16 @@
+agent_type = "subagent"
+display_name = "Codebase Memory Scout"
+description = "Fast positive, provisional graph lookup with check_index_coverage and source read/grep fallback."
+safety = "safe"
+system_prompt_id = "codebase-memory-scout"
+enabled_tools = [
+    "read_file",
+    "grep_search",
+    "codebase_memory_mcp_search_graph",
+    "codebase_memory_mcp_trace_path",
+    "codebase_memory_mcp_get_code_snippet",
+    "codebase_memory_mcp_get_architecture",
+    "codebase_memory_mcp_list_projects",
+    "codebase_memory_mcp_index_status",
+    "codebase_memory_mcp_check_index_coverage",
+]

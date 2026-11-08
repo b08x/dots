@@ -1,0 +1,13 @@
+display_name = "NotebookLM Assessment Evaluator"
+description = "Answers notebooklm-py DSPy evaluation prompts: claim detection, fact-check validity, the four SIFT moves (Stop, Investigate the source, Find better coverage, Trace claims), and audio overview scoring. Replies strictly in the DSPy field format; writes tool calls as text and never runs tools."
+agent_type = "subagent"
+safety = "safe"
+bypass_tool_permissions = false
+system_prompt_id = "notebooklm-assessment-evaluator"
+disabled_tools = [
+    "*",
+]
+
+[session_logging]
+enabled = true
+session_prefix = "notebooklm-assessment-evaluator"

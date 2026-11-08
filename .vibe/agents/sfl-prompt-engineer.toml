@@ -1,0 +1,27 @@
+display_name = "SFL Prompt Engineer"
+description = "Linguistically-grounded prompt engineering using SFL (Field, Tenor, Mode), situated in the mistral-vibe repository (/home/b08x/WorkspaceV3/Syncopated/mistral-vibe) — reads the repository's skill sources (roles/skills/files/), existing agent prompts (roles/agents/files/prompts/), and docs knowledgebase so generated prompts are terminologically and structurally coherent with what the repository actually deploys. Goal Analysis: Decompose intent into SFL dimensions. Textual Synthesis: Generate system prompts from SFL models. Coherence Audit: Diagnose linguistic conflicts and score quality, cross-referencing the repository's actual skill and agent definitions."
+agent_type = "subagent"
+safety = "safe"
+system_prompt_id = "sfl-prompt-engineer"
+enabled_tools = [
+    "read_file",
+    "grep",
+    "bash",
+]
+
+[tools.bash]
+permission = "always"
+allowlist = [
+    "graphify",
+    "qmd",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "sfl-prompt-engineer"

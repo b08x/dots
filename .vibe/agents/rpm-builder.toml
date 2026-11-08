@@ -1,0 +1,74 @@
+display_name = "rpmbuilder"
+description = "Orchestrates RPM packaging workflows from the rpmbuild Ansible workspace (/home/b08x/WorkspaceV3/Syncopated/rpmbuild): receives the packaging request (e.g. a project git URL), gathers the project facts, and delegates dependency scoping, Ansible pipeline authoring (per-RPM plan files in roles/packages/defaults/ mirrored into the rpm_pipeline__* variable family, plus per-RPM pipeline playbooks in playbooks/ driving the packages role stages), spec-file authoring for the target package and any missing dependency packages, mock clean-chroot build verification, and COPR repository publication to specialized subagents, applying the rpm-building skill (rpmdevtools, mock, copr-cli) at each step and reviewing the verified package set before publication."
+agent_type = "agent"
+safety = "neutral"
+bypass_tool_permissions = false
+system_prompt_id = "rpm-builder"
+enabled_tools = [
+    "read_file",
+    "write_file",
+    "grep",
+    "bash",
+    "agents.spawn",
+    "ask_user_question",
+    "todo",
+    "skill",
+]
+disabled_tools = []
+enabled_skills = [
+    "rpm-building",
+]
+
+[tools.read_file]
+permission = "always"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "ls",
+    "cat",
+    "echo",
+    "head",
+    "tail",
+    "wc",
+    "which",
+    "whoami",
+    "pwd",
+    "stat",
+    "sha256sum",
+    "find",
+    "rpm",
+    "rpmbuild",
+    "rpmlint",
+    "rpminspect",
+    "rpmspec",
+    "spectool",
+    "rpmdev-setuptree",
+    "rpmdev-newspec",
+    "rpmdev-buildtree",
+    "mock",
+    "copr-cli",
+]
+
+[tools."agents.spawn"]
+permission = "always"
+
+[tools.ask_user_question]
+permission = "always"
+
+[tools.todo]
+permission = "always"
+
+[tools.skill]
+permission = "always"
+
+[session_logging]
+enabled = true
+session_prefix = "rpm-builder"
