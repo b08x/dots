@@ -29,3 +29,5 @@ export OPENAI_MODEL="deepseek/deepseek-v4-flash-0731"
 export OPENAI_BASE_URL="https://openrouter.ai/api/v1"
 
 export DOCKER_HOST="unix:///run/user/$(id -u)/podman/podman.sock"
+
+export QMD_EMBED_MODEL="hf:unsloth/embeddinggemma-2-GGUF/embeddinggemma-2-Q8_0.gguf"

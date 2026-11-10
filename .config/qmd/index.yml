@@ -8,6 +8,9 @@ collections:
   gemini-agy-skills:
     path: /home/b08x/.gemini/skills
     pattern: "**/*.md"
+  RISIT:
+    path: /home/b08x/WorkspaceV3/RISIT
+    pattern: "**/*.md"
   Notebook:
     path: /home/b08x/Notebook
     pattern: "**/*.md"
